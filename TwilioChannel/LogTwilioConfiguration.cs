@@ -11,12 +11,12 @@ using Twilio.Types;
 namespace J4JSoftware.Logging
 {
     // needed to keep Json.Net deserializer happy
-    public class LogTwilioConfiguration : LogTextConfiguration<TwilioConfig>
+    public class LogTwilioConfiguration : LogTextConfiguration<ITwilioConfig>
     {
         private ITwilioConfig _config;
         private bool _initialized;
 
-        public override bool Initialize( TwilioConfig config )
+        public override bool Initialize( ITwilioConfig config )
         {
             _initialized = false;
 

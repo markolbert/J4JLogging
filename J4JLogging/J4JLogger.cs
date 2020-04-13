@@ -125,11 +125,16 @@ namespace J4JSoftware.Logging
 
         protected void ProcessAfterWritingChannels()
         {
-            foreach( var channel in _config.Channels
-                .Where( c => c is IAfterWritingChannel )
-                .Cast<IAfterWritingChannel>() )
+            var entryElements = _elementsOverride ?? DefaultElements;
+
+            var processEvent = ( entryElements & EntryElements.ExternalSinks ) == EntryElements.ExternalSinks;
+
+            foreach ( var channel in _config.Channels
+                .Where( c => c is IPostProcessLogEvent )
+                .Cast<IPostProcessLogEvent>() )
             {
-                channel.AfterWriting();
+                if( processEvent) channel.PostProcessLogEventText();
+                else channel.ClearLogEventText();
             }
         }
 
@@ -171,9 +176,9 @@ namespace J4JSoftware.Logging
                 );
             }
 
-            _elementsOverride = null;
-
             ProcessAfterWritingChannels();
+
+            _elementsOverride = null;
         }
 
         /// <summary>
@@ -222,9 +227,9 @@ namespace J4JSoftware.Logging
                 );
             }
 
-            _elementsOverride = null;
-
             ProcessAfterWritingChannels();
+
+            _elementsOverride = null;
         }
 
         /// <summary>
@@ -279,9 +284,9 @@ namespace J4JSoftware.Logging
                 );
             }
 
-            _elementsOverride = null;
-
             ProcessAfterWritingChannels();
+
+            _elementsOverride = null;
         }
 
         public virtual void Write<T0, T1, T2>(
@@ -312,9 +317,9 @@ namespace J4JSoftware.Logging
                 );
             }
 
-            _elementsOverride = null;
-
             ProcessAfterWritingChannels();
+
+            _elementsOverride = null;
         }
 
         public virtual void Write(
@@ -341,9 +346,9 @@ namespace J4JSoftware.Logging
                 );
             }
 
-            _elementsOverride = null;
-
             ProcessAfterWritingChannels();
+
+            _elementsOverride = null;
         }
 
         #endregion

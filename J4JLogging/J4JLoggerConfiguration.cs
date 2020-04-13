@@ -27,22 +27,22 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
-        public static IJ4JLoggerConfiguration CreateFromFile( string configFilePath, Dictionary<LogChannel, Type> channelTypes )
+        public static TConfig CreateFromFile<TConfig>( string configFilePath, Dictionary<LogChannel, Type> channelTypes )
         {
             if( !File.Exists( configFilePath ) )
                 throw new IOException(
                     $"Couldn't find {nameof(J4JLoggerConfiguration)} configuration file '{configFilePath}'" );
 
-            return Create( File.ReadAllText( configFilePath ), channelTypes );
+            return Create<TConfig>( File.ReadAllText( configFilePath ), channelTypes );
         }
 
-        public static IJ4JLoggerConfiguration Create( string text, Dictionary<LogChannel, Type> channelTypes )
+        public static TConfig Create<TConfig>( string text, Dictionary<LogChannel, Type> channelTypes )
         {
             var settings = GetSerializerSettings( channelTypes );
 
             try
             {
-                return JsonConvert.DeserializeObject<J4JLoggerConfiguration>( text, settings );
+                return JsonConvert.DeserializeObject<TConfig>( text, settings );
             }
             catch( Exception e )
             {
