@@ -10,87 +10,137 @@ information, source code information and sending text messages via Twilio for se
 Apologies for the sparse documentation. Another project I'm working on is a system for creating ReadTheDocs/Sphinx style 
 documentation for C# projects. But it's not ready yet :).
 
+### Breaking Changes (v1 -> v2)
+
+I realized recently that using a generic IJ4JLogger<> interface was needlessly complicated because
+the only reason the type needed to be specified was to extract the type name for annotating log
+entries. Since the generic interface couldn't be easily passed between types the net result was
+a significant complication in using the library.
+
+So I converted everything over to a non-generic IJ4JLogger interface definition. Since the library
+still needs to know what type it's logging events for to annotate the event properly I implemented
+an IJ4JLoggerFactory interface which has a single method you use like this:
+
+```csharp
+public class Simulator
+{
+    private readonly IJ4JLogger _logger;
+
+    public Simulator( IJ4JLoggerFactory loggerFactory )
+    {
+        _logger = loggerFactory?.CreateLogger( typeof(Simulator) ) ??
+                          throw new NullReferenceException( nameof(loggerFactory) );
+    }
+}
+```
+
+While I was doing this I decided to change the way multiple logging channels (e.g., console,
+debug, file, Twilio) were handled. Rather than implemented via classes dervied from J4JLogger
+I made them *channels* which you add to J4JLogger. Each channel takes care of configuring
+the underlying Serilog logger.
+
+This approach also let me implement a Twilio logger in a more natural way. It's built on top
+of a Serilog TextWriter sink so that all of the formatting provided by Serilog for log events
+comes in for free.
+
+I apologize for not maintaining a final release of v1. But I ran into a problem I had to fix
+which greatly exceeded my git command line skills, the net result of which was that I had to
+blow away this repository and recreate it from a working v2.
+
 ### Configuration
 
 I typically use J4JLogger via dependency injection, including a constructor argument wherever I want to log stuff:
 
 ```csharp
-public DataRetriever( 
-    FppcFilingContext dbContext,
-    IJ4JLogger<DataRetriever> logger )
+    private readonly IJ4JLogger _logger;
+
+    public Simulator( IJ4JLoggerFactory loggerFactory )
     {
+        _logger = loggerFactory?.CreateLogger( typeof(Simulator) ) ??
+                          throw new NullReferenceException( nameof(loggerFactory) );
+    }
 ```
 
-Notice that the I4JLogger interface is generic, with the type argument being the type of the object which will be doing the logging.
-That's needed to support the kind of source code logging J4JLogger is designed to do.
-
-Creating instances of J4JLogger involves passing instances of a Serilog logger and a J4JLoggerConfiguration object to the J4JLogger
-constructor:
+To create the IJ4JLoggerFactory I typically use dependency injection via [Autofac](https://autofac.org/), 
+another package that I highly recommend you consider. In the Autofac environment configuring J4JLogger 
+can be done like this inside of a Module.Load() override:
 
 ```csharp
-public J4JLogger(
-    ILogger logger,
-    IJ4JLoggerConfiguration config
+builder.Register<J4JLoggerConfiguration>( ( c, p ) =>
+{
+    var configFilePath = Path.Combine( Environment.CurrentDirectory, "J4JLoggingTest.json" );
+
+    var channelTypes = new Dictionary<LogChannel, Type>()
+    {
+        { LogChannel.Console, typeof(LogConsoleConfiguration) },
+        { LogChannel.Debug, typeof(LogDebugConfiguration) },
+        { LogChannel.File, typeof(LogFileConfiguration) },
+        { LogChannel.TextWriter, typeof(LogTwilioConfiguration) },
+    };
+
+    return J4JLoggerConfiguration.CreateFromFile<J4JLoggerConfiguration>( 
+        configFilePath,
+        channelTypes );
+} )
+    .As<IJ4JLoggerConfiguration>()
+    .SingleInstance();
+
+builder.RegisterAssemblyTypes( typeof(J4JLoggingModule).Assembly )
+    .Where( t => typeof(LogChannelConfiguration).IsAssignableFrom( t )
+         && !t.IsAbstract
+         && ( t.GetConstructors()?.Length > 0 ) )
+    .AsImplementedInterfaces()
+    .SingleInstance();
+
+builder.Register((c, p) =>
+{
+    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
+    return loggerConfig.CreateLogger();
+})
+    .As<ILogger>()
+    .SingleInstance();
+
+builder.RegisterType<J4JLoggerFactory>()
+    .As<IJ4JLoggerFactory>()
+    .SingleInstance();
 ```
 
-I typically do this via dependency injection generally using [Autofac](https://autofac.org/), another package that I highly 
-recommend you consider. In the Autofac environment configuring J4JLogger can be done like this:
+The first code block tells Autofac how to create instances of whatever configuration object you're using
+which implements IJ4JLoggerConfiguration. In this example that's an instance of J4JLoggerConfiguration
+itself. But it could be a class derived from J4JLoggerConfiguration or, with a bit of additional
+work, a class which contains an instance of J4JLoggerConfiguration.
+
+The ultimate source of information for the configuration object in this example is a JSON configuration
+file. You could, of course, define the configuration object explicitly. But I tend to put it in
+a JSON file so I can tweak it at runtime without having to recompile the program.
+
+It's in this first block where the logging channels (e.g., console, debug) the logger will support
+are defined. These are held in a dictionary keyed by an enum describing the channel which contains
+the types of channels being used. This information is needed to configure the JSON parser that will
+create the configuration object.
+
+The second code block is needed so that Autofac can resolve the requests for the various
+channel objects needed by the first code block. In this example they're all within a single assembly
+but you could create a custom on stored elsewhere and include it in the registration process.
+
+The third code block registers the construction logic for the Serilog ILogger instance underlying
+whatever IJ4JLoggers get created. 
+
+The last block registers an IJ4JLoggerFactory which is used in your code's constructor to create
+IJ4JLogger instances for each class for which you want to implement logging.
+
+Note that all of these blocks constrain Autofac to create only single instances of the various
+objects. That may not be strictly necessary but it seems like the right thingn to do with an
+approach which leads to creating a logger factory. 
+
+Also, the CreateFromFile() helper method hides a lot of detailed setup work. If you want to tweak
+your specific setup process you should study how it works. In a similar vein all but the first
+code block in this example are contained in an Autofac module you can include with a single
+line in your ServiceProvider class:
 
 ```csharp
-builder.Register<FppcFilingConfiguration>( ( c, p ) =>
-    {
-        var retVal = new ConfigurationBuilder()
-            .SetBasePath( Environment.CurrentDirectory )
-            .AddUserSecrets<Program>()
-            .AddJsonFile( "configInfo.json" )
-            .Build()
-            .Get<FppcFilingConfiguration>();
-
-        return retVal;
-    } )
-    .AsSelf()
-    .SingleInstance();
-
-builder.Register<IJ4JLoggerConfiguration>( ( c, p ) => c.Resolve<FppcFilingConfiguration>().Logger );
-
-builder.Register<ILogger>( ( c, p ) =>
-    {
-        var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-
-        return new LoggerConfiguration()
-            .Enrich.FromLogContext()
-            .SetMinimumLevel( loggerConfig.MinLogLevel )
-            .WriteTo.Console( restrictedToMinimumLevel: loggerConfig.MinLogLevel )
-            .WriteTo.File(
-                path: J4JLoggingExtensions.DefineLocalAppDataLogPath( "log.txt", "J4JSoftware/AlphaVantageRetriever" ),
-                restrictedToMinimumLevel: loggerConfig.MinLogLevel
-            )
-            .CreateLogger();
-    } )
-    .SingleInstance();
-
-builder.RegisterGeneric( typeof( J4JLogger<> ) )
-    .As( typeof( IJ4JLogger<> ) )
-    .SingleInstance();
+builder.RegisterModule<J4JLoggingModule>();
 ```
-
-The first code block tells Autofac how to create instances of a configuration object which contains, as a property called
-`Logger`, the J4JLogger configuration object. You don't have to embed the `J4JLoggerConfiguration` object inside another
-object, of course; I just often do that because I find it easier to embed the `J4JLoggerConfiguration` information in the
-app's master configuration file.
-
-The second, one line, code block tells Autofac to resolve requests for `IJ4JLoggerConfiguration` objects from the `Logger`
-property of my master configuration object.
-
-The third code block describes for Autofac how I want the underlying Serilog `ILogger` object to be configured. The details here
-will depend on how and where you want to log. In this case I'm allowing the minimum log level to be set from the configuration
-file and logging to both the console and a file. The log file will be located in C:\Users\Mark\AppData\Local\J4JSoftware\AlphaVantageRetriever (because Windows encourages you to not write log files to an app's
-home directory).
-
-**The `Enrich.FromLogContext()` line is necessary for J4JLogger to work its magic.**
-
-The final code block tells Autofac to create single instances of each generic IJ4JLogger<> object. Those are the objects that are
-injected into the constructors of the objects where you're doing logging.
 
 ### Usage
 

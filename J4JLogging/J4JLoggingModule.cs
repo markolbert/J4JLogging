@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Autofac;
+using Serilog;
 
 namespace J4JSoftware.Logging
 {
@@ -16,6 +17,18 @@ namespace J4JSoftware.Logging
                              && !t.IsAbstract
                              && ( t.GetConstructors()?.Length > 0 ) )
                 .AsImplementedInterfaces()
+                .SingleInstance();
+
+            builder.Register((c, p) =>
+                {
+                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
+                    return loggerConfig.CreateLogger();
+                })
+                .As<ILogger>()
+                .SingleInstance();
+
+            builder.RegisterType<J4JLoggerFactory>()
+                .As<IJ4JLoggerFactory>()
                 .SingleInstance();
         }
     }
