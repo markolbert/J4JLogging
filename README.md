@@ -12,14 +12,14 @@ documentation for C# projects. But it's not ready yet :).
 
 ### Breaking Changes (v1 -> v2)
 
-I realized recently that using a generic IJ4JLogger<> interface was needlessly complicated because
+I realized recently that using a generic `IJ4JLogger<>` interface was needlessly complicated because
 the only reason the type needed to be specified was to extract the type name for annotating log
 entries. Since the generic interface couldn't be easily passed between types the net result was
 a significant complication in using the library.
 
-So I converted everything over to a non-generic IJ4JLogger interface definition. Since the library
+So I converted everything over to a non-generic `IJ4JLogger` interface definition. Since the library
 still needs to know what type it's logging events for to annotate the event properly I implemented
-an IJ4JLoggerFactory interface which has a single method you use like this:
+an `IJ4JLoggerFactory` interface which has a single method you use like this:
 
 ```csharp
 public class Simulator
@@ -36,7 +36,7 @@ public class Simulator
 
 While I was doing this I decided to change the way multiple logging channels (e.g., console,
 debug, file, Twilio) were handled. Rather than implemented via classes dervied from J4JLogger
-I made them *channels* which you add to J4JLogger. Each channel takes care of configuring
+I made them *channels* which you add to `J4JLogger`. Each channel takes care of configuring
 the underlying Serilog logger.
 
 This approach also let me implement a Twilio logger in a more natural way. It's built on top
@@ -49,7 +49,8 @@ blow away this repository and recreate it from a working v2.
 
 ### Configuration
 
-I typically use J4JLogger via dependency injection, including a constructor argument wherever I want to log stuff:
+I typically create instances of `IJ4JLogger` via dependency injection, including a constructor 
+argument wherever I want to log stuff:
 
 ```csharp
     private readonly IJ4JLogger _logger;
@@ -61,7 +62,7 @@ I typically use J4JLogger via dependency injection, including a constructor argu
     }
 ```
 
-To create the IJ4JLoggerFactory I typically use dependency injection via [Autofac](https://autofac.org/), 
+To create the `IJ4JLoggerFactory` I typically use dependency injection via [Autofac](https://autofac.org/), 
 another package that I highly recommend you consider. In the Autofac environment configuring J4JLogger 
 can be done like this inside of a Module.Load() override:
 
@@ -106,9 +107,9 @@ builder.RegisterType<J4JLoggerFactory>()
 ```
 
 The first code block tells Autofac how to create instances of whatever configuration object you're using
-which implements IJ4JLoggerConfiguration. In this example that's an instance of J4JLoggerConfiguration
-itself. But it could be a class derived from J4JLoggerConfiguration or, with a bit of additional
-work, a class which contains an instance of J4JLoggerConfiguration.
+which implements `IJ4JLoggerConfiguration`. In this example that's an instance of `J4JLoggerConfiguration`
+itself. But it could be a class derived from `J4JLoggerConfiguration` or, with a bit of additional
+work, a class which contains an instance of `J4JLoggerConfiguration`.
 
 The ultimate source of information for the configuration object in this example is a JSON configuration
 file. You could, of course, define the configuration object explicitly. But I tend to put it in
@@ -123,17 +124,17 @@ The second code block is needed so that Autofac can resolve the requests for the
 channel objects needed by the first code block. In this example they're all within a single assembly
 but you could create a custom on stored elsewhere and include it in the registration process.
 
-The third code block registers the construction logic for the Serilog ILogger instance underlying
-whatever IJ4JLoggers get created. 
+The third code block registers the construction logic for the Serilog `ILogger` instance underlying
+whatever `IJ4JLogger`s get created. 
 
-The last block registers an IJ4JLoggerFactory which is used in your code's constructor to create
-IJ4JLogger instances for each class for which you want to implement logging.
+The last block registers an `IJ4JLoggerFactory` which is used in your code's constructor to create
+`IJ4JLogger` instances for each class for which you want to implement logging.
 
 Note that all of these blocks constrain Autofac to create only single instances of the various
 objects. That may not be strictly necessary but it seems like the right thingn to do with an
 approach which leads to creating a logger factory. 
 
-Also, the CreateFromFile() helper method hides a lot of detailed setup work. If you want to tweak
+Also, the `CreateFromFile()` helper method hides a lot of detailed setup work. If you want to tweak
 your specific setup process you should study how it works. In a similar vein all but the first
 code block in this example are contained in an Autofac module you can include with a single
 line in your ServiceProvider class:
@@ -145,7 +146,8 @@ builder.RegisterModule<J4JLoggingModule>();
 ### Usage
 
 Using J4JLogger is very similar to using Serilog since it's essentially just a wrapper around an `ILogger` instance. You can use any
-of Serilog's basic logging method calls, Write, Debug, Error, Information, Verbose and Warning.
+of Serilog's basic logging method calls, `Write()`, `Debug()`, `Error()`, `Information()`, 
+`Verbose()` and `Warning()`.
 
 Each method has overloaded variants accepting different arguments. The layout of these is identical for all the methods except Write:
 
@@ -195,7 +197,7 @@ public interface IJ4JLogger<out TCalling>
     );
 ```
 
-The Write methods are similar, except they each start off with a Serilog `LogEventLevel` argument which specifies the log event level.
+The `Write()` methods are similar, except they each start off with a Serilog `LogEventLevel` argument which specifies the log event level.
 
 **There is one significant difference in how you call these methods from the Serilog standard, however.** If you pass anything other than a simple string (i.e., a value for the template argument) to the methods you must specify the types of the propertyValue arguments explicitly in the method call. An example:
 
@@ -206,5 +208,102 @@ _logger.Debug<int>("The value of that argument is {someIntValue}", someIntValue)
 
 This requirement comes about because the `memberName`, `srcPath` and `srcLine` arguments are automagically set for you by the
 compiler and the fact that `memberName` and `srcPath` are strings "collides" with the `template` argument.
+
+### The LogTextChannel and Descendants
+
+The `LogTextChannel`, which underlies the `LogTwilioChannel`, works by sending every logged event to 
+a hidden `StringWriter`, which then extracts the most recent event's text and allows it to be further
+processed. It also allows for additional configuration so that information needed by the 
+post-processing event (e.g., Twilio credentials) is available.
+
+Here are the `LogTextChannel` methods which do this:
+
+```csharp
+public virtual bool Initialize( TSms config ) => true;
+
+public void PostProcessLogEventText()
+{
+    ProcessLogMessage(_writer.ToString());
+    ClearLogEventText();
+}
+
+public void ClearLogEventText()
+{
+_writer.GetStringBuilder().Clear();
+}
+
+protected virtual bool ProcessLogMessage( string mesg ) => true;
+```
+
+`LogTextChannel` is a generic class, with the generic class parameter being the type holding
+the additional configuration information a derived class needs. For example, the LogTwilioChannel
+class requires a configuration class defined by `ITwillioConfig`:
+
+```csharp
+public interface ITwilioConfig
+{
+    string AccountSID { get; }
+    string AccountToken { get; }
+    string FromNumber { get; }
+    List<string> Recipients { get; }
+
+    bool IsValid { get; }
+
+    PhoneNumber GetFromNumber();
+    List<PhoneNumber> GetRecipients();
+}
+```
+
+You can find a basic implementation of this interface in the class `TwilioConfig`.
+
+The `LogTwilioConfiguration` channel does its magic by overriding the LogTextChannel's
+`PostProcessLogEventText()`:
+
+```csharp
+protected override bool ProcessLogMessage( string mesg )
+{
+    if( _config == null )
+        return false;
+
+    var fromNumber = _config.GetFromNumber();
+
+    _config.GetRecipients()
+        .ForEach( r => MessageResource.Create(
+            body : mesg,
+            to : r,
+            from : fromNumber )
+        );
+
+    return true;
+}
+```
+
+### Adjusting How Log Events Are Formatted and Which Ones Are Sent Via SMS
+
+The `LogTextChannel.ClearLogEventText()` method exists so that J4JLogger can allow you
+to pick and choose which log events get sent via SMS. That same capability also allows
+you to adjust the formatting for log events on a case-by-case basis.
+
+It's done by calling the IJ4JLogger `Elements()` method with an enum flag indicating 
+what log elements you want to include. The choices are:
+
+```csharp
+[Flags]
+public enum EntryElements
+{
+    Assembly = 1 << 0,
+    SourceCode = 1 << 1,
+    ExternalSinks = 1 << 2,
+
+    None = 0,
+    All = Assembly | SourceCode | ExternalSinks
+}
+```
+
+Because `Elements()` returns the `IJ4JLogger` instance you can use it inline like this:
+
+```csharp
+logger.Elements( EntryElements.All ).Information( "Fully annotated" );
+```
 
 Happy logging!
