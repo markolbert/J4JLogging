@@ -43,6 +43,28 @@ namespace AutoFacJ4JLogging
             return builder;
         }
 
+        public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder, IJ4JLoggerConfiguration config, params Type[] assemblyDefiningTypes)
+        {
+            var logChannelTypes = GetLogChannelConfigurationTypes(assemblyDefiningTypes);
+
+            foreach (var kvp in logChannelTypes)
+            {
+                builder.RegisterType(kvp.Value)
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
+            }
+
+            builder.Register((c, p) => config.CreateLogger() )
+                .As<ILogger>()
+                .SingleInstance();
+
+            builder.RegisterType<J4JLoggerFactory>()
+                .As<IJ4JLoggerFactory>()
+                .SingleInstance();
+
+            return builder;
+        }
+
         private static Dictionary<LogChannelAttribute, Type> GetLogChannelConfigurationTypes( Type[] assemblyDefiningTypes )
         {
             // create the master channel type list which guides our search for LogChannelConfiguration types to
