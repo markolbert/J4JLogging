@@ -10,7 +10,7 @@ namespace J4JSoftware.Logging
 {
     public class J4JLoggerConfiguration : IJ4JLoggerConfiguration
     {
-        public static JsonSerializerSettings GetSerializerSettings( Dictionary<LogChannel, Type> channelTypes )
+        public static JsonSerializerSettings GetSerializerSettings( Dictionary<LogChannelAttribute, Type> channelTypes )
         {
             var retVal = new JsonSerializerSettings();
 
@@ -19,7 +19,7 @@ namespace J4JSoftware.Logging
 
             foreach (var kvp in channelTypes)
             {
-                builder.RegisterSubtype(kvp.Value, kvp.Key);
+                builder.RegisterSubtype(kvp.Value, kvp.Key.Channel);
             }
 
             retVal.Converters.Add(builder.SerializeDiscriminatorProperty().Build());
@@ -27,7 +27,7 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
-        public static TConfig CreateFromFile<TConfig>( string configFilePath, Dictionary<LogChannel, Type> channelTypes )
+        public static TConfig CreateFromFile<TConfig>( string configFilePath, Dictionary<LogChannelAttribute, Type> channelTypes )
         {
             if( !File.Exists( configFilePath ) )
                 throw new IOException(
@@ -36,7 +36,7 @@ namespace J4JSoftware.Logging
             return Create<TConfig>( File.ReadAllText( configFilePath ), channelTypes );
         }
 
-        public static TConfig Create<TConfig>( string text, Dictionary<LogChannel, Type> channelTypes )
+        public static TConfig Create<TConfig>( string text, Dictionary<LogChannelAttribute, Type> channelTypes )
         {
             var settings = GetSerializerSettings( channelTypes );
 
@@ -47,7 +47,8 @@ namespace J4JSoftware.Logging
             catch( Exception e )
             {
                 throw new InvalidOperationException(
-                    $"Couldn't parse JSON text to a {nameof(J4JLoggerConfiguration)} object", e );
+                    $"Couldn't parse JSON text to a {nameof(J4JLoggerConfiguration)} object. The likely cause is using an incorrect or invalid Channel property in the JSON file.",
+                    e );
             }
         }
 

@@ -5,6 +5,7 @@ namespace J4JSoftware.Logging
 {
 
     // needed to keep Json.Net deserializer happy
+    [LogChannelAttribute(LogChannel.Console)]
     public class LogConsoleConfiguration : LogChannelConfiguration
     {
         public LogConsoleConfiguration()

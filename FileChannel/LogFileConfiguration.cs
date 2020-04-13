@@ -8,6 +8,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    [LogChannelAttribute(LogChannel.File)]
     public class LogFileConfiguration : LogChannelConfiguration
     {
         public LogFileConfiguration()
