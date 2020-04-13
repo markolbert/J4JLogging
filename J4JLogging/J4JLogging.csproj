@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>J4JSoftware.Logging</AssemblyName>
+    <RootNamespace>J4JSoftware.Logging</RootNamespace>
+    <Version>1.0.0.0</Version>
+    <Authors>Mark A. Olbert</Authors>
+    <Company>Jump for Joy Software</Company>
+    <Product>J4JSoftware Logging Extensions for Serilog</Product>
+    <Description>adds source code annotations to a Serilog logger</Description>
+    <Copyright>© Mark A. Olbert all rights reserved</Copyright>
+  </PropertyGroup>
+
+  <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Programming\J4JLogging\J4JLogging\J4JSoftware.Logging.xml</DocumentationFile>
+  </PropertyGroup>-->
+
+  <ItemGroup>
+    <Compile Remove="docs\**" />
+    <EmbeddedResource Remove="docs\**" />
+    <None Remove="docs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="channels\LogDebugConfiguration.cs" />
+    <Compile Remove="channels\LogFileConfiguration.cs" />
+    <Compile Remove="channels\LogFileLocation.cs" />
+    <Compile Remove="channels\LogTextConfiguration.cs" />
+    <Compile Remove="ForceNextLogEvent.cs" />
+    <Compile Remove="J4JLoggerDeprecated.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="J4JSoftware.Logging.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="5.1.2" />
+    <PackageReference Include="JsonSubTypes" Version="1.7.0" />
+    <PackageReference Include="Serilog" Version="2.9.0" />
+  </ItemGroup>
+
+</Project>

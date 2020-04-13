@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>J4JSoftware.Logging.Console</AssemblyName>
+    <RootNamespace>J4JSoftware.Logging</RootNamespace>
+    <Version>1.0.0.0</Version>
+    <Authors>Mark A. Olbert</Authors>
+    <Company>Jump for Joy Software</Company>
+    <Product>J4JSoftware Logging Extensions for Serilog</Product>
+    <Description>adds console channel a J4JLogger</Description>
+    <Copyright>© Mark A. Olbert all rights reserved</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+  </ItemGroup>
+
+</Project>
