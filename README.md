@@ -62,86 +62,56 @@ argument wherever I want to log stuff:
     }
 ```
 
-To create the `IJ4JLoggerFactory` I typically use dependency injection via [Autofac](https://autofac.org/), 
-another package that I highly recommend you consider. In the Autofac environment configuring J4JLogger 
-can be done like this inside of a Module.Load() override:
+To create the `IJ4JLoggerFactory` I typically also use dependency injection. To make that work
+you'll need to register whatever channels you're using (i.e., descendants of `ChannelConfiguration`)
+and `IJ4JLoggerConfiguration`. There's a `J4JLoggerConfigurationBuilder` class to simplify
+the that second registration. It's used like this:
 
 ```csharp
-builder.Register<J4JLoggerConfiguration>( ( c, p ) =>
-{
-    var configFilePath = Path.Combine( Environment.CurrentDirectory, "J4JLoggingTest.json" );
+var configBuilder = new J4JLoggerConfigurationBuilder();
 
-    var channelTypes = new Dictionary<LogChannel, Type>()
-    {
-        { LogChannel.Console, typeof(LogConsoleConfiguration) },
-        { LogChannel.Debug, typeof(LogDebugConfiguration) },
-        { LogChannel.File, typeof(LogFileConfiguration) },
-        { LogChannel.TextWriter, typeof(LogTwilioConfiguration) },
-    };
+configBuilder.AddChannel( typeof(ConsoleChannel) );
+configBuilder.AddChannel<DebugChannel>();
 
-    return J4JLoggerConfiguration.CreateFromFile<J4JLoggerConfiguration>( 
-        configFilePath,
-        channelTypes );
-} )
-    .As<IJ4JLoggerConfiguration>()
-    .SingleInstance();
+configBuilder.FromJson( jsonText );
 
-builder.RegisterAssemblyTypes( typeof(J4JLoggingModule).Assembly )
-    .Where( t => typeof(LogChannelConfiguration).IsAssignableFrom( t )
-         && !t.IsAbstract
-         && ( t.GetConstructors()?.Length > 0 ) )
-    .AsImplementedInterfaces()
-    .SingleInstance();
-
-builder.Register((c, p) =>
-{
-    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-    return loggerConfig.CreateLogger();
-})
-    .As<ILogger>()
-    .SingleInstance();
-
-builder.RegisterType<J4JLoggerFactory>()
-    .As<IJ4JLoggerFactory>()
-    .SingleInstance();
+return configBuilder.Build<SomeJ4JLoggingConfigurationType>();
 ```
 
-The first code block tells Autofac how to create instances of whatever configuration object you're using
-which implements `IJ4JLoggerConfiguration`. In this example that's an instance of `J4JLoggerConfiguration`
-itself. But it could be a class derived from `J4JLoggerConfiguration` or, with a bit of additional
-work, a class which contains an instance of `J4JLoggerConfiguration`.
+Types that don't derive from `ChannelConfiguration` will be ignored by `AddChannel`.
+
+Because I love the Autofac dependency injection framework I also provided some extension
+methods for working with it in `AutofacExtensions`. You use them like this:
+
+```csharp
+var containerBuilder = new ContainerBuilder();
+
+containerBuilder.AddJ4JLoggingFromFile<TConfig>(
+    configFilePath,
+    typeof(ConsoleConfiguration),
+    typeof(DebugConfiguration),
+    typeof(FileConfiguration),
+    typeof(TwilioConfiguration)
+);
+
+var services = new AutofacServiceProvider(containerBuilder.Build());
+```
 
 The ultimate source of information for the configuration object in this example is a JSON configuration
 file. You could, of course, define the configuration object explicitly. But I tend to put it in
 a JSON file so I can tweak it at runtime without having to recompile the program.
 
-It's in this first block where the logging channels (e.g., console, debug) the logger will support
-are defined. These are held in a dictionary keyed by an enum describing the channel which contains
-the types of channels being used. This information is needed to configure the JSON parser that will
-create the configuration object.
-
-The second code block is needed so that Autofac can resolve the requests for the various
-channel objects needed by the first code block. In this example they're all within a single assembly
-but you could create a custom on stored elsewhere and include it in the registration process.
-
-The third code block registers the construction logic for the Serilog `ILogger` instance underlying
-whatever `IJ4JLogger`s get created. 
-
-The last block registers an `IJ4JLoggerFactory` which is used in your code's constructor to create
-`IJ4JLogger` instances for each class for which you want to implement logging.
-
-Note that all of these blocks constrain Autofac to create only single instances of the various
-objects. That may not be strictly necessary but it seems like the right thingn to do with an
-approach which leads to creating a logger factory. 
-
-Also, the `CreateFromFile()` helper method hides a lot of detailed setup work. If you want to tweak
-your specific setup process you should study how it works. In a similar vein all but the first
-code block in this example are contained in an Autofac module you can include with a single
-line in your ServiceProvider class:
+The extension methods take care of all the necessary registrations, and tie into Net Core's
+dependency injection framework, so that if you want to create an `IJ4JLoggerFactory` all
+you need to do is:
 
 ```csharp
-builder.RegisterModule<J4JLoggingModule>();
+var loggerFactory = services.GetRequiredService<IJ4JLoggerFactory>();
 ```
+
+The Autofac extension methods create single instances of the various
+objects. That may not be strictly necessary but it seems like the right thing to do with an
+approach which leads to creating a logger factory. 
 
 ### Usage
 
@@ -209,33 +179,33 @@ _logger.Debug<int>("The value of that argument is {someIntValue}", someIntValue)
 This requirement comes about because the `memberName`, `srcPath` and `srcLine` arguments are automagically set for you by the
 compiler and the fact that `memberName` and `srcPath` are strings "collides" with the `template` argument.
 
-### The LogTextChannel and Descendants
+### The TextChannel and Descendants
 
-The `LogTextChannel`, which underlies the `LogTwilioChannel`, works by sending every logged event to 
+The `TextChannel`, which underlies the `TwilioChannel`, works by sending every logged event to 
 a hidden `StringWriter`, which then extracts the most recent event's text and allows it to be further
 processed. It also allows for additional configuration so that information needed by the 
 post-processing event (e.g., Twilio credentials) is available.
 
-Here are the `LogTextChannel` methods which do this:
+Here are the `TextChannel` methods which do this:
 
 ```csharp
 public virtual bool Initialize( TSms config ) => true;
 
-public void PostProcessLogEventText()
+public void PostProcess()
 {
     ProcessLogMessage(_writer.ToString());
     ClearLogEventText();
 }
 
-public void ClearLogEventText()
+public void Clear()
 {
-_writer.GetStringBuilder().Clear();
+    _writer.GetStringBuilder().Clear();
 }
 
 protected virtual bool ProcessLogMessage( string mesg ) => true;
 ```
 
-`LogTextChannel` is a generic class, with the generic class parameter being the type holding
+`TextChannel` is a generic class, with the generic class parameter being the type holding
 the additional configuration information a derived class needs. For example, the LogTwilioChannel
 class requires a configuration class defined by `ITwillioConfig`:
 
@@ -256,8 +226,8 @@ public interface ITwilioConfig
 
 You can find a basic implementation of this interface in the class `TwilioConfig`.
 
-The `LogTwilioConfiguration` channel does its magic by overriding the LogTextChannel's
-`PostProcessLogEventText()`:
+The `TwilioChannel` channel does its magic by overriding the `TextChannel`'s
+`ProcessLogMessage()`:
 
 ```csharp
 protected override bool ProcessLogMessage( string mesg )
@@ -280,7 +250,7 @@ protected override bool ProcessLogMessage( string mesg )
 
 ### Adjusting How Log Events Are Formatted and Which Ones Are Sent Via SMS
 
-The `LogTextChannel.ClearLogEventText()` method exists so that J4JLogger can allow you
+The `TextChannel.Clear()` method exists so that J4JLogger can allow you
 to pick and choose which log events get sent via SMS. That same capability also allows
 you to adjust the formatting for log events on a case-by-case basis.
 

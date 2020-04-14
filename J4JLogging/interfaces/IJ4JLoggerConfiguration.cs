@@ -13,7 +13,7 @@ namespace J4JSoftware.Logging
         
         EntryElements DefaultElements { get; }
 
-        List<ChannelConfiguration> Channels { get; }
+        List<LogChannel> Channels { get; }
         ReadOnlyCollection<string> ChannelsDefined { get; }
 
         bool IsChannelDefined( string channelID );

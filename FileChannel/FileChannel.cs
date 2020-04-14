@@ -9,7 +9,7 @@ using Serilog.Events;
 namespace J4JSoftware.Logging
 {
     [Channel("File")]
-    public class FileConfiguration : ChannelConfiguration
+    public class FileChannel : LogChannel
     {
         public LogFileLocation Location { get; set; } = LogFileLocation.AppData;
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;

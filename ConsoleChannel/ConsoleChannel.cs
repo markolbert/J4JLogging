@@ -5,7 +5,7 @@ namespace J4JSoftware.Logging
 {
 
     [Channel("Console")]
-    public class ConsoleConfiguration : ChannelConfiguration
+    public class ConsoleChannel : LogChannel
     {
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {

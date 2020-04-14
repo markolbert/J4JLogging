@@ -53,7 +53,7 @@ namespace J4JSoftware.Logging
         /// </summary>
         public string SourceRootPath => _config.SourceRootPath;
 
-        public List<ChannelConfiguration> Channels => _config.Channels;
+        public List<LogChannel> Channels => _config.Channels;
 
         public IJ4JLogger Elements( EntryElements toInclude )
         {

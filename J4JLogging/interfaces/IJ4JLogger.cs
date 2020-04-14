@@ -15,7 +15,7 @@ namespace J4JSoftware.Logging
         /// </summary>
         EntryElements DefaultElements { get; }
 
-        List<ChannelConfiguration> Channels { get; }
+        List<LogChannel> Channels { get; }
 
         /// <summary>
         /// The root part of the source code paths (optional). If specified,

@@ -11,7 +11,7 @@ using Twilio.Types;
 namespace J4JSoftware.Logging
 {
     [Channel("Twilio")]
-    public class TwilioConfiguration : TextConfiguration<ITwilioConfig>
+    public class TwilioChannel : TextChannel<ITwilioConfig>
     {
         private ITwilioConfig _config;
         private bool _initialized;

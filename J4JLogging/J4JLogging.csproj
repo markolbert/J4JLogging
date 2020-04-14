@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="channels\LogChannel.cs" />
     <Compile Remove="channels\LogDebugConfiguration.cs" />
     <Compile Remove="channels\LogFileConfiguration.cs" />
     <Compile Remove="channels\LogFileLocation.cs" />

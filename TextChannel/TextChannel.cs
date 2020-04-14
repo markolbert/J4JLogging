@@ -4,7 +4,7 @@ using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
-    public class TextConfiguration<TSms> : ChannelConfiguration, IPostProcess<TSms>
+    public class TextChannel<TSms> : LogChannel, IPostProcess<TSms>
         where TSms: class
     {
         private readonly StringWriter _writer = new StringWriter();

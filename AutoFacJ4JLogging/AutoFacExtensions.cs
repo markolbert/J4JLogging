@@ -10,7 +10,7 @@ using Serilog;
 
 namespace AutoFacJ4JLogging
 {
-    public static class AutoFacExtensions
+    public static class AutofacExtensions
     {
         public static ContainerBuilder AddJ4JLoggingFromFile<TConfig>( this ContainerBuilder builder, string configFilePath, params Type[] channelTypes)
             where TConfig : class, IJ4JLoggerConfiguration

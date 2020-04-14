@@ -15,7 +15,7 @@ namespace J4JSoftware.Logging
         private string _jsonText;
 
         public J4JLoggerConfigurationBuilder AddChannel<TChannel>()
-            where TChannel : ChannelConfiguration 
+            where TChannel : LogChannel 
             => AddChannel( typeof(TChannel) );
 
         public J4JLoggerConfigurationBuilder AddChannel(Type channelType)
@@ -61,7 +61,7 @@ namespace J4JSoftware.Logging
 
             var retVal = new JsonSerializerSettings();
 
-            var builder = JsonSubtypesConverterBuilder.Of(typeof(ChannelConfiguration), "Channel");
+            var builder = JsonSubtypesConverterBuilder.Of(typeof(LogChannel), "Channel");
 
             foreach (var kvp in _channels)
             {
