@@ -35,7 +35,7 @@ namespace AutoFacJ4JLogging
                 .As<IJ4JLoggerFactory>()
                 .SingleInstance();
 
-            builder.Register<TConfig>( ( c, p ) =>
+            builder.Register<TConfig>( c =>
                     J4JLoggerConfiguration.CreateFromFile<TConfig>( configFilePath, logChannelTypes ) )
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
@@ -54,7 +54,15 @@ namespace AutoFacJ4JLogging
                     .SingleInstance();
             }
 
-            builder.Register((c, p) => config.CreateLogger() )
+            builder.Register( c => config )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            builder.Register(c =>
+                {
+                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
+                    return loggerConfig.CreateLogger();
+                })
                 .As<ILogger>()
                 .SingleInstance();
 
