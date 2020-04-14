@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using JsonSubTypes;
@@ -10,48 +11,6 @@ namespace J4JSoftware.Logging
 {
     public class J4JLoggerConfiguration : IJ4JLoggerConfiguration
     {
-        public static JsonSerializerSettings GetSerializerSettings( Dictionary<LogChannelAttribute, Type> channelTypes )
-        {
-            var retVal = new JsonSerializerSettings();
-
-            // configure converterbuilder
-            var builder = JsonSubtypesConverterBuilder.Of(typeof(LogChannelConfiguration), "Channel");
-
-            foreach (var kvp in channelTypes)
-            {
-                builder.RegisterSubtype(kvp.Value, kvp.Key.Channel);
-            }
-
-            retVal.Converters.Add(builder.SerializeDiscriminatorProperty().Build());
-
-            return retVal;
-        }
-
-        public static TConfig CreateFromFile<TConfig>( string configFilePath, Dictionary<LogChannelAttribute, Type> channelTypes )
-        {
-            if( !File.Exists( configFilePath ) )
-                throw new IOException(
-                    $"Couldn't find {nameof(J4JLoggerConfiguration)} configuration file '{configFilePath}'" );
-
-            return Create<TConfig>( File.ReadAllText( configFilePath ), channelTypes );
-        }
-
-        public static TConfig Create<TConfig>( string text, Dictionary<LogChannelAttribute, Type> channelTypes )
-        {
-            var settings = GetSerializerSettings( channelTypes );
-
-            try
-            {
-                return JsonConvert.DeserializeObject<TConfig>( text, settings );
-            }
-            catch( Exception e )
-            {
-                throw new InvalidOperationException(
-                    $"Couldn't parse JSON text to a {nameof(J4JLoggerConfiguration)} object. The likely cause is using an incorrect or invalid Channel property in the JSON file.",
-                    e );
-            }
-        }
-
         public string SourceMessageTemplate { get; set; } = "({File}:{Line})";
         public string MemberMessageTemplate { get; set; } = "{SourceContext}::{Member}";
         public string SourceRootPath { get; set; }
@@ -72,22 +31,29 @@ namespace J4JSoftware.Logging
         public bool IncludeSource { get; set; }
         public bool IncludeAssemblyName { get; set; }
 
-        public List<LogChannelConfiguration> Channels { get; set; }
+        public List<ChannelConfiguration> Channels { get; set; }
 
-        public LogChannel ChannelsDefined
+        public ReadOnlyCollection<string> ChannelsDefined
         {
             get
             {
-                LogChannel retVal = LogChannel.None;
+                var retVal = new List<string>();
 
                 if( Channels == null || Channels.Count == 0 )
-                    return retVal;
+                    return retVal.AsReadOnly();
 
-                return Channels.Aggregate( retVal, ( current, channel ) => current | channel.GetChannelType() );
+                return Channels.Aggregate( retVal, ( l, c ) =>
+                    {
+                        l.Add( c.Channel );
+                        return l;
+                    }, l => l )
+                    .AsReadOnly();
             }
         }
 
-        public bool IsChannelDefined( LogChannel channel ) => ( ChannelsDefined & channel ) == channel;
+        public bool IsChannelDefined( string channelID ) =>
+            Channels?.Any( c => c.Channel.Equals( channelID, StringComparison.OrdinalIgnoreCase ) )
+            ?? false;
 
         public LogEventLevel MinimumLogLevel
         {

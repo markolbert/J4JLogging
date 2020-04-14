@@ -53,7 +53,7 @@ namespace J4JSoftware.Logging
         /// </summary>
         public string SourceRootPath => _config.SourceRootPath;
 
-        public List<LogChannelConfiguration> Channels => _config.Channels;
+        public List<ChannelConfiguration> Channels => _config.Channels;
 
         public IJ4JLogger Elements( EntryElements toInclude )
         {
@@ -130,11 +130,11 @@ namespace J4JSoftware.Logging
             var processEvent = ( entryElements & EntryElements.ExternalSinks ) == EntryElements.ExternalSinks;
 
             foreach ( var channel in _config.Channels
-                .Where( c => c is IPostProcessLogEvent )
-                .Cast<IPostProcessLogEvent>() )
+                .Where( c => c is IPostProcess )
+                .Cast<IPostProcess>() )
             {
-                if( processEvent) channel.PostProcessLogEventText();
-                else channel.ClearLogEventText();
+                if( processEvent) channel.PostProcess();
+                else channel.Clear();
             }
         }
 

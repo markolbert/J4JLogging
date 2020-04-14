@@ -4,15 +4,9 @@ using Serilog.Configuration;
 namespace J4JSoftware.Logging
 {
 
-    // needed to keep Json.Net deserializer happy
-    [LogChannelAttribute(LogChannel.Console)]
-    public class LogConsoleConfiguration : LogChannelConfiguration
+    [Channel("Console")]
+    public class ConsoleConfiguration : ChannelConfiguration
     {
-        public LogConsoleConfiguration()
-            : base( LogChannel.Console )
-        {
-        }
-
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
             return sinkConfig.Console( restrictedToMinimumLevel: MinimumLevel );

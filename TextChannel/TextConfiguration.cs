@@ -4,16 +4,10 @@ using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
-    // needed to keep Json.Net deserializer happy
-    public class LogTextConfiguration<TSms> : LogChannelConfiguration, IPostProcessLogEvent<TSms>
+    public class TextConfiguration<TSms> : ChannelConfiguration, IPostProcess<TSms>
         where TSms: class
     {
         private readonly StringWriter _writer = new StringWriter();
-
-        public LogTextConfiguration()
-            : base( LogChannel.TextWriter )
-        {
-        }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
@@ -22,21 +16,21 @@ namespace J4JSoftware.Logging
 
         public virtual bool Initialize( TSms config ) => true;
 
-        public void PostProcessLogEventText()
+        public void PostProcess()
         {
             ProcessLogMessage(_writer.ToString());
 
-            ClearLogEventText();
+            Clear();
         }
 
-        public void ClearLogEventText()
+        public void Clear()
         {
             _writer.GetStringBuilder().Clear();
         }
 
         protected virtual bool ProcessLogMessage( string mesg ) => true;
 
-        bool IPostProcessLogEvent.Initialize( object config )
+        bool IPostProcess.Initialize( object config )
         {
             var converted = config as TSms;
 

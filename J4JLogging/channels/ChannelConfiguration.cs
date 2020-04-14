@@ -1,20 +1,23 @@
 ﻿using System;
+using System.Linq;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class LogChannelConfiguration : ILogChannelConfiguration
+    public class ChannelConfiguration : IChannelConfiguration
     {
-        private readonly LogChannel _channel;
-
-        protected LogChannelConfiguration(LogChannel channel)
+        protected ChannelConfiguration()
         {
-            _channel = channel;
+            var attr = this.GetType().GetCustomAttributes( typeof(ChannelAttribute), false )
+                .Cast<ChannelAttribute>()
+                .FirstOrDefault();
+
+            Channel = attr?.ChannelID;
         }
 
-        public LogChannel GetChannelType() => _channel;
+        public string Channel { get; }
         public LogEventLevel MinimumLevel { get; set; }
 
         public virtual LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )

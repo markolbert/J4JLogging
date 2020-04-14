@@ -12,22 +12,81 @@ namespace AutoFacJ4JLogging
 {
     public static class AutoFacExtensions
     {
-        public static ContainerBuilder AddJ4JLogging<TConfig>( this ContainerBuilder builder, string configFilePath, params Type[] assemblyDefiningTypes)
+        public static ContainerBuilder AddJ4JLoggingFromFile<TConfig>( this ContainerBuilder builder, string configFilePath, params Type[] channelTypes)
+            where TConfig : class, IJ4JLoggerConfiguration
         {
-            var logChannelTypes = GetLogChannelConfigurationTypes( assemblyDefiningTypes );
+            var channels = DoCoreConfiguration( builder, channelTypes );
 
-            foreach( var kvp in logChannelTypes )
+            builder.Register( c =>
+                {
+                    var configBuilder = new J4JLoggerConfigurationBuilder();
+
+                    foreach( var kvp in channels )
+                    {
+                        configBuilder.AddChannel( kvp.Value );
+                    }
+
+                    configBuilder.FromFile( configFilePath );
+
+                    return configBuilder.Build<TConfig>();
+                })
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        public static ContainerBuilder AddJ4JLoggingFromJsonText<TConfig>(this ContainerBuilder builder, string jsonText, params Type[] channelTypes)
+            where TConfig : class, IJ4JLoggerConfiguration
+        {
+            var channels = DoCoreConfiguration(builder, channelTypes);
+
+            builder.Register(c =>
+                {
+                    var configBuilder = new J4JLoggerConfigurationBuilder();
+
+                    foreach (var kvp in channels)
+                    {
+                        configBuilder.AddChannel(kvp.Value);
+                    }
+
+                    configBuilder.FromJson(jsonText);
+
+                    return configBuilder.Build<TConfig>();
+                })
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder, IJ4JLoggerConfiguration config, params Type[] channelTypes)
+        {
+            DoCoreConfiguration(builder, channelTypes);
+
+            builder.Register( c => config )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        private static Dictionary<string, Type> DoCoreConfiguration( ContainerBuilder builder, Type[] channelTypes )
+        {
+            var channels = GetChannels( channelTypes );
+
+            foreach( var kvp in channels )
             {
                 builder.RegisterType( kvp.Value )
                     .AsImplementedInterfaces()
                     .SingleInstance();
             }
 
-            builder.Register((c, p) =>
+            builder.Register( c =>
                 {
                     var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
                     return loggerConfig.CreateLogger();
-                })
+                } )
                 .As<ILogger>()
                 .SingleInstance();
 
@@ -35,76 +94,27 @@ namespace AutoFacJ4JLogging
                 .As<IJ4JLoggerFactory>()
                 .SingleInstance();
 
-            builder.Register<TConfig>( c =>
-                    J4JLoggerConfiguration.CreateFromFile<TConfig>( configFilePath, logChannelTypes ) )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            return builder;
+            return channels;
         }
 
-        public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder, IJ4JLoggerConfiguration config, params Type[] assemblyDefiningTypes)
+        private static Dictionary<string, Type> GetChannels( Type[] channelTypes )
         {
-            var logChannelTypes = GetLogChannelConfigurationTypes(assemblyDefiningTypes);
+            var retVal = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var kvp in logChannelTypes)
+            foreach (var channelType in channelTypes)
             {
-                builder.RegisterType(kvp.Value)
-                    .AsImplementedInterfaces()
-                    .SingleInstance();
-            }
+                if (!(typeof(IChannelConfiguration).IsAssignableFrom(channelType)))
+                    continue;
 
-            builder.Register( c => config )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
+                var attr = channelType.GetCustomAttributes(typeof(ChannelAttribute), false)
+                    .Cast<ChannelAttribute>()
+                    .FirstOrDefault();
 
-            builder.Register(c =>
-                {
-                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-                    return loggerConfig.CreateLogger();
-                })
-                .As<ILogger>()
-                .SingleInstance();
+                if (attr == null)
+                    continue;
 
-            builder.RegisterType<J4JLoggerFactory>()
-                .As<IJ4JLoggerFactory>()
-                .SingleInstance();
-
-            return builder;
-        }
-
-        private static Dictionary<LogChannelAttribute, Type> GetLogChannelConfigurationTypes( Type[] assemblyDefiningTypes )
-        {
-            // create the master channel type list which guides our search for LogChannelConfiguration types to
-            // register, ensuring the base types are always included
-            var typesToSearch = assemblyDefiningTypes.ToList();
-
-            var assemblies = typesToSearch.Distinct()
-                .Select(t => t.Assembly)
-                .Distinct()
-                .ToList();
-
-            // now scan all the assemblies and look for all types derived from
-            // LogChannelConfiguration which have a public parameterless constructor
-            // and are decorated with a LogChannelAttribute
-            var logChannelTypes = assemblies.SelectMany( a => a.DefinedTypes )
-                .Where( t => t.DeclaredConstructors.Any(
-                                 c => c.IsPublic
-                                      && c.GetParameters().Length == 0 )
-                             && t.GetCustomAttributesData().Any( a => a.AttributeType == typeof(LogChannelAttribute) ) )
-                .Select( t => new
-                {
-                    LCAttribute = (LogChannelAttribute) t.GetCustomAttributes(typeof(LogChannelAttribute), false).First(),
-                    Type = t
-                } );
-
-            var retVal = new Dictionary<LogChannelAttribute, Type>( LogChannelAttribute.DefaultComparer );
-
-            foreach( var typeInfo in logChannelTypes )
-            {
-                if( retVal.ContainsKey( typeInfo.LCAttribute ) )
-                    retVal[ typeInfo.LCAttribute ] = typeInfo.Type;
-                else retVal.Add( typeInfo.LCAttribute, typeInfo.Type );
+                if (retVal.ContainsKey(attr.ChannelID)) retVal[attr.ChannelID] = channelType;
+                else retVal.Add(attr.ChannelID, channelType);
             }
 
             return retVal;

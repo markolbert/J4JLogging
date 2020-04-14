@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -12,10 +13,10 @@ namespace J4JSoftware.Logging
         
         EntryElements DefaultElements { get; }
 
-        List<LogChannelConfiguration> Channels { get; }
-        LogChannel ChannelsDefined { get; }
+        List<ChannelConfiguration> Channels { get; }
+        ReadOnlyCollection<string> ChannelsDefined { get; }
 
-        bool IsChannelDefined( LogChannel channel );
+        bool IsChannelDefined( string channelID );
 
         LogEventLevel MinimumLogLevel { get; }
     }

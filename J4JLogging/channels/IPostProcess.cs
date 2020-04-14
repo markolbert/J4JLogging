@@ -4,14 +4,14 @@ using System.Text;
 
 namespace J4JSoftware.Logging
 {
-    public interface IPostProcessLogEvent
+    public interface IPostProcess
     {
-        void PostProcessLogEventText();
-        void ClearLogEventText();
+        void PostProcess();
+        void Clear();
         bool Initialize( object config );
     }
 
-    public interface IPostProcessLogEvent<in TSms> : IPostProcessLogEvent
+    public interface IPostProcess<in TSms> : IPostProcess
         where TSms : class
     {
         bool Initialize( TSms config );

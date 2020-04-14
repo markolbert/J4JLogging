@@ -10,9 +10,8 @@ using Twilio.Types;
 
 namespace J4JSoftware.Logging
 {
-    // needed to keep Json.Net deserializer happy
-    [LogChannelAttribute(LogChannel.TextWriter, "Twilio")]
-    public class LogTwilioConfiguration : LogTextConfiguration<ITwilioConfig>
+    [Channel("Twilio")]
+    public class TwilioConfiguration : TextConfiguration<ITwilioConfig>
     {
         private ITwilioConfig _config;
         private bool _initialized;

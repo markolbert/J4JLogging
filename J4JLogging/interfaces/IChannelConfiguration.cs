@@ -4,9 +4,9 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public interface ILogChannelConfiguration
+    public interface IChannelConfiguration
     {
-        LogChannel GetChannelType();
+        string Channel { get; }
         LogEventLevel MinimumLevel { get; set; }
     }
 }
