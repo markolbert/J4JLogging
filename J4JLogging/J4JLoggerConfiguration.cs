@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using JsonSubTypes;
-using Newtonsoft.Json;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging

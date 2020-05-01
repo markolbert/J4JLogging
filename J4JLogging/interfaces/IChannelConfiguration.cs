@@ -1,6 +1,4 @@
-﻿using JsonSubTypes;
-using Newtonsoft.Json;
-using Serilog.Events;
+﻿using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {

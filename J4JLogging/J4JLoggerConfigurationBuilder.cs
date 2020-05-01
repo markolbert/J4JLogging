@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using JsonSubTypes;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace J4JSoftware.Logging
 {
     public class J4JLoggerConfigurationBuilder
     {
-        private readonly Dictionary<string, Type> _channels =
+        private readonly Dictionary<string, Type> _channelTypes =
             new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         private string _jsonText;
@@ -24,6 +24,9 @@ namespace J4JSoftware.Logging
                 || !(typeof(IChannelConfiguration).IsAssignableFrom(channelType)))
                 return this;
 
+            if (channelType.GetConstructor(Type.EmptyTypes) == null)
+                return this;
+
             // check that TChannel is decorated with the required attribute
             var attr = channelType.GetCustomAttributes(typeof(ChannelAttribute), false)
                 .Cast<ChannelAttribute>()
@@ -32,8 +35,8 @@ namespace J4JSoftware.Logging
             if (attr == null)
                 return this;
 
-            if (_channels.ContainsKey(attr.ChannelID)) _channels[attr.ChannelID] = channelType;
-            else _channels.Add(attr.ChannelID, channelType);
+            if (_channelTypes.ContainsKey(attr.ChannelID)) _channelTypes[attr.ChannelID] = channelType;
+            else _channelTypes.Add(attr.ChannelID, channelType);
 
             return this;
         }
@@ -54,36 +57,41 @@ namespace J4JSoftware.Logging
             return this;
         }
 
-        public JsonSerializerSettings BuildSerializerSettings()
+        public JsonSerializerOptions BuildSerializerSettings( JsonSerializerOptions options = null )
         {
-            if (_channels.Count == 0)
+            if (_channelTypes.Count == 0)
                 throw new InvalidOperationException($"{nameof(J4JLoggerConfigurationBuilder.Build)}: no channels are defined");
 
-            var retVal = new JsonSerializerSettings();
+            var retVal = options ?? new JsonSerializerOptions();
 
-            var builder = JsonSubtypesConverterBuilder.Of(typeof(LogChannel), "Channel");
+            retVal.Converters.Add( new LogChannelListConverter( _channelTypes ) );
+            retVal.Converters.Add(new LogEventLevelConverter());
 
-            foreach (var kvp in _channels)
+            // we need to grab any converters in the assemblies defining channels
+            foreach( var kvp in _channelTypes )
             {
-                builder.RegisterSubtype(kvp.Value, kvp.Key);
+                foreach( var converterType in kvp.Value.Assembly.GetTypes()
+                    .Where( t => t.IsPublic
+                                 && !t.IsAbstract
+                                 && typeof(JsonConverter).IsAssignableFrom(t)
+                                 && t.GetConstructor( Type.EmptyTypes ) != null ) )
+                {
+                    retVal.Converters.Add( (JsonConverter) Activator.CreateInstance( converterType ) );
+                }
             }
-
-            retVal.Converters.Add(builder.Build());
 
             return retVal;
         }
 
-        public TConfig Build<TConfig>()
-            where TConfig : class, IJ4JLoggerConfiguration
+        public TConfig Build<TConfig>( JsonSerializerOptions options = null )
+            where TConfig : class
         {
-            var settings = BuildSerializerSettings();
-
             if (string.IsNullOrEmpty(_jsonText))
                 throw new InvalidOperationException($"{nameof(J4JLoggerConfigurationBuilder.Build)}: configuration file is undefined");
 
             try
             {
-                return JsonConvert.DeserializeObject<TConfig>(_jsonText, settings);
+                return JsonSerializer.Deserialize<TConfig>(_jsonText, BuildSerializerSettings(options));
             }
             catch (Exception e)
             {

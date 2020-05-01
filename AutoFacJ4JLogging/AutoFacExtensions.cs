@@ -16,7 +16,7 @@ namespace AutoFacJ4JLogging
             this ContainerBuilder builder, 
             string configFilePath, 
             params Type[] channelTypes)
-            where TConfig : class, IJ4JLoggerConfiguration
+            where TConfig : class
         {
             var channels = GetChannels( channelTypes );
 
@@ -35,7 +35,8 @@ namespace AutoFacJ4JLogging
 
                     return configBuilder.Build<TConfig>();
                 } )
-                .As<IJ4JLoggerConfiguration>()
+                .AsSelf()
+                .AsImplementedInterfaces()
                 .SingleInstance();
 
             return builder;
@@ -45,7 +46,7 @@ namespace AutoFacJ4JLogging
             this ContainerBuilder builder,
             string jsonText, 
             params Type[] channelTypes )
-            where TConfig : class, IJ4JLoggerConfiguration
+            where TConfig : class
         {
             var channels = GetChannels( channelTypes );
 
@@ -64,7 +65,8 @@ namespace AutoFacJ4JLogging
 
                     return configBuilder.Build<TConfig>();
                 } )
-                .As<IJ4JLoggerConfiguration>()
+                .AsSelf()
+                .AsImplementedInterfaces()
                 .SingleInstance();
 
             return builder;
