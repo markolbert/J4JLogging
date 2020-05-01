@@ -12,12 +12,17 @@ namespace AutoFacJ4JLogging
 {
     public static class AutofacExtensions
     {
-        public static ContainerBuilder AddJ4JLoggingFromFile<TConfig>( this ContainerBuilder builder, string configFilePath, params Type[] channelTypes)
+        public static ContainerBuilder AddJ4JLoggingFromFile<TConfig>( 
+            this ContainerBuilder builder, 
+            string configFilePath, 
+            params Type[] channelTypes)
             where TConfig : class, IJ4JLoggerConfiguration
         {
-            var channels = DoCoreConfiguration( builder, channelTypes );
+            var channels = GetChannels( channelTypes );
 
-            builder.Register( c =>
+            builder.RegisterChannels( channels )
+                .RegisterLoggerFactory()
+                .Register( c =>
                 {
                     var configBuilder = new J4JLoggerConfigurationBuilder();
 
@@ -29,59 +34,69 @@ namespace AutoFacJ4JLogging
                     configBuilder.FromFile( configFilePath );
 
                     return configBuilder.Build<TConfig>();
-                })
+                } )
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
 
             return builder;
         }
 
-        public static ContainerBuilder AddJ4JLoggingFromJsonText<TConfig>(this ContainerBuilder builder, string jsonText, params Type[] channelTypes)
+        public static ContainerBuilder AddJ4JLoggingFromJsonText<TConfig>( 
+            this ContainerBuilder builder,
+            string jsonText, 
+            params Type[] channelTypes )
             where TConfig : class, IJ4JLoggerConfiguration
-        {
-            var channels = DoCoreConfiguration(builder, channelTypes);
-
-            builder.Register(c =>
-                {
-                    var configBuilder = new J4JLoggerConfigurationBuilder();
-
-                    foreach (var kvp in channels)
-                    {
-                        configBuilder.AddChannel(kvp.Value);
-                    }
-
-                    configBuilder.FromJson(jsonText);
-
-                    return configBuilder.Build<TConfig>();
-                })
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            return builder;
-        }
-
-        public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder, IJ4JLoggerConfiguration config, params Type[] channelTypes)
-        {
-            DoCoreConfiguration(builder, channelTypes);
-
-            builder.Register( c => config )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            return builder;
-        }
-
-        private static Dictionary<string, Type> DoCoreConfiguration( ContainerBuilder builder, Type[] channelTypes )
         {
             var channels = GetChannels( channelTypes );
 
-            foreach( var kvp in channels )
+            builder.RegisterChannels( channels )
+                .RegisterLoggerFactory()
+                .Register( c =>
+                {
+                    var configBuilder = new J4JLoggerConfigurationBuilder();
+
+                    foreach( var kvp in channels )
+                    {
+                        configBuilder.AddChannel( kvp.Value );
+                    }
+
+                    configBuilder.FromJson( jsonText );
+
+                    return configBuilder.Build<TConfig>();
+                } )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
+        {
+            builder.Register(c => config.CreateLogger() )
+                .As<ILogger>()
+                .SingleInstance();
+
+            builder.Register( c => new J4JLoggerFactory(c.Resolve<ILogger>(), config) )
+                .As<IJ4JLoggerFactory>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        private static ContainerBuilder RegisterChannels( this ContainerBuilder builder, Dictionary<string, Type> channels )
+        {
+            foreach (var kvp in channels)
             {
-                builder.RegisterType( kvp.Value )
+                builder.RegisterType(kvp.Value)
                     .AsImplementedInterfaces()
                     .SingleInstance();
             }
 
+            return builder;
+        }
+
+        private static ContainerBuilder RegisterLoggerFactory( this ContainerBuilder builder )
+        {
             builder.Register( c =>
                 {
                     var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
@@ -94,7 +109,7 @@ namespace AutoFacJ4JLogging
                 .As<IJ4JLoggerFactory>()
                 .SingleInstance();
 
-            return channels;
+            return builder;
         }
 
         private static Dictionary<string, Type> GetChannels( Type[] channelTypes )

@@ -10,18 +10,18 @@ namespace J4JSoftware.Logging
     public class J4JLoggerConfigurationBuilder
     {
         private readonly Dictionary<string, Type> _channels =
-            new Dictionary<string, Type>( StringComparer.OrdinalIgnoreCase );
+            new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         private string _jsonText;
 
         public J4JLoggerConfigurationBuilder AddChannel<TChannel>()
-            where TChannel : LogChannel 
-            => AddChannel( typeof(TChannel) );
+            where TChannel : LogChannel
+            => AddChannel(typeof(TChannel));
 
         public J4JLoggerConfigurationBuilder AddChannel(Type channelType)
         {
-            if( channelType == null 
-                || !( typeof(IChannelConfiguration).IsAssignableFrom( channelType ) ) )
+            if (channelType == null
+                || !(typeof(IChannelConfiguration).IsAssignableFrom(channelType)))
                 return this;
 
             // check that TChannel is decorated with the required attribute
@@ -29,26 +29,26 @@ namespace J4JSoftware.Logging
                 .Cast<ChannelAttribute>()
                 .FirstOrDefault();
 
-            if( attr == null )
+            if (attr == null)
                 return this;
 
-            if( _channels.ContainsKey( attr.ChannelID ) ) _channels[ attr.ChannelID ] = channelType;
-            else _channels.Add( attr.ChannelID, channelType );
+            if (_channels.ContainsKey(attr.ChannelID)) _channels[attr.ChannelID] = channelType;
+            else _channels.Add(attr.ChannelID, channelType);
 
             return this;
         }
 
-        public J4JLoggerConfigurationBuilder FromFile( string filePath )
+        public J4JLoggerConfigurationBuilder FromFile(string filePath)
         {
-            if( File.Exists( filePath ) )
+            if (File.Exists(filePath))
                 _jsonText = File.ReadAllText(filePath);
 
             return this;
         }
 
-        public J4JLoggerConfigurationBuilder FromJson( string jsonText )
+        public J4JLoggerConfigurationBuilder FromJson(string jsonText)
         {
-            if( !string.IsNullOrEmpty( jsonText ) )
+            if (!string.IsNullOrEmpty(jsonText))
                 _jsonText = jsonText;
 
             return this;
@@ -78,7 +78,7 @@ namespace J4JSoftware.Logging
         {
             var settings = BuildSerializerSettings();
 
-            if( string.IsNullOrEmpty(_jsonText))
+            if (string.IsNullOrEmpty(_jsonText))
                 throw new InvalidOperationException($"{nameof(J4JLoggerConfigurationBuilder.Build)}: configuration file is undefined");
 
             try

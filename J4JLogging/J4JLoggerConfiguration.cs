@@ -31,7 +31,7 @@ namespace J4JSoftware.Logging
         public bool IncludeSource { get; set; }
         public bool IncludeAssemblyName { get; set; }
 
-        public List<LogChannel> Channels { get; set; }
+        public List<LogChannel> Channels { get; set; } = new List<LogChannel>();
 
         public ReadOnlyCollection<string> ChannelsDefined
         {
