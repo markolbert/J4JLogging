@@ -23,16 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="channels\LogDebugConfiguration.cs" />
-    <Compile Remove="channels\LogFileConfiguration.cs" />
-    <Compile Remove="channels\LogFileLocation.cs" />
-    <Compile Remove="channels\LogTextConfiguration.cs" />
-    <Compile Remove="ForceNextLogEvent.cs" />
-    <Compile Remove="J4JLoggerDeprecated.cs" />
-    <Compile Remove="J4JLoggingModule.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="J4JSoftware.Logging.xml" />
   </ItemGroup>
 
