@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
@@ -11,6 +12,30 @@ namespace J4JSoftware.Logging
     [Channel("File")]
     public class FileChannel : LogChannel
     {
+        public FileChannel()
+        {
+        }
+
+        public FileChannel( IConfigurationRoot configRoot, string loggerSection = "Logger" )
+            : base( configRoot, loggerSection )
+        {
+            var text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(Location)}" );
+            if( !String.IsNullOrEmpty( text ) )
+                Location = Enum.Parse<LogFileLocation>( text, true );
+
+            text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(RollingInterval)}" );
+            if( !string.IsNullOrEmpty( text ) )
+                RollingInterval = Enum.Parse<RollingInterval>( text, true );
+
+            text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(FilePath)}" );
+            if( !string.IsNullOrEmpty( text ) )
+                FilePath = text;
+
+            text = configRoot.GetConfigValue($@"{loggerSection}:Channels:\d:{nameof(FileName)}");
+            if (!string.IsNullOrEmpty(text))
+                FileName = text;
+        }
+
         public LogFileLocation Location { get; set; } = LogFileLocation.AppData;
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;
         public string FilePath { get; set; }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
 using Twilio;
@@ -15,6 +16,15 @@ namespace J4JSoftware.Logging
     {
         private ITwilioConfig _config;
         private bool _initialized;
+
+        public TwilioChannel()
+        {
+        }
+
+        public TwilioChannel(IConfigurationRoot configRoot, string loggerSection = "Logger")
+            : base(configRoot, loggerSection)
+        {
+        }
 
         public override bool Initialize( ITwilioConfig config )
         {

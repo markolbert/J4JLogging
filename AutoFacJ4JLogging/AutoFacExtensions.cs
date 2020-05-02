@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Autofac;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
@@ -24,7 +25,7 @@ namespace AutoFacJ4JLogging
                 .RegisterLoggerFactory()
                 .Register( c =>
                 {
-                    var configBuilder = new J4JLoggerConfigurationBuilder();
+                    var configBuilder = new J4JLoggerConfigurationJsonBuilder();
 
                     foreach( var kvp in channels )
                     {
@@ -54,7 +55,7 @@ namespace AutoFacJ4JLogging
                 .RegisterLoggerFactory()
                 .Register( c =>
                 {
-                    var configBuilder = new J4JLoggerConfigurationBuilder();
+                    var configBuilder = new J4JLoggerConfigurationJsonBuilder();
 
                     foreach( var kvp in channels )
                     {
@@ -72,15 +73,51 @@ namespace AutoFacJ4JLogging
             return builder;
         }
 
-        public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
+        //public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
+        //{
+        //    builder.Register(c => config.CreateLogger() )
+        //        .As<ILogger>()
+        //        .SingleInstance();
+
+        //    builder.Register( c => new J4JLoggerFactory(c.Resolve<ILogger>(), config) )
+        //        .As<IJ4JLoggerFactory>()
+        //        .SingleInstance();
+
+        //    return builder;
+        //}
+
+        public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder )
         {
-            builder.Register(c => config.CreateLogger() )
+            builder.Register( c => c.Resolve<IJ4JLoggerConfiguration>().CreateLogger() )
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.Register( c => new J4JLoggerFactory(c.Resolve<ILogger>(), config) )
+            builder.Register( c => new J4JLoggerFactory( c.Resolve<ILogger>(), c.Resolve<IJ4JLoggerConfiguration>() ) )
                 .As<IJ4JLoggerFactory>()
                 .SingleInstance();
+
+            return builder;
+        }
+
+        public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder, params Type[] channelTypes )
+        {
+            builder.Register( c =>
+                {
+                    var configRoot = c.Resolve<IConfigurationRoot>();
+
+                    var loggerBuilder = new J4JLoggerConfigurationRootBuilder();
+
+                    foreach( var channelType in channelTypes )
+                    {
+                        loggerBuilder.AddChannel( channelType );
+                    }
+
+                    return loggerBuilder.Build<J4JLoggerConfiguration>( configRoot, "Logger" );
+                } )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            builder.AddJ4JLogging();
 
             return builder;
         }

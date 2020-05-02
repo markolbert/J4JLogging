@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
 
@@ -8,6 +10,15 @@ namespace J4JSoftware.Logging
         where TSms: class
     {
         private readonly StringWriter _writer = new StringWriter();
+
+        protected TextChannel()
+        {
+        }
+
+        protected TextChannel(IConfigurationRoot configRoot, string loggerSection = "Logger")
+            : base(configRoot, loggerSection)
+        {
+        }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {

@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 
@@ -10,6 +12,16 @@ namespace J4JSoftware.Logging
 {
     public static class J4JLoggingExtensions
     {
+        public static string GetConfigValue(this IConfigurationRoot configRoot, string path, string value = null)
+        {
+            return configRoot.AsEnumerable()
+                .SingleOrDefault( kvp =>
+                    Regex.IsMatch( kvp.Key, path, RegexOptions.IgnoreCase )
+                    && ( string.IsNullOrEmpty( value )
+                         || kvp.Value.Equals( value, StringComparison.OrdinalIgnoreCase ) ) )
+                .Value;
+        }
+
         public static ILogger CreateLogger( this IJ4JLoggerConfiguration config )
         {
             if( config == null )
