@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="5.1.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
+    <ProjectReference Include="..\ConsoleChannel\ConsoleChannel.csproj" />
+    <ProjectReference Include="..\DebugChannel\DebugChannel.csproj" />
+    <ProjectReference Include="..\FileChannel\FileChannel.csproj" />
+    <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+    <ProjectReference Include="..\TwilioChannel\TwilioChannel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="J4JLoggingTest3.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="J4JLoggingTest2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="J4JLoggingTest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

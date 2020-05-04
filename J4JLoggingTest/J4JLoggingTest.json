@@ -1,0 +1,28 @@
+{
+  "SourceMessageTemplate": "({File}:{Line})",
+  "MemberMessageTemplate": "{SourceContext}::{Member}",
+  "IncludeSource": true,
+  "IncludeAssemblyName": false,
+  "SourceRootPath": "C:/Programming/J4JLogging/",
+  "Channels": [
+    {
+      "Channel": "Console",
+      "MinimumLevel": "Verbose"
+    },
+    {
+      "Channel": "Debug",
+      "MinimumLevel": "Verbose"
+    },
+    {
+      "Channel": "File",
+      "Location": "AppData",
+      "RollingInterval": "Day",
+      "FileName": "log.text",
+      "MinimumLevel": "Verbose"
+    },
+    {
+      "Channel": "Twilio",
+      "MinimumLevel":  "Verbose" 
+    }
+  ]
+}
