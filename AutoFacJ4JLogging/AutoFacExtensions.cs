@@ -73,28 +73,14 @@ namespace AutoFacJ4JLogging
             return builder;
         }
 
-        //public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
-        //{
-        //    builder.Register(c => config.CreateLogger() )
-        //        .As<ILogger>()
-        //        .SingleInstance();
-
-        //    builder.Register( c => new J4JLoggerFactory(c.Resolve<ILogger>(), config) )
-        //        .As<IJ4JLoggerFactory>()
-        //        .SingleInstance();
-
-        //    return builder;
-        //}
-
         public static ContainerBuilder AddJ4JLogging( this ContainerBuilder builder )
         {
             builder.Register( c => c.Resolve<IJ4JLoggerConfiguration>().CreateLogger() )
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.Register( c => new J4JLoggerFactory( c.Resolve<ILogger>(), c.Resolve<IJ4JLoggerConfiguration>() ) )
-                .As<IJ4JLoggerFactory>()
-                .SingleInstance();
+            builder.RegisterType<J4JLogger>()
+                .As<IJ4JLogger>();
 
             return builder;
         }
@@ -144,9 +130,8 @@ namespace AutoFacJ4JLogging
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.RegisterType<J4JLoggerFactory>()
-                .As<IJ4JLoggerFactory>()
-                .SingleInstance();
+            builder.RegisterType<J4JLogger>()
+                .As<IJ4JLogger>();
 
             return builder;
         }
