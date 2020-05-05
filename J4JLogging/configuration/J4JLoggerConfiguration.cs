@@ -20,7 +20,6 @@ namespace J4JSoftware.Logging
         }
 
         public J4JLoggerConfiguration( 
-            IJ4JLoggerTemplate templateGenerator,
             IConfigurationRoot configRoot, 
             string loggerSection = "Logger" 
             )

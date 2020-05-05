@@ -9,10 +9,6 @@
     "Property1": 15,
     "Property2": "abc" 
   },
-  "SourceMessageTemplate": "({File}:{Line})",
-  "MemberMessageTemplate": "{SourceContext}::{Member}",
-  "IncludeSource": true,
-  "IncludeAssemblyName": false,
   "SourceRootPath": "C:/Programming/J4JLogging/",
   "Channels": [
     {
