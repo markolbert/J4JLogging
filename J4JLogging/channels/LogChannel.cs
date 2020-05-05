@@ -8,7 +8,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class LogChannel : IChannelConfiguration
+    public class LogChannel : ILogChannel
     {
         protected LogChannel()
         {
@@ -33,7 +33,7 @@ namespace J4JSoftware.Logging
         public string Channel { get; }
         public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
 
-        public virtual LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        public virtual LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null)
         {
             throw new NotImplementedException($"This base method should not be called");
         }

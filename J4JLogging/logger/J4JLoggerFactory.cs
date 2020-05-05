@@ -21,7 +21,12 @@ namespace J4JSoftware.Logging
             if( toLog == null )
                 throw new NullReferenceException( nameof(toLog) );
 
-            return new J4JLogger( toLog, _baseLogger, _config );
+            return new J4JLogger(
+                ( _config.EventElements & EventElements.Type ) == EventElements.Type
+                    ? _baseLogger.ForContext( toLog )
+                    : _baseLogger,
+                _config
+            );
         }
     }
 }

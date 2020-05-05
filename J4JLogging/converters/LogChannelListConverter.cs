@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace J4JSoftware.Logging
 {
-    public class LogChannelListConverter : JsonConverter<List<LogChannel>>
+    public class LogChannelListConverter : JsonConverter<List<ILogChannel>>
     {
         private readonly Dictionary<string, Type> _channelTypes;
 
@@ -16,13 +16,13 @@ namespace J4JSoftware.Logging
             _channelTypes = channelTypes ?? throw new NullReferenceException( nameof(channelTypes) );
         }
 
-        public override List<LogChannel> Read( ref Utf8JsonReader reader, Type typeToConvert,
+        public override List<ILogChannel> Read( ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options )
         {
             if( reader.TokenType != JsonTokenType.StartArray)
                 throw new JsonException();
 
-            var retVal = new List<LogChannel>();
+            var retVal = new List<ILogChannel>();
 
             using JsonDocument doc = JsonDocument.ParseValue( ref reader );
             {
@@ -56,7 +56,7 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
-        public override void Write( Utf8JsonWriter writer, List<LogChannel> value, JsonSerializerOptions options )
+        public override void Write( Utf8JsonWriter writer, List<ILogChannel> value, JsonSerializerOptions options )
         {
             writer.WriteStartArray();
 

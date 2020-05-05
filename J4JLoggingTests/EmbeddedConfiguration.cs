@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using J4JSoftware.Logging;
-using Serilog.Events;
 
-namespace J4JLoggingTest
+namespace J4JLoggingTests
 {
-    public class DerivedConfiguration : J4JLoggerConfiguration
+    public class EmbeddedConfiguration
     {
         public class SomeOther
         {
@@ -17,5 +14,6 @@ namespace J4JLoggingTest
         public bool SomeOtherProperty { get; set; }
         public List<string> SomeOtherArray { get; set; }
         public SomeOther SomeOtherObject { get; set; }
+        public J4JLoggerConfiguration Logging { get; set; }
     }
 }

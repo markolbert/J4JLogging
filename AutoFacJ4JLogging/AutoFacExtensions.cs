@@ -157,7 +157,7 @@ namespace AutoFacJ4JLogging
 
             foreach (var channelType in channelTypes)
             {
-                if (!(typeof(IChannelConfiguration).IsAssignableFrom(channelType)))
+                if (!(typeof(ILogChannel).IsAssignableFrom(channelType)))
                     continue;
 
                 var attr = channelType.GetCustomAttributes(typeof(ChannelAttribute), false)

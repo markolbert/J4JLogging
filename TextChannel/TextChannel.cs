@@ -20,9 +20,11 @@ namespace J4JSoftware.Logging
         {
         }
 
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null )
         {
-            return sinkConfig.TextWriter( _writer, restrictedToMinimumLevel: MinimumLevel );
+            return string.IsNullOrEmpty(outputTemplate)
+                ? sinkConfig.TextWriter(_writer, restrictedToMinimumLevel: MinimumLevel)
+                : sinkConfig.TextWriter(_writer, restrictedToMinimumLevel: MinimumLevel, outputTemplate: outputTemplate);
         }
 
         public virtual bool Initialize( TSms config ) => true;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Serilog.Events;
@@ -11,57 +12,79 @@ namespace J4JSoftware.Logging
 {
     public class J4JLoggerConfiguration : IJ4JLoggerConfiguration
     {
+        public const string DefaultMessageTemplate =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+
         public J4JLoggerConfiguration()
         {
         }
 
-        public J4JLoggerConfiguration( IConfigurationRoot configRoot, string loggerSection = "Logger" )
+        public J4JLoggerConfiguration( 
+            IJ4JLoggerTemplate templateGenerator,
+            IConfigurationRoot configRoot, 
+            string loggerSection = "Logger" 
+            )
         {
-            if( configRoot == null )
+            if ( configRoot == null )
                 throw new NullReferenceException( nameof(configRoot) );
 
-            var text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(SourceMessageTemplate)}" );
+            var text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(MessageTemplate)}" );
             if( !string.IsNullOrEmpty( text ) )
-                SourceMessageTemplate = text;
+                MessageTemplate = text;
 
             text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(SourceRootPath)}" );
             if( !string.IsNullOrEmpty( text ) )
                 SourceRootPath = text;
 
-            text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(MemberMessageTemplate)}" );
+            text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(EventElements)}" );
             if( !string.IsNullOrEmpty( text ) )
-                MemberMessageTemplate = text;
+                EventElements = Enum.Parse<EventElements>( text, true );
 
-            text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(IncludeAssemblyName)}" );
+            text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(UseExternalSinks)}" );
             if( !string.IsNullOrEmpty( text ) )
-                IncludeAssemblyName = bool.Parse( text );
+                UseExternalSinks = bool.Parse( text );
 
-            text = configRoot.GetConfigValue( $"{loggerSection}:{nameof(IncludeSource)}" );
-            if( !string.IsNullOrEmpty( text ) )
-                IncludeSource = bool.Parse( text );
+            text = configRoot.GetConfigValue($"{loggerSection}:{nameof(MultiLineEvents)}");
+            if (!string.IsNullOrEmpty(text))
+                MultiLineEvents = bool.Parse(text);
         }
 
-        public string SourceMessageTemplate { get; set; } = "({File}:{Line})";
-        public string MemberMessageTemplate { get; set; } = "{SourceContext}::{Member}";
-        public string SourceRootPath { get; set; }
+        public string MessageTemplate { get; set; } = DefaultMessageTemplate;
 
-        public EntryElements DefaultElements
+        public string GetEnrichedMessageTemplate()
         {
-            get
+            var sb = new StringBuilder(
+                string.IsNullOrEmpty( MessageTemplate )
+                    ? J4JLoggerConfiguration.DefaultMessageTemplate
+                    : MessageTemplate
+            );
+
+            foreach( var element in EnumUtils.GetUniqueFlags<EventElements>() )
             {
-                var retVal = EntryElements.None;
+                switch( element )
+                {
+                    case EventElements.Type:
+                        sb.Append( " {SourceContext}{MemberName}" );
+                        break;
 
-                if( IncludeAssemblyName ) retVal |= EntryElements.Assembly;
-                if( IncludeSource ) retVal |= EntryElements.SourceCode;
-
-                return retVal;
+                    case EventElements.SourceCode:
+                        sb.Append( " {SourceCodeInformation}" );
+                        break;
+                }
             }
+
+            sb.Append( "{NewLine}{Exception}" );
+
+            return sb.ToString();
         }
 
-        public bool IncludeSource { get; set; }
-        public bool IncludeAssemblyName { get; set; }
+        public string SourceRootPath { get; set; }
+        public bool MultiLineEvents { get; set; }
 
-        public List<LogChannel> Channels { get; set; } = new List<LogChannel>();
+        public EventElements EventElements { get; set; } = EventElements.All;
+        public bool UseExternalSinks { get; set; }
+
+        public List<ILogChannel> Channels { get; set; } = new List<ILogChannel>();
 
         public ReadOnlyCollection<string> ChannelsDefined
         {

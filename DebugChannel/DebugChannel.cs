@@ -17,9 +17,11 @@ namespace J4JSoftware.Logging
         {
         }
 
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null )
         {
-            return sinkConfig.Debug( restrictedToMinimumLevel: MinimumLevel );
+            return string.IsNullOrEmpty(outputTemplate)
+                ? sinkConfig.Debug(restrictedToMinimumLevel: MinimumLevel)
+                : sinkConfig.Debug(restrictedToMinimumLevel: MinimumLevel, outputTemplate: outputTemplate);
         }
     }
 }

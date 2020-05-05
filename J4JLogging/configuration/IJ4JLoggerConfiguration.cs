@@ -6,14 +6,14 @@ namespace J4JSoftware.Logging
 {
     public interface IJ4JLoggerConfiguration
     {
-        string SourceMessageTemplate { get; }
-        string MemberMessageTemplate { get; }
+        string GetEnrichedMessageTemplate();
 
         string SourceRootPath { get; }
-        
-        EntryElements DefaultElements { get; }
+        bool UseExternalSinks { get; }
+        bool MultiLineEvents { get; }
+        EventElements EventElements { get; }
 
-        List<LogChannel> Channels { get; }
+        List<ILogChannel> Channels { get; }
         ReadOnlyCollection<string> ChannelsDefined { get; }
 
         bool IsChannelDefined( string channelID );

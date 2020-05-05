@@ -1,8 +1,5 @@
 {
-  "SourceMessageTemplate": "({File}:{Line})",
-  "MemberMessageTemplate": "{SourceContext}::{Member}",
-  "IncludeSource": true,
-  "IncludeAssemblyName": false,
+  "DefaultElements" :  "SourceCode", 
   "SourceRootPath": "C:/Programming/J4JLogging/",
   "Channels": [
     {
@@ -22,7 +19,7 @@
     },
     {
       "Channel": "Twilio",
-      "MinimumLevel":  "Verbose" 
+      "MinimumLevel": "Verbose"
     }
   ]
 }

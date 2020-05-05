@@ -18,7 +18,7 @@ namespace J4JSoftware.Logging
             attr = null;
 
             if (channelType == null
-                || !(typeof(IChannelConfiguration).IsAssignableFrom(channelType)))
+                || !(typeof(ILogChannel).IsAssignableFrom(channelType)))
                 return false;
 
             if (channelType.GetConstructor(Type.EmptyTypes) == null)

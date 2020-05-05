@@ -31,11 +31,13 @@ namespace J4JSoftware.Logging
                 .Enrich.FromLogContext()
                 .SetMinimumLevel( config.Channels?.Min( c => c.MinimumLevel ) ?? LogEventLevel.Verbose );
 
+            var outputTemplate = config.GetEnrichedMessageTemplate();
+
             if( config.Channels != null )
             {
                 foreach( var channel in config.Channels )
                 {
-                    channel.Configure( loggerConfig.WriteTo );
+                    channel.Configure( loggerConfig.WriteTo, outputTemplate );
                 }
             }
 

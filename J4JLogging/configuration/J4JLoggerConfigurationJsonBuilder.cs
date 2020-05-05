@@ -39,6 +39,7 @@ namespace J4JSoftware.Logging
 
             retVal.Converters.Add(new LogChannelListConverter(ChannelTypes));
             retVal.Converters.Add(new LogEventLevelConverter());
+            retVal.Converters.Add( new EventElementsConverter() );
 
             // we need to grab any converters in the assemblies defining channels
             foreach (var kvp in ChannelTypes)
@@ -69,7 +70,7 @@ namespace J4JSoftware.Logging
             catch (Exception e)
             {
                 throw new InvalidOperationException(
-                    $"Couldn't parse JSON text to a {typeof(TConfig)} object. The likely cause is using an incorrect or invalid Channel property in the JSON file.",
+                    $"Couldn't parse JSON text to a {typeof(TConfig)} object.",
                     e);
             }
         }
