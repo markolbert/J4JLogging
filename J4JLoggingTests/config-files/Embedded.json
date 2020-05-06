@@ -9,9 +9,9 @@
     "Property1": 15,
     "Property2": "abc"
   },
-  "Logging": {
+  "Logger": {
     "SourceRootPath": "C:/Programming/J4JLogging/",
-    "EventElements" :  "All", 
+    "EventElements" :  "SourceCode, Type", 
     "Channels": [
       {
         "Channel": "Console",
