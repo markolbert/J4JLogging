@@ -215,7 +215,8 @@ foreach( var channelType in channelTypes )
 return loggerBuilder.Build<TConfig>( configRoot, loggerSection );
 ```
 The first line gets an instance of `IConfigurationRoot` from your dependency injection
-framework. You'll have to have registered it with the DI framework, of course.
+framework. You'll have to have registered it with the DI framework or create it some
+other way (typically by using the methods in the `Microsoft.Extensions.Configuration` API).
 
 The last line returns an instance of the class implementing `IJ4JLoggingConfiguration` 
 which can registered in your dependency injection framework. Typically this would be 
