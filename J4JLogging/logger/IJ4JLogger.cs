@@ -16,6 +16,8 @@ namespace J4JSoftware.Logging
 
         IJ4JLogger ForceExternal( bool processExternal = true );
 
+        IJ4JLoggerConfiguration Configuration { get; }
+
         #region Write() methods
 
         /// <summary>

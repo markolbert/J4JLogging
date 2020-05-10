@@ -19,8 +19,6 @@ namespace J4JSoftware.Logging
     [ Dummy( "test", typeof(int) ) ]
     public class J4JLogger : IJ4JLogger
     {
-        private readonly IJ4JLoggerConfiguration _config;
-
         private bool _forceExternal = false;
 
         public J4JLogger(
@@ -28,7 +26,7 @@ namespace J4JSoftware.Logging
             IJ4JLoggerConfiguration config
         )
         {
-            _config = config ?? throw new NullReferenceException( nameof(config) );
+            Configuration = config ?? throw new NullReferenceException( nameof(config) );
 
             BaseLogger = logger ?? throw new NullReferenceException( nameof(logger) );
         }
@@ -38,11 +36,13 @@ namespace J4JSoftware.Logging
         /// </summary>
         protected ILogger BaseLogger { get; private set; }
 
+        public IJ4JLoggerConfiguration Configuration { get; }
+
         protected void ProcessAfterWritingChannels()
         {
-            var doExternal = _forceExternal || _config.UseExternalSinks;
+            var doExternal = _forceExternal || Configuration.UseExternalSinks;
 
-            foreach( var channel in _config.Channels
+            foreach( var channel in Configuration.Channels
                 .Where( c => c is IPostProcess )
                 .Cast<IPostProcess>() )
             {
@@ -57,10 +57,10 @@ namespace J4JSoftware.Logging
 
             LogContext.PushProperty(
                 "MemberName",
-                ( _config.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
+                ( Configuration.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
             );
 
-            if( ( _config.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
+            if( ( Configuration.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
                 LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" );
 
             return retVal;
@@ -76,12 +76,14 @@ namespace J4JSoftware.Logging
 
         public void SetLoggedType<TLogged>()
         {
-            BaseLogger = BaseLogger.ForContext<TLogged>();
+            if( ( Configuration.EventElements & EventElements.Type ) == EventElements.Type )
+                BaseLogger = BaseLogger.ForContext<TLogged>();
         }
 
         public void SetLoggedType( Type toLog )
         {
-            if( toLog != null )
+            if( toLog != null
+                && ( Configuration.EventElements & EventElements.Type ) == EventElements.Type )
                 BaseLogger = BaseLogger.ForContext( toLog );
         }
 
