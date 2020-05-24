@@ -71,7 +71,7 @@ namespace AutoFacJ4JLogging
             return builder;
         }
 
-        private static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder)
+        public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder)
         {
             builder.Register(c => c.Resolve<IJ4JLoggerConfiguration>().CreateLogger())
                 .As<ILogger>()
