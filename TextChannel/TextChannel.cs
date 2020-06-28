@@ -6,6 +6,7 @@ using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
+    // Base class for IJ4JLogger channels that work by post-processing a Serilog LogEvent
     public class TextChannel<TSms> : LogChannel, IPostProcess<TSms>
         where TSms: class
     {

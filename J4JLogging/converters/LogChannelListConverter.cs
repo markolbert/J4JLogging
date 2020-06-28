@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 
 namespace J4JSoftware.Logging
 {
+    // converts between structured string values and ILogChannel values. Any recognized text
+    // results results in an EventElements.All value.
     public class LogChannelListConverter : JsonConverter<List<ILogChannel>>
     {
         private readonly Dictionary<string, Type> _channelTypes;

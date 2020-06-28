@@ -10,6 +10,7 @@
     <Product>J4JSoftware Logging Extensions for Serilog</Product>
     <Description>adds source code annotations to a Serilog logger</Description>
     <Copyright>© Mark A. Olbert all rights reserved</Copyright>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

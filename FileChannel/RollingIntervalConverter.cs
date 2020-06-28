@@ -8,6 +8,8 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    // converts between string values and RollingInterval values. Any text other than day, hour, minute,
+    // month or year (case insensitive) maps to RollingInterval.Infinite.
     public class RollingIntervalConverter : JsonConverter<RollingInterval>
     {
         public override RollingInterval Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )

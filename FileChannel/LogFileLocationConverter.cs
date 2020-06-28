@@ -7,6 +7,8 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    // converts between string values and LogFileLocation enum values. Any text other than 
+    // "appdata" (case insensitive) translates to LogFileLocation.ExeFolder.
     public class LogFileLocationConverter : JsonConverter<LogFileLocation>
     {
         public override LogFileLocation Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )

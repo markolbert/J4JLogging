@@ -10,9 +10,11 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    // Miscellaneous utility extension methods
     public static class J4JLoggingExtensions
     {
-        public static string GetConfigValue(this IConfigurationRoot configRoot, string path, string value = null)
+        // Gets an IConfigurationRoot value given a path to that value and, optionally, the value of the value.
+        public static string GetConfigValue(this IConfigurationRoot configRoot, string path, string? value = null)
         {
             return configRoot.AsEnumerable()
                 .SingleOrDefault( kvp =>
@@ -22,7 +24,9 @@ namespace J4JSoftware.Logging
                 .Value;
         }
 
-        public static ILogger CreateLogger( this IJ4JLoggerConfiguration config )
+        // Creates an instance of Serilog's ILogger to be wrapped by IJ4JLogger. Configures the
+        // Serilog ILogger instance to work with IJ4JLogger and sets up the configured channels.
+        public static ILogger? CreateLogger( this IJ4JLoggerConfiguration config )
         {
             if( config == null )
                 return null;
@@ -46,9 +50,6 @@ namespace J4JSoftware.Logging
 
         private static LoggerConfiguration SetMinimumLevel( this LoggerConfiguration config, LogEventLevel minLevel )
         {
-            if( config == null )
-                return null;
-
             switch( minLevel )
             {
                 case LogEventLevel.Debug:

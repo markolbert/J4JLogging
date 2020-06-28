@@ -3,12 +3,17 @@ using Microsoft.Extensions.Configuration;
 
 namespace J4JSoftware.Logging
 {
+    // Extends J4JLoggerConfigurationBuilder to support creating instances of IJ4JLoggerConfiguration types
+    // from an IConfigurationRoot object
     public class J4JLoggerConfigurationRootBuilder : J4JLoggerConfigurationBuilder
     {
         public J4JLoggerConfigurationRootBuilder()
         {
         }
 
+        // Creates an instance of TConfig using the information from a particular section of an 
+        // IConfigurationRoot object. loggerSection specifies the key of the key/value pair containing
+        // the configuration information to be used.
         public TConfig Build<TConfig>(IConfigurationRoot configRoot, string loggerSection = "Logger")
             where TConfig : class, IJ4JLoggerConfiguration
         {

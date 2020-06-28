@@ -23,7 +23,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwilioChannel", "TwilioChan
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutofacJ4JLogging", "AutoFacJ4JLogging\AutofacJ4JLogging.csproj", "{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{A4168158-D34D-4BD3-A539-257B3A19402C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{A4168158-D34D-4BD3-A539-257B3A19402C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFileExample", "examples\SimpleFileExample\SimpleFileExample.csproj", "{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DerivedFileExample", "examples\DerivedFileExample\DerivedFileExample.csproj", "{6F18D9CB-028A-4C7D-8F9E-915141F7F743}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedFileExample", "examples\EmbeddedFileExample\EmbeddedFileExample.csproj", "{6C11B3D1-4508-493C-BA79-147F501721B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,9 +71,26 @@ Global
 		{A4168158-D34D-4BD3-A539-257B3A19402C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4168158-D34D-4BD3-A539-257B3A19402C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4168158-D34D-4BD3-A539-257B3A19402C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C11B3D1-4508-493C-BA79-147F501721B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C11B3D1-4508-493C-BA79-147F501721B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C11B3D1-4508-493C-BA79-147F501721B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C11B3D1-4508-493C-BA79-147F501721B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
+		{6F18D9CB-028A-4C7D-8F9E-915141F7F743} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
+		{6C11B3D1-4508-493C-BA79-147F501721B7} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}

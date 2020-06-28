@@ -4,6 +4,8 @@ using System.Text;
 
 namespace J4JSoftware.Logging
 {
+    // attribute used to associate a name/ID with a particular log channel (e.g., console, debug).
+    // Names/IDs should be unique but are not required to be so.
     [ AttributeUsage( AttributeTargets.Class, AllowMultiple = false, Inherited = false ) ]
     public class ChannelAttribute : Attribute
     {

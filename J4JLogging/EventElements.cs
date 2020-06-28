@@ -2,6 +2,7 @@
 
 namespace J4JSoftware.Logging
 {
+    // Defines the various kinds of extended information offered by IJ4JLogger
     [Flags]
     public enum EventElements
     {

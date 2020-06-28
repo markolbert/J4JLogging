@@ -9,8 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-J4JLoggingTest/TwilioTestConfig.cs
-J4JLoggingTests/TwilioTestConfig.cs
+**/TwilioTestConfig.cs
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

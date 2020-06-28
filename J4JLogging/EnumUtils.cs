@@ -5,6 +5,8 @@ using System.Text;
 
 namespace J4JSoftware.Logging
 {
+    // Utility extension methods for transforming a flag Enum value into a collection
+    // of individual Enum values
     public static class EnumUtils
     {
         public static IEnumerable<TEnum> GetUniqueFlags<TEnum>(this TEnum toParse) 

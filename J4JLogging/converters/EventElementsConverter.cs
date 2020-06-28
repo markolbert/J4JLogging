@@ -7,6 +7,8 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    // converts between string values and EventElements enum values. Any recognized text
+    // results results in an EventElements.All value.
     public class EventElementsConverter : JsonConverter<EventElements>
     {
         public override EventElements Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )

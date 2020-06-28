@@ -38,7 +38,11 @@ namespace J4JSoftware.Logging
 
         public IJ4JLoggerConfiguration Configuration { get; }
 
-        protected void ProcessAfterWritingChannels()
+        // Evoke any configured IPostProcess-implementing channels. If external sinks are
+        // active, either through configuration or on a one-time basis, call IPostProcess.PostProcess().
+        // Otherwise, call IPostProcess.Clear() to reset the IPostProcess-implementing
+        // channel to its initial state to be ready for the next LogEvent.
+        protected void PostProcess()
         {
             var doExternal = _forceExternal || Configuration.UseExternalSinks;
 
@@ -51,6 +55,7 @@ namespace J4JSoftware.Logging
             }
         }
 
+        // Initialize the additional LogEvent properties supported by IJ4JLogger
         protected List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
         {
             var retVal = new List<IDisposable>();
@@ -66,6 +71,8 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
+        // Clear the additional LogEvent properties supported by IJ4JLogger. This must be done
+        // after each LogEvent is processed to comply with Serilog's design.
         protected void DisposeContextProperties( List<IDisposable> contextProperties )
         {
             foreach( var contextProperty in contextProperties )
@@ -74,12 +81,16 @@ namespace J4JSoftware.Logging
             }
         }
 
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
         public void SetLoggedType<TLogged>()
         {
             if( ( Configuration.EventElements & EventElements.Type ) == EventElements.Type )
                 BaseLogger = BaseLogger.ForContext<TLogged>();
         }
 
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
         public void SetLoggedType( Type toLog )
         {
             if( toLog != null
@@ -87,6 +98,7 @@ namespace J4JSoftware.Logging
                 BaseLogger = BaseLogger.ForContext( toLog );
         }
 
+        // Force the next LogEvent to be processed by any IPostProcess-implementing channels
         public IJ4JLogger ForceExternal( bool processExternal = true )
         {
             _forceExternal = processExternal;
@@ -123,7 +135,7 @@ namespace J4JSoftware.Logging
 
             DisposeContextProperties( contextProperties );
 
-            ProcessAfterWritingChannels();
+            PostProcess();
         }
 
         /// <summary>
@@ -163,7 +175,7 @@ namespace J4JSoftware.Logging
 
             DisposeContextProperties( contextProperties );
 
-            ProcessAfterWritingChannels();
+            PostProcess();
         }
 
         /// <summary>
@@ -208,7 +220,7 @@ namespace J4JSoftware.Logging
 
             DisposeContextProperties( contextProperties );
 
-            ProcessAfterWritingChannels();
+            PostProcess();
         }
 
         public virtual void Write<T0, T1, T2>(
@@ -228,7 +240,7 @@ namespace J4JSoftware.Logging
 
             DisposeContextProperties( contextProperties );
 
-            ProcessAfterWritingChannels();
+            PostProcess();
         }
 
         public virtual void Write(
@@ -246,7 +258,7 @@ namespace J4JSoftware.Logging
 
             DisposeContextProperties( contextProperties );
 
-            ProcessAfterWritingChannels();
+            PostProcess();
         }
 
         #endregion

@@ -5,17 +5,24 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    /// <summary>
-    ///     Wrapper for <see cref="Serilog.ILogger"/> which simplifies including calling member
-    ///     (e.g., method name) and source code information.
-    /// </summary>
+    // defines the functionality of IJ4JLogger, which wraps a Serilog ILogger
+    // and provides extended source code information
     public interface IJ4JLogger
     {
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
         void SetLoggedType<TLogged>();
+
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
         void SetLoggedType( Type toLog );
 
+        // Forces the next logging event to be processed by any ILogChannel instances
+        // implementing the IPostProcess interface. This enables logging to endpoints
+        // such as Twilio (via TwilioChannel)
         IJ4JLogger ForceExternal( bool processExternal = true );
 
+        // The logger's configuration information
         IJ4JLoggerConfiguration Configuration { get; }
 
         #region Write() methods

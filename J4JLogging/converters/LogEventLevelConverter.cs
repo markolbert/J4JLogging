@@ -7,6 +7,8 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    // converts between string values and LogEventLevel enum values. Any recognized text
+    // results results in a LogEventLevel.Verbose value.
     public class LogEventLevelConverter : JsonConverter<LogEventLevel>
     {
         public override LogEventLevel Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )

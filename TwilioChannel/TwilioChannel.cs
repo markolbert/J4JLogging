@@ -15,7 +15,6 @@ namespace J4JSoftware.Logging
     public class TwilioChannel : TextChannel<ITwilioConfig>
     {
         private ITwilioConfig _config;
-        private bool _initialized;
 
         public TwilioChannel()
         {
@@ -28,15 +27,12 @@ namespace J4JSoftware.Logging
 
         public override bool Initialize( ITwilioConfig config )
         {
-            _initialized = false;
-
             if( config == null || !config.IsValid )
                 return false;
 
             _config = config;
 
             TwilioClient.Init(_config.AccountSID, _config.AccountToken);
-            _initialized = true;
 
             return true;
         }

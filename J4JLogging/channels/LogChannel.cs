@@ -8,7 +8,8 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class LogChannel : ILogChannel
+    // base class for all LogChannels
+    public abstract class LogChannel : ILogChannel
     {
         protected LogChannel()
         {
@@ -16,7 +17,7 @@ namespace J4JSoftware.Logging
                 .Cast<ChannelAttribute>()
                 .FirstOrDefault();
 
-            Channel = attr?.ChannelID;
+            Channel = attr.ChannelID;
         }
 
         protected LogChannel( IConfigurationRoot configRoot, string loggerSection = "Logger" )
@@ -30,12 +31,15 @@ namespace J4JSoftware.Logging
                 MinimumLevel = Enum.Parse<LogEventLevel>( text, true );
         }
 
+        // the channel's name/ID, which should be unique
         public string Channel { get; }
+
+        // the minimum Serilog level the channel will log
         public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
 
-        public virtual LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null)
-        {
-            throw new NotImplementedException($"This base method should not be called");
-        }
+        // configures the channel
+        public abstract LoggerConfiguration Configure( 
+            LoggerSinkConfiguration sinkConfig,
+            string? outputTemplate = null );
     }
 }

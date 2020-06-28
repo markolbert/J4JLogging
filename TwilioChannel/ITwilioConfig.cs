@@ -3,6 +3,7 @@ using Twilio.Types;
 
 namespace J4JSoftware.Logging
 {
+    // Defines the functionality of a type which can be used to configure an instance of TwilioChannel
     public interface ITwilioConfig
     {
         string AccountSID { get; }
@@ -10,6 +11,7 @@ namespace J4JSoftware.Logging
         string FromNumber { get; }
         List<string> Recipients { get; }
 
+        // Flag indicating whether the instance is properly configured
         bool IsValid { get; }
 
         PhoneNumber GetFromNumber();
