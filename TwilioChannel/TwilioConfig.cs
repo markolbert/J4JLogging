@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Twilio.Types;
+#pragma warning disable 8618
 
 namespace J4JSoftware.Logging
 {
@@ -12,7 +13,7 @@ namespace J4JSoftware.Logging
         public string FromNumber { get; set; }
         public List<string> Recipients { get; set; }
 
-        public PhoneNumber GetFromNumber()
+        public PhoneNumber? GetFromNumber()
         {
             try
             {

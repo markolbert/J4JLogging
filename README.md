@@ -47,6 +47,25 @@ namespace J4JLogger.Examples
     }
 }
 ```
+### Important Note
+**There is one significant difference in how you call the logging methods
+from the Serilog standard.** 
+
+If you pass anything other than a simple string (i.e., a value 
+for the template argument) to the methods you **must** specify the types of 
+the propertyValue arguments explicitly in the method call. 
+
+An example:
+
+```csharp
+int someIntValue = 1;
+_logger.Debug<int>("The value of that argument is {someIntValue}", someIntValue);
+```
+This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
+arguments are automagically set for you by the compiler. The fact the 
+`memberName` and `srcPath` arguments of the logging methods are strings and
+"collide" with the `template` argument. That makes explict type 
+specifications for the arguments necessary.
 
 ### Table of Contents
 

@@ -112,7 +112,7 @@ namespace AutoFacJ4JLogging
             builder.Register(c =>
                {
                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-                   return loggerConfig.CreateLogger();
+                   return loggerConfig.CreateLogger()!;
                })
                 .As<ILogger>()
                 .SingleInstance();

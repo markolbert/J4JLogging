@@ -17,7 +17,7 @@ namespace J4JSoftware.Logging
         {
         }
 
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null )
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string? outputTemplate = null )
         {
             return string.IsNullOrEmpty(outputTemplate)
                 ? sinkConfig.Debug(restrictedToMinimumLevel: MinimumLevel)

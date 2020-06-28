@@ -5,6 +5,7 @@ using AutoFacJ4JLogging;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+#pragma warning disable 8618
 
 namespace J4JLogger.Examples
 {

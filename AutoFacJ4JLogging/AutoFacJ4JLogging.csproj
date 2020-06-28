@@ -1,16 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp3.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<Version>2.5.0.0</Version>
+		<Authors>Mark A. Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Product>J4JSoftware Serilog wrapper</Product>
+		<Description>addon library providing Autofac dependency injection support</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<PackageDescription>Add on to J4JLogger to simplify using Autofac dependency injection.</PackageDescription>
+		<RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<AssemblyVersion>2.5.0.0</AssemblyVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Autofac" Version="5.1.4" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Autofac" Version="5.1.4" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+	</ItemGroup>
 
 </Project>

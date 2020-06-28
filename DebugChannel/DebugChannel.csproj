@@ -1,23 +1,29 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>J4JSoftware.Logging.Debug</AssemblyName>
-    <RootNamespace>J4JSoftware.Logging</RootNamespace>
-    <Version>2.0.0.0</Version>
-    <Authors>Mark A. Olbert</Authors>
-    <Company>Jump for Joy Software</Company>
-    <Product>J4JSoftware Logging Extensions for Serilog</Product>
-    <Description>adds a debug channel to a J4JLogger</Description>
-    <Copyright>© Mark A. Olbert all rights reserved</Copyright>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Nullable>enable</Nullable>
+		<AssemblyName>J4JSoftware.Logging.Debug</AssemblyName>
+		<RootNamespace>J4JSoftware.Logging</RootNamespace>
+		<Version>2.5.0.0</Version>
+		<Authors>Mark A. Olbert</Authors>
+		<Company>Jump for Joy Software</Company>
+		<Product>J4JSoftware Logging Extensions for Serilog</Product>
+		<Description>adds a debug channel to a J4JLogger</Description>
+		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<PackageDescription>Debug channel for J4JLogger</PackageDescription>
+		<RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<AssemblyVersion>2.5.0.0</AssemblyVersion>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+	</ItemGroup>
 
 </Project>

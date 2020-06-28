@@ -8,6 +8,7 @@ using Serilog.Configuration;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Types;
+#pragma warning disable 8618
 
 namespace J4JSoftware.Logging
 {

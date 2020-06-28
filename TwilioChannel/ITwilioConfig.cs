@@ -14,7 +14,7 @@ namespace J4JSoftware.Logging
         // Flag indicating whether the instance is properly configured
         bool IsValid { get; }
 
-        PhoneNumber GetFromNumber();
+        PhoneNumber? GetFromNumber();
         List<PhoneNumber> GetRecipients();
     }
 }

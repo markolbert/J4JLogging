@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Configuration;
+#pragma warning disable 8618
 
 namespace J4JSoftware.Logging
 {
@@ -37,7 +38,7 @@ namespace J4JSoftware.Logging
         public string FilePath { get; set; }
         public string FileName { get; set; } = "log.txt";
 
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null )
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string? outputTemplate = null )
         {
             var path = Location == LogFileLocation.AppData
                 ? DefineLocalAppDataLogPath( FileName, FilePath )

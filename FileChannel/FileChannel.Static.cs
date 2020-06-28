@@ -11,14 +11,14 @@ namespace J4JSoftware.Logging
 {
     public partial class FileChannel : LogChannel
     {
-        public static string DefineLocalAppDataLogPath( string fileStub, string folder = null )
+        public static string DefineLocalAppDataLogPath( string fileStub, string? folder = null )
         {
             fileStub = IsFileNameValid( fileStub ) ? fileStub : "log.txt";
 
             if( string.IsNullOrEmpty( folder ) )
                 folder = GetProgramName();
 
-            DirectoryInfo logDir = null;
+            DirectoryInfo? logDir = null;
 
             if( ( logDir = CreateLogFileDirectory( folder ) ) == null )
             {
@@ -30,7 +30,7 @@ namespace J4JSoftware.Logging
             return Path.Combine( logDir.FullName, fileStub );
         }
 
-        public static string DefineExeLogPath( string fileStub, string folder = null )
+        public static string DefineExeLogPath( string fileStub, string? folder = null )
         {
             fileStub = IsFileNameValid( fileStub ) ? fileStub : "log.txt";
 
@@ -49,7 +49,7 @@ namespace J4JSoftware.Logging
                    && fileName.IndexOfAny( Path.GetInvalidPathChars() ) >= 0;
         }
 
-        private static DirectoryInfo CreateLogFileDirectory( string folder )
+        private static DirectoryInfo? CreateLogFileDirectory( string folder )
         {
             var appDataFolder = Environment.GetFolderPath( Environment.SpecialFolder.LocalApplicationData );
             var fullPath = Path.Combine( appDataFolder, folder );
