@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutoFacJ4JLogging;

@@ -7,8 +7,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "J4JLogging\J4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gitdoc", "gitdoc", "{33976A4C-64BD-4142-BF64-DA4714E000AA}"
 	ProjectSection(SolutionItems) = preProject
-		LICENSE = LICENSE
+		docs\autofac.md = docs\autofac.md
+		docs\channel.md = docs\channel.md
+		docs\configuration.md = docs\configuration.md
+		docs\elements.md = docs\elements.md
+		docs\goal-concept.md = docs\goal-concept.md
+		LICENSE.md = LICENSE.md
 		README.md = README.md
+		docs\terminology.md = docs\terminology.md
+		docs\twilio.md = docs\twilio.md
+		docs\usage.md = docs\usage.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleChannel", "ConsoleChannel\ConsoleChannel.csproj", "{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}"
