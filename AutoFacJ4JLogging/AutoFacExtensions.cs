@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using Autofac;
-using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 
-namespace AutoFacJ4JLogging
+namespace J4JSoftware.Logging
 {
     public static class AutofacExtensions
     {

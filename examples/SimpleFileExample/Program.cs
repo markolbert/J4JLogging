@@ -2,7 +2,6 @@
 using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoFacJ4JLogging;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.DependencyInjection;
 #pragma warning disable 8618

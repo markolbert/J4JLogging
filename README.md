@@ -3,6 +3,9 @@
 A Net Core 3.1 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by
 reporting source code information.
 
+[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
+
+
 ### TL;DR
 
 ```csharp

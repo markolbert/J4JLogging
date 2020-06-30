@@ -16,6 +16,8 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<AssemblyVersion>2.5.0.0</AssemblyVersion>
+		<RepositoryType>git</RepositoryType>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +26,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

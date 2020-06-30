@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoFacJ4JLogging;
 using FluentAssertions;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.DependencyInjection;

@@ -16,6 +16,8 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<AssemblyVersion>2.5.0.0</AssemblyVersion>
+		<PackageIcon>Diego nuspec.png</PackageIcon>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -26,6 +28,10 @@
 		<Compile Remove="docs\**" />
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="docs\**" />
+		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
+		  <Pack>True</Pack>
+		  <PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
