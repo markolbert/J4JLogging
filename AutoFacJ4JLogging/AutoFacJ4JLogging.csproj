@@ -5,7 +5,6 @@
 		<Nullable>enable</Nullable>
 		<AssemblyName>J4JSoftware.Logging.Autofac</AssemblyName>
 		<RootNamespace>J4JSoftware.Logging</RootNamespace>
-		<Version>2.5.1.0</Version>
 		<Authors>Mark A. Olbert</Authors>
 		<Company>Jump for Joy Software</Company>
 		<Product>J4JSoftware Serilog wrapper</Product>
@@ -15,13 +14,15 @@
 		<RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>2.5.1.0</AssemblyVersion>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
+		<Version>2.5.1.0</Version>
+		<AssemblyVersion>2.5.1.0</AssemblyVersion>
+		<PackageReleaseNotes>updated dependencies</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="5.1.4" />
+		<PackageReference Include="Autofac" Version="5.2.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
 	</ItemGroup>
 
