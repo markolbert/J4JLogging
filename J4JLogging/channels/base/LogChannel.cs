@@ -11,11 +11,7 @@ namespace J4JSoftware.Logging
     // base class for all LogChannels
     public abstract class LogChannel : ILogChannel
     {
-        // the default Serilog message template to be used by the system
-        public const string DefaultMessageTemplate =
-            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
-
-        protected LogChannel( IJ4JLoggerConfiguration config, J4JChannelConfig channelConfig )
+        protected LogChannel( IJ4JLoggerConfiguration config, IJ4JChannelConfig channelConfig )
         {
             if( !channelConfig.IsValid)
                 throw new ArgumentException($"Channel configuration is not valid");

@@ -10,7 +10,7 @@ using Twilio.Types;
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of FileChannel
-    public class FileConfig : J4JChannelConfig
+    public class FileConfig : J4JChannelConfig<FileChannel>
     {
         public LogFileLocation Location { get; set; } = LogFileLocation.ExeFolder;
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;

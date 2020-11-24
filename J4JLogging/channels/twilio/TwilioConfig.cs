@@ -7,7 +7,7 @@ using Twilio.Types;
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of TwilioChannel
-    public class TwilioConfig : J4JChannelConfig
+    public class TwilioConfig : J4JChannelConfig<TwilioChannel>
     {
         public string AccountSID { get; set; }
         public string AccountToken { get; set; }

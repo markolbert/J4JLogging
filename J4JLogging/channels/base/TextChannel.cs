@@ -11,7 +11,7 @@ namespace J4JSoftware.Logging
     {
         private readonly StringWriter _writer = new StringWriter();
 
-        protected TextChannel( J4JLoggerConfiguration config, J4JChannelConfig channelConfig )
+        protected TextChannel( J4JLoggerConfiguration config, IJ4JChannelConfig channelConfig )
             :base(config, channelConfig)
         {
         }
