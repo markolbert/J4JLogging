@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Serilog;
 using Serilog.Context;
 using Serilog.Events;
@@ -19,7 +18,7 @@ namespace J4JSoftware.Logging
     [ Dummy( "test", typeof(int) ) ]
     public class J4JLogger : IJ4JLogger
     {
-        private bool _forceExternal = false;
+        private bool _forceExternal;
 
         public J4JLogger(
             ILogger logger,

@@ -7,10 +7,6 @@ namespace J4JSoftware.Logging
     // from an IConfigurationRoot object
     public class J4JLoggerConfigurationRootBuilder : J4JLoggerConfigurationBuilder
     {
-        public J4JLoggerConfigurationRootBuilder()
-        {
-        }
-
         // Creates an instance of TConfig using the information from a particular section of an 
         // IConfigurationRoot object. loggerSection specifies the key of the key/value pair containing
         // the configuration information to be used.

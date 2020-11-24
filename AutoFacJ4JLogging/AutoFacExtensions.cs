@@ -86,20 +86,6 @@ namespace J4JSoftware.Logging
             return builder;
         }
 
-        //// utility method for creating and registering the underlying Serilog logger used by
-        //// J4JLogger.
-        //public static ContainerBuilder AddJ4JLogging(this ContainerBuilder builder)
-        //{
-        //    builder.Register(c => c.Resolve<IJ4JLoggerConfiguration>().CreateLogger())
-        //        .As<ILogger>()
-        //        .SingleInstance();
-
-        //    builder.RegisterType<J4JLogger>()
-        //        .As<IJ4JLogger>();
-
-        //    return builder;
-        //}
-
         // utility method for creating and registering the underlying Serilog logger used by
         // J4JLogger.
         public static ContainerBuilder RegisterLogger(this ContainerBuilder builder)

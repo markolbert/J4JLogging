@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -23,6 +20,8 @@ namespace J4JSoftware.Logging
                          || kvp.Value.Equals( value, StringComparison.OrdinalIgnoreCase ) ) )
                 .Value;
         }
+
+        public static IJ4JLoggerConfiguration? CreateLogger( string junk ) => null;
 
         // Creates an instance of Serilog's ILogger to be wrapped by IJ4JLogger. Configures the
         // Serilog ILogger instance to work with IJ4JLogger and sets up the configured channels.

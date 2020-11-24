@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace J4JSoftware.Logging
+﻿namespace J4JSoftware.Logging
 {
     // defines the functionality of types which are derived from TextChannel and are hence
     // capable of offering extended logging services. An example of this is the Twilio
