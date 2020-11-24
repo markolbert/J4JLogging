@@ -20,10 +20,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
-	  <ProjectReference Include="..\..\ConsoleChannel\ConsoleChannel.csproj" />
-	  <ProjectReference Include="..\..\DebugChannel\DebugChannel.csproj" />
-	  <ProjectReference Include="..\..\FileChannel\FileChannel.csproj" />
 	  <ProjectReference Include="..\..\J4JLogging\J4JLogging.csproj" />
 	</ItemGroup>
 

@@ -30,13 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
-    <ProjectReference Include="..\ConsoleChannel\ConsoleChannel.csproj" />
-    <ProjectReference Include="..\DebugChannel\DebugChannel.csproj" />
-    <ProjectReference Include="..\FileChannel\FileChannel.csproj" />
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-    <ProjectReference Include="..\TextChannel\TextChannel.csproj" />
-    <ProjectReference Include="..\TwilioChannel\TwilioChannel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

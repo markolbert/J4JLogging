@@ -17,7 +17,7 @@ namespace J4JLoggingTests
         [Fact]
         public void Serialization_and_deserialization_multichannels()
         {
-            var channels = new List<ILogChannel>
+            var channels = new List<IChannelConfig>
             {
                 new ConsoleChannel(),
                 new DebugChannel(),
@@ -67,8 +67,8 @@ namespace J4JLoggingTests
         [InlineData("File", typeof(FileChannel))]
         public void Serialization_and_deserialization_single_channel( string channelID, Type channelType )
         {
-            var channels = new List<ILogChannel>();
-            channels.Add( (ILogChannel) Activator.CreateInstance( channelType ) );
+            var channels = new List<IChannelConfig>();
+            channels.Add( (IChannelConfig) Activator.CreateInstance( channelType ) );
 
             var config = new J4JLoggerConfiguration
             {

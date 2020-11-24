@@ -19,27 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gitdoc", "gitdoc", "{33976A
 		docs\usage.md = docs\usage.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleChannel", "ConsoleChannel\ConsoleChannel.csproj", "{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugChannel", "DebugChannel\DebugChannel.csproj", "{C8D2DC4B-999D-492C-8F6D-D08A2195018F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileChannel", "FileChannel\FileChannel.csproj", "{9A056852-9235-4D9C-9A18-2E4D326CC371}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextChannel", "TextChannel\TextChannel.csproj", "{A332EB1F-D05F-413C-A1DB-F4103169249D}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TwilioChannel", "TwilioChannel\TwilioChannel.csproj", "{DC392FD0-D26E-47C6-9B0F-E91742D5CD51}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutofacJ4JLogging", "AutoFacJ4JLogging\AutofacJ4JLogging.csproj", "{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{A4168158-D34D-4BD3-A539-257B3A19402C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFileExample", "examples\SimpleFileExample\SimpleFileExample.csproj", "{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DerivedFileExample", "examples\DerivedFileExample\DerivedFileExample.csproj", "{6F18D9CB-028A-4C7D-8F9E-915141F7F743}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedFileExample", "examples\EmbeddedFileExample\EmbeddedFileExample.csproj", "{6C11B3D1-4508-493C-BA79-147F501721B7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,54 +33,16 @@ Global
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADBA78D4-A189-4B62-98D5-90AE77C8EF6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C8D2DC4B-999D-492C-8F6D-D08A2195018F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C8D2DC4B-999D-492C-8F6D-D08A2195018F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C8D2DC4B-999D-492C-8F6D-D08A2195018F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C8D2DC4B-999D-492C-8F6D-D08A2195018F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9A056852-9235-4D9C-9A18-2E4D326CC371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9A056852-9235-4D9C-9A18-2E4D326CC371}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9A056852-9235-4D9C-9A18-2E4D326CC371}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9A056852-9235-4D9C-9A18-2E4D326CC371}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A332EB1F-D05F-413C-A1DB-F4103169249D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A332EB1F-D05F-413C-A1DB-F4103169249D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A332EB1F-D05F-413C-A1DB-F4103169249D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A332EB1F-D05F-413C-A1DB-F4103169249D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC392FD0-D26E-47C6-9B0F-E91742D5CD51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC392FD0-D26E-47C6-9B0F-E91742D5CD51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC392FD0-D26E-47C6-9B0F-E91742D5CD51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC392FD0-D26E-47C6-9B0F-E91742D5CD51}.Release|Any CPU.Build.0 = Release|Any CPU
-		{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{004FDDE3-3E6C-4BBA-AD47-D5744FC12204}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A4168158-D34D-4BD3-A539-257B3A19402C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A4168158-D34D-4BD3-A539-257B3A19402C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A4168158-D34D-4BD3-A539-257B3A19402C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A4168158-D34D-4BD3-A539-257B3A19402C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6C11B3D1-4508-493C-BA79-147F501721B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6C11B3D1-4508-493C-BA79-147F501721B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6C11B3D1-4508-493C-BA79-147F501721B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6C11B3D1-4508-493C-BA79-147F501721B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2E5BC340-78B0-4DED-A42D-2A54B36B0F33} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
-		{6C11B3D1-4508-493C-BA79-147F501721B7} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}

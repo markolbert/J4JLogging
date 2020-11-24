@@ -21,27 +21,17 @@ namespace J4JSoftware.Logging
                 .Value;
         }
 
-        public static IJ4JLoggerConfiguration? CreateLogger( string junk ) => null;
-
         // Creates an instance of Serilog's ILogger to be wrapped by IJ4JLogger. Configures the
         // Serilog ILogger instance to work with IJ4JLogger and sets up the configured channels.
-        public static ILogger? CreateLogger( this IJ4JLoggerConfiguration config )
+        public static ILogger? CreateBaseLogger( this IJ4JLoggerConfiguration config, ILogChannels channelSet )
         {
-            if( config == null )
-                return null;
-
             var loggerConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext()
-                .SetMinimumLevel( config.Channels?.Min( c => c.MinimumLevel ) ?? LogEventLevel.Verbose );
+                .SetMinimumLevel( channelSet.MinimumLogLevel );
 
-            var outputTemplate = config.GetEnrichedMessageTemplate();
-
-            if( config.Channels != null )
+            foreach( var channel in channelSet )
             {
-                foreach( var channel in config.Channels )
-                {
-                    channel.Configure( loggerConfig.WriteTo, outputTemplate );
-                }
+                channel.Configure( loggerConfig.WriteTo );
             }
 
             return loggerConfig.CreateLogger();

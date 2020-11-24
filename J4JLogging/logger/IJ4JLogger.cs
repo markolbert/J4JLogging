@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog.Events;
 
@@ -23,6 +24,9 @@ namespace J4JSoftware.Logging
 
         // The logger's configuration information
         IJ4JLoggerConfiguration Configuration { get; }
+
+        // the channels to which logging output will be directed
+        List<LogChannel> Channels { get; }
 
         #region Write() methods
 

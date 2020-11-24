@@ -12,15 +12,5 @@
 
         // clears the log channel's state
         void Clear();
-
-        // non-generic interface for configuring the post processor
-        bool Initialize( object config );
-    }
-
-    public interface IPostProcess<in TSms> : IPostProcess
-        where TSms : class
-    {
-        // Configures the post processor based on an instance of a configuration type
-        bool Initialize( TSms config );
     }
 }

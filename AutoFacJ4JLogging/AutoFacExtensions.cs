@@ -93,7 +93,7 @@ namespace J4JSoftware.Logging
             builder.Register(c =>
                {
                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-                   return loggerConfig.CreateLogger()!;
+                   return loggerConfig.CreateBaseLogger()!;
                })
                 .As<ILogger>()
                 .SingleInstance();
@@ -126,7 +126,7 @@ namespace J4JSoftware.Logging
 
             foreach (var channelType in channelTypes)
             {
-                if (!(typeof(ILogChannel).IsAssignableFrom(channelType)))
+                if (!(typeof(IChannelConfig).IsAssignableFrom(channelType)))
                     continue;
 
                 var attr = channelType.GetCustomAttributes(typeof(ChannelAttribute), false)

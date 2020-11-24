@@ -51,7 +51,7 @@ namespace J4JLoggingTests
             var twilioConfig = services.GetRequiredService<ITwilioConfig>();
             twilioConfig.Should().NotBe(null);
 
-            twilio?.Initialize(services.GetRequiredService<ITwilioConfig>());
+            //twilio?.Initialize(services.GetRequiredService<ITwilioConfig>());
 
             var mesgTemplate =  "{0}";
 

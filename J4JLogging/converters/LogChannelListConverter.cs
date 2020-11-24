@@ -8,7 +8,7 @@ namespace J4JSoftware.Logging
 {
     // converts between structured string values and ILogChannel values. Any recognized text
     // results results in an EventElements.All value.
-    public class LogChannelListConverter : JsonConverter<List<ILogChannel>>
+    public class LogChannelListConverter : JsonConverter<List<IChannelConfig>>
     {
         private readonly Dictionary<string, Type> _channelTypes;
 
@@ -17,13 +17,13 @@ namespace J4JSoftware.Logging
             _channelTypes = channelTypes ?? throw new NullReferenceException( nameof(channelTypes) );
         }
 
-        public override List<ILogChannel> Read( ref Utf8JsonReader reader, Type typeToConvert,
+        public override List<IChannelConfig> Read( ref Utf8JsonReader reader, Type typeToConvert,
             JsonSerializerOptions options )
         {
             if( reader.TokenType != JsonTokenType.StartArray)
                 throw new JsonException();
 
-            var retVal = new List<ILogChannel>();
+            var retVal = new List<IChannelConfig>();
 
             using JsonDocument doc = JsonDocument.ParseValue( ref reader );
             {
@@ -57,7 +57,7 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
-        public override void Write( Utf8JsonWriter writer, List<ILogChannel> value, JsonSerializerOptions options )
+        public override void Write( Utf8JsonWriter writer, List<IChannelConfig> value, JsonSerializerOptions options )
         {
             writer.WriteStartArray();
 

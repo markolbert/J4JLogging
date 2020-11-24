@@ -15,21 +15,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Autofac" Version="5.2.0" />
-		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+		<PackageReference Include="Autofac" Version="6.0.0" />
+		<PackageReference Include="Autofac.Configuration" Version="6.0.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
-	  <ProjectReference Include="..\..\ConsoleChannel\ConsoleChannel.csproj" />
-	  <ProjectReference Include="..\..\DebugChannel\DebugChannel.csproj" />
-	  <ProjectReference Include="..\..\FileChannel\FileChannel.csproj" />
 	  <ProjectReference Include="..\..\J4JLogging\J4JLogging.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <None Update="logConfig.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	</ItemGroup>
 
