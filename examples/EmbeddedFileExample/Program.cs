@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
@@ -27,25 +28,27 @@ namespace J4JLogger.Examples
 
         private static void InitializeServiceProvider()
         {
-            var builder = new ContainerBuilder();
+            var configBuilder = new ConfigurationBuilder();
 
-            // we use Microsoft's ConfigurationBuilder to create an instance of a configuration
-            // object derived from the JSON configuration file. The resulting IConfigurationRoot
-            // is passed to a J4JLogger Autofac-based registration method.
-            var configRoot = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
-                .AddJsonFile("logConfig.json")
+            var config = configBuilder
+                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
                 .Build();
 
-            // "Logger" is the key of the key/value pair within IConfigurationRoot which holds
-            // the J4JLoggerConfiguration-based configuration information
-            builder.AddJ4JLogging<J4JLoggerConfiguration>(
-                configRoot,
-                "Logger",
-                typeof(ConsoleChannel), typeof(DebugChannel), typeof(FileChannel)
-            );
+            var builder = new ContainerBuilder();
 
-            _svcProvider = new AutofacServiceProvider( builder.Build() );
+            var channelConfig = config.GetSection("Logger:Channels").Get<ChannelConfiguration>();
+
+            builder.Register( c => config.GetSection( "Logger" ).Get<J4JLoggerConfiguration>() )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            builder.RegisterChannel(channelConfig.Console);
+            builder.RegisterChannel(channelConfig.Debug);
+            builder.RegisterChannel(channelConfig.File);
+
+            builder.RegisterJ4JLogging();
+
+            _svcProvider = new AutofacServiceProvider(builder.Build());
         }
     }
 }

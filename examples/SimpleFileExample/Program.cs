@@ -3,6 +3,7 @@ using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 #pragma warning disable 8618
 
@@ -26,15 +27,27 @@ namespace J4JLogger.Examples
 
         private static void InitializeServiceProvider()
         {
+            var configBuilder = new ConfigurationBuilder();
+
+            var config = configBuilder
+                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
+                .Build();
+
             var builder = new ContainerBuilder();
 
-            builder.AddJ4JLogging<J4JLoggerConfiguration>(
-                Path.Combine( Environment.CurrentDirectory, "logConfig.json" ),
-                typeof(ConsoleChannel),
-                typeof(DebugChannel),
-                typeof(FileChannel) );
+            var channelConfig = config.GetSection("Channels").Get<ChannelConfiguration>();
 
-            _svcProvider = new AutofacServiceProvider( builder.Build() );
+            builder.Register(c => config.Get<J4JLoggerConfiguration>())
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            builder.RegisterChannel(channelConfig.Console);
+            builder.RegisterChannel(channelConfig.Debug);
+            builder.RegisterChannel(channelConfig.File);
+
+            builder.RegisterJ4JLogging();
+
+            _svcProvider = new AutofacServiceProvider(builder.Build());
         }
     }
 }

@@ -1,21 +1,18 @@
 {
-  "DefaultElements" :  "SourceCode", 
+  "DefaultElements": "SourceCode",
   "SourceRootPath": "C:/Programming/J4JLogging/",
-  "Channels": [
-    {
-      "Channel": "Console",
-      "MinimumLevel": "Verbose"
+  "Channels": {
+    "Console": {
+      "MinimumLevel": "Information"
     },
-    {
-      "Channel": "Debug",
-      "MinimumLevel": "Verbose"
+    "Debug": {
+      "MinimumLevel": "Debug"
     },
-    {
-      "Channel": "File",
-      "Location": "ExeFolder",
+    "File": {
+      "Location": "AppData",
       "RollingInterval": "Day",
       "FileName": "log.text",
       "MinimumLevel": "Verbose"
     }
-  ]
+  }
 }
