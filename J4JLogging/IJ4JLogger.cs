@@ -26,7 +26,7 @@ namespace J4JSoftware.Logging
         IJ4JLoggerConfiguration Configuration { get; }
 
         // the channels to which logging output will be directed
-        List<LogChannel> Channels { get; }
+        LogChannels Channels { get; }
 
         #region Write() methods
 

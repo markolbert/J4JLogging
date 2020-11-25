@@ -1,25 +1,23 @@
 {
-  "DefaultElements" :  "SourceCode", 
-  "SourceRootPath": "C:/Programming/J4JLogging/",
-  "Channels": [
-    {
-      "Channel": "Console",
-      "MinimumLevel": "Verbose"
+  "Logger": {
+    "DefaultElements": "SourceCode",
+    "SourceRootPath": "C:/Programming/J4JLogging/"
+  },
+  "Channels": {
+    "Console": {
+      "MinimumLevel": "Information"
     },
-    {
-      "Channel": "Debug",
-      "MinimumLevel": "Verbose"
+    "Debug": {
+      "MinimumLevel": "Debug"
     },
-    {
-      "Channel": "File",
+    "File": {
       "Location": "AppData",
       "RollingInterval": "Day",
       "FileName": "log.text",
       "MinimumLevel": "Verbose"
     },
-    {
-      "Channel": "Twilio",
+    "Twilio": {
       "MinimumLevel": "Verbose"
     }
-  ]
+  }
 }

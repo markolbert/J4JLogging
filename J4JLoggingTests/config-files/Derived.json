@@ -1,34 +1,34 @@
 {
-  "SomeOtherProperty": true,
-  "SomeOtherArray": [
-    "a",
-    "b",
-    "c"
-  ],
-  "SomeOtherObject" : {
-    "Property1": 15,
-    "Property2": "abc" 
+  "Other": {
+    "SomeOtherProperty": true,
+    "SomeOtherArray": [
+      "a",
+      "b",
+      "c"
+    ],
+    "SomeOtherObject": {
+      "Property1": 15,
+      "Property2": "abc"
+    }
   },
-  "SourceRootPath": "C:/Programming/J4JLogging/",
-  "Channels": [
-    {
-      "Channel": "Console",
-      "MinimumLevel": "Verbose"
+  "Logger" : {
+    "SourceRootPath": "C:/Programming/J4JLogging/"
+  },
+  "Channels": {
+    "Console": {
+      "MinimumLevel": "Information"
     },
-    {
-      "Channel": "Debug",
-      "MinimumLevel": "Verbose"
+    "Debug": {
+      "MinimumLevel": "Debug"
     },
-    {
-      "Channel": "File",
+    "File": {
       "Location": "AppData",
       "RollingInterval": "Day",
       "FileName": "log.text",
       "MinimumLevel": "Verbose"
     },
-    {
-      "Channel": "Twilio",
+    "Twilio": {
       "MinimumLevel": "Verbose"
     }
-  ]
+  }
 }

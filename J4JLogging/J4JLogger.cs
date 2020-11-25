@@ -21,8 +21,9 @@ namespace J4JSoftware.Logging
     {
         private bool _forceExternal;
 
-        public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
+        public J4JLogger( LogChannels channels, IJ4JLoggerConfiguration config, ILogger baseLogger )
         {
+            Channels = channels;
             Configuration = config;
             BaseLogger = baseLogger;
         }
@@ -30,12 +31,12 @@ namespace J4JSoftware.Logging
         /// <summary>
         /// The <see cref="Serilog.ILogger"/>  instance that handles the actual logging. Read only.
         /// </summary>
-        protected ILogger? BaseLogger { get; private set; }
+        protected ILogger BaseLogger { get; private set; }
 
         public IJ4JLoggerConfiguration Configuration { get; }
 
         // the channels to which logging output will be directed
-        public List<LogChannel> Channels { get; } = new List<LogChannel>();
+        public LogChannels Channels { get; }
 
         // Evoke any configured IPostProcess-implementing channels. If external sinks are
         // active, either through configuration or on a one-time basis, call IPostProcess.PostProcess().

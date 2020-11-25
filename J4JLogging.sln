@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFileExample", "exampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedFileExample", "examples\EmbeddedFileExample\EmbeddedFileExample.csproj", "{E5AB57C3-D38D-416C-893F-71289EC0900A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{E724D950-8108-4B98-8063-1C30CEEDE432}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

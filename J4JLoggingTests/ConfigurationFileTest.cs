@@ -27,8 +27,8 @@ namespace J4JLoggingTests
             containerBuilder.RegisterType<J4JLogger>()
                 .As<IJ4JLogger>();
 
-            containerBuilder.Register(c => new TwilioTestConfig())
-                .As<ITwilioConfig>()
+            containerBuilder.RegisterType<TwilioTestConfig>()
+                .AsSelf()
                 .SingleInstance();
         }
 
