@@ -42,9 +42,9 @@ namespace J4JLogger.Examples
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
 
-            builder.RegisterChannel(channelConfig.Console);
-            builder.RegisterChannel(channelConfig.Debug);
-            builder.RegisterChannel(channelConfig.File);
+            builder.RegisterJ4JLoggingChannel(channelConfig.Console);
+            builder.RegisterJ4JLoggingChannel(channelConfig.Debug);
+            builder.RegisterJ4JLoggingChannel(channelConfig.File);
 
             builder.RegisterJ4JLogging();
 
