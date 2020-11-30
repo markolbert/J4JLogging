@@ -9,7 +9,7 @@ namespace J4JSoftware.Logging
 {
     public static class AutofacExtensions
     {
-        public static ContainerBuilder RegisterChannel<TChannel>(
+        public static ContainerBuilder RegisterJ4JLoggingChannel<TChannel>(
             this ContainerBuilder builder,
             J4JChannelConfig<TChannel> channelConfig)
             where TChannel : LogChannel
@@ -17,6 +17,23 @@ namespace J4JSoftware.Logging
             builder.Register(c =>
                     (TChannel)Activator.CreateInstance(
                         typeof(TChannel),
+                        c.Resolve<IJ4JLoggerConfiguration>(),
+                        channelConfig
+                    )!)
+                .As<ILogChannel>()
+                .SingleInstance();
+
+            return builder;
+        }
+
+        public static ContainerBuilder RegisterJ4JLoggingChannel(
+            this ContainerBuilder builder,
+            Type channelType,
+            IJ4JChannelConfig channelConfig)
+        {
+            builder.Register(c =>
+                    Activator.CreateInstance(
+                        channelType,
                         c.Resolve<IJ4JLoggerConfiguration>(),
                         channelConfig
                     )!)
