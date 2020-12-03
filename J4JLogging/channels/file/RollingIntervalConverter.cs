@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Serilog;
-using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
@@ -14,7 +11,7 @@ namespace J4JSoftware.Logging
     {
         public override RollingInterval Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
         {
-            return reader.GetString().ToLowerInvariant() switch
+            return reader.GetString()!.ToLowerInvariant() switch
             {
                 "day" => RollingInterval.Day,
                 "hour" => RollingInterval.Hour,

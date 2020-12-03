@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
@@ -28,14 +24,20 @@ namespace J4JLoggingTests
 
             var channelConfig = config.GetSection(channelsKey).Get<ChannelConfiguration>();
 
-            builder.Register(c => config.GetSection(loggerKey).Get<J4JLoggerConfiguration>())
-                .As<IJ4JLoggerConfiguration>()
+            builder.Register( c => channelConfig.LastEvent )
+                .AsSelf()
                 .SingleInstance();
 
-            builder.RegisterJ4JLoggingChannel(channelConfig.Console);
-            builder.RegisterJ4JLoggingChannel(channelConfig.Debug);
-            builder.RegisterJ4JLoggingChannel(channelConfig.File);
-            builder.RegisterJ4JLoggingChannel( channelConfig.Twilio );
+            builder.Register(c =>
+                {
+                    var retVal = config.GetSection( loggerKey ).Get<J4JLoggerConfiguration<ChannelConfiguration>>();
+
+                    retVal.Channels = channelConfig;
+
+                    return retVal;
+                } )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
 
             builder.RegisterJ4JLogging();
             
@@ -43,5 +45,6 @@ namespace J4JLoggingTests
         }
 
         public IJ4JLogger J4JLogger => _svcProvider.GetRequiredService<IJ4JLogger>();
+        public LastEventConfig LastEventConfig => _svcProvider.GetRequiredService<LastEventConfig>();
     }
 }

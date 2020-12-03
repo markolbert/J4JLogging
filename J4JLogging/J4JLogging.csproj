@@ -26,8 +26,19 @@
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="docs\**" />
 		<Compile Remove="channels\base\ChannelAttribute.cs" />
+		<Compile Remove="channels\base\ILogChannel.cs" />
+		<Compile Remove="channels\base\IPostProcess.cs" />
+		<Compile Remove="channels\base\LogChannel.cs" />
+		<Compile Remove="channels\base\TextChannel.cs" />
+		<Compile Remove="channels\console\ConsoleChannel.cs" />
+		<Compile Remove="channels\debug\DebugChannel.cs" />
+		<Compile Remove="channels\file\FileChannel.cs" />
+		<Compile Remove="channels\file\FileChannel.Static.cs" />
 		<Compile Remove="channels\file\IFileConfig.cs" />
+		<Compile Remove="channels\ILogChannels.cs" />
+		<Compile Remove="channels\LogChannels.cs" />
 		<Compile Remove="channels\twilio\ITwilioConfig.cs" />
+		<Compile Remove="channels\twilio\TwilioChannel.cs" />
 		<Compile Remove="configuration\J4JLoggerConfigurationBuilder.cs" />
 		<Compile Remove="configuration\J4JLoggerConfigurationJsonBuilder.cs" />
 		<Compile Remove="configuration\J4JLoggerConfigurationNG.cs" />
@@ -47,11 +58,16 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
+		<PackageReference Include="Serilog.Expressions" Version="1.0.0" />
 		<PackageReference Include="System.Text.Json" Version="5.0.0" />
 		<PackageReference Include="Twilio" Version="5.50.0" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-		<PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1">
+		  <Aliases>SerilogConsole</Aliases>
+		</PackageReference>
+		<PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1">
+		  <Aliases>SerilogDebug</Aliases>
+		</PackageReference>
 		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 		<PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
 	</ItemGroup>

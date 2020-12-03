@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Configuration;
 #pragma warning disable 8618
@@ -14,18 +12,18 @@ namespace J4JSoftware.Logging
         {
             Location = channelConfig.Location;
             RollingInterval = channelConfig.RollingInterval;
-            FilePath = channelConfig.FilePath;
+            FilePath = channelConfig.Folder;
             FileName = channelConfig.FileName;
         }
 
-        public FileChannel( IOptions<J4JLoggerConfiguration> config, IOptions<FileConfig> channelConfig )
-            : base(config.Value, channelConfig.Value)
-        {
-            Location = channelConfig.Value.Location;
-            RollingInterval = channelConfig.Value.RollingInterval;
-            FilePath = channelConfig.Value.FilePath;
-            FileName = channelConfig.Value.FileName;
-        }
+        //public FileChannel( IOptions<J4JLoggerConfiguration> config, IOptions<FileConfig> channelConfig )
+        //    : base(config.Value, channelConfig.Value)
+        //{
+        //    Location = channelConfig.Value.Location;
+        //    RollingInterval = channelConfig.Value.RollingInterval;
+        //    FilePath = channelConfig.Value.FilePath;
+        //    FileName = channelConfig.Value.FileName;
+        //}
 
         public LogFileLocation Location { get; } 
         public RollingInterval RollingInterval { get; }

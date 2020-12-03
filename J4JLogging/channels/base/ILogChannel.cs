@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System;
+using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 
@@ -8,6 +9,6 @@ namespace J4JSoftware.Logging
     {
         LogEventLevel MinimumLevel { get; }
         string? OutputTemplate { get; }
-        LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+        //LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
     }
 }

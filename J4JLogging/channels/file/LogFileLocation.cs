@@ -7,6 +7,9 @@
         AppData,
 
         // store the log file in the application's exe folder
-        ExeFolder
+        ExeFolder,
+
+        // store the log file at an absolute path
+        Absolute
     }
 }

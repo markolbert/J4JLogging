@@ -11,7 +11,7 @@ namespace J4JSoftware.Logging
     {
         public override LogEventLevel Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
         {
-            return reader.GetString().ToLowerInvariant() switch
+            return reader.GetString()!.ToLowerInvariant() switch
             {
                 "debug" => LogEventLevel.Debug,
                 "error" => LogEventLevel.Error,

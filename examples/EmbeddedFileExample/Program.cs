@@ -38,13 +38,16 @@ namespace J4JLogger.Examples
 
             var channelConfig = config.GetSection("Logger:Channels").Get<ChannelConfiguration>();
 
-            builder.Register( c => config.GetSection( "Logger" ).Get<J4JLoggerConfiguration>() )
+            builder.Register( c =>
+                {
+                    var retVal = config.GetSection( "Logger" ).Get<J4JLoggerConfiguration<ChannelConfiguration>>();
+
+                    retVal.Channels = channelConfig;
+
+                    return retVal;
+                } )
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
-
-            builder.RegisterJ4JLoggingChannel(channelConfig.Console);
-            builder.RegisterJ4JLoggingChannel(channelConfig.Debug);
-            builder.RegisterJ4JLoggingChannel(channelConfig.File);
 
             builder.RegisterJ4JLogging();
 

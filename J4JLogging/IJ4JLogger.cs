@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog.Events;
 
@@ -17,16 +16,14 @@ namespace J4JSoftware.Logging
         // it enriches the logging information
         void SetLoggedType( Type toLog );
 
-        // Forces the next logging event to be processed by any ILogChannel instances
-        // implementing the IPostProcess interface. This enables logging to endpoints
-        // such as Twilio (via TwilioChannel)
-        IJ4JLogger ForceExternal( bool processExternal = true );
+        // Forces the next logging event to be sent to an SmsSink if one was included
+        IJ4JLogger IncludeSms();
 
         // The logger's configuration information
         IJ4JLoggerConfiguration Configuration { get; }
 
-        // the channels to which logging output will be directed
-        LogChannels Channels { get; }
+        //// the channels to which logging output will be directed
+        //LogChannels Channels { get; }
 
         #region Write() methods
 

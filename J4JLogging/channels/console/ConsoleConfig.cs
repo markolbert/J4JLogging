@@ -1,14 +1,17 @@
 ﻿using Serilog;
 using Serilog.Configuration;
-using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
+    extern alias SerilogConsole;
+
     // defines the configuration for a console channel
-    public class ConsoleConfig : J4JChannelConfig<ConsoleChannel>
+    public class ConsoleConfig : ChannelConfig
     {
-        public ConsoleConfig()
-        {
-        }
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig ) =>
+            SerilogConsole::Serilog.ConsoleLoggerConfigurationExtensions.Console(
+                sinkConfig,
+                MinimumLevel,
+                OutputTemplate );
     }
 }

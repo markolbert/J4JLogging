@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Microsoft.Extensions.Configuration;
+﻿using System.IO;
 using Serilog;
 using Serilog.Configuration;
 
@@ -11,7 +9,7 @@ namespace J4JSoftware.Logging
     {
         private readonly StringWriter _writer = new StringWriter();
 
-        protected TextChannel( J4JLoggerConfiguration config, IJ4JChannelConfig channelConfig )
+        protected TextChannel( IJ4JLoggerConfiguration config, IJ4JChannelConfig channelConfig )
             :base(config, channelConfig)
         {
         }

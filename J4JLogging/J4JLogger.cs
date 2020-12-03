@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Context;
 using Serilog.Events;
@@ -19,11 +17,10 @@ namespace J4JSoftware.Logging
     [ Dummy( "test", typeof(int) ) ]
     public class J4JLogger : IJ4JLogger
     {
-        private bool _forceExternal;
+        private bool _sendToSms;
 
-        public J4JLogger( LogChannels channels, IJ4JLoggerConfiguration config, ILogger baseLogger )
+        public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
         {
-            Channels = channels;
             Configuration = config;
             BaseLogger = baseLogger;
         }
@@ -35,38 +32,20 @@ namespace J4JSoftware.Logging
 
         public IJ4JLoggerConfiguration Configuration { get; }
 
-        // the channels to which logging output will be directed
-        public LogChannels Channels { get; }
-
-        // Evoke any configured IPostProcess-implementing channels. If external sinks are
-        // active, either through configuration or on a one-time basis, call IPostProcess.PostProcess().
-        // Otherwise, call IPostProcess.Clear() to reset the IPostProcess-implementing
-        // channel to its initial state to be ready for the next LogEvent.
-        protected void PostProcess()
-        {
-            var doExternal = _forceExternal || Configuration.UseExternalSinks;
-
-            foreach( var channel in Channels
-                .Where( c => c is IPostProcess )
-                .Cast<IPostProcess>() )
-            {
-                if( doExternal ) channel.PostProcess();
-                else channel.Clear();
-            }
-        }
-
         // Initialize the additional LogEvent properties supported by IJ4JLogger
         protected List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
         {
-            var retVal = new List<IDisposable>();
-
-            LogContext.PushProperty(
-                "MemberName",
-                ( Configuration.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
-            );
+            var retVal = new List<IDisposable>
+            {
+                LogContext.PushProperty( "SendToSms", _sendToSms ),
+                LogContext.PushProperty(
+                    "MemberName",
+                    ( Configuration.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
+                )
+            };
 
             if( ( Configuration.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
-                LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" );
+                retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 
             return retVal;
         }
@@ -99,9 +78,9 @@ namespace J4JSoftware.Logging
         }
 
         // Force the next LogEvent to be processed by any IPostProcess-implementing channels
-        public IJ4JLogger ForceExternal( bool processExternal = true )
+        public IJ4JLogger IncludeSms()
         {
-            _forceExternal = processExternal;
+            _sendToSms = true;
             return this;
         }
 
@@ -134,8 +113,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template );
 
             DisposeContextProperties( contextProperties );
-
-            PostProcess();
         }
 
         /// <summary>
@@ -174,8 +151,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template, propertyValue );
 
             DisposeContextProperties( contextProperties );
-
-            PostProcess();
         }
 
         /// <summary>
@@ -219,8 +194,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template, propertyValue0, propertyValue1 );
 
             DisposeContextProperties( contextProperties );
-
-            PostProcess();
         }
 
         public virtual void Write<T0, T1, T2>(
@@ -239,8 +212,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template, propertyValue0, propertyValue1, propertyValue2 );
 
             DisposeContextProperties( contextProperties );
-
-            PostProcess();
         }
 
         public virtual void Write(
@@ -257,8 +228,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template, propertyValues );
 
             DisposeContextProperties( contextProperties );
-
-            PostProcess();
         }
 
         #endregion

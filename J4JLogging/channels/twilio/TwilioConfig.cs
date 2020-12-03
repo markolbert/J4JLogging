@@ -1,14 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using Serilog.Events;
+using Serilog;
+using Serilog.Configuration;
+using Twilio;
 using Twilio.Types;
 #pragma warning disable 8618
 
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of TwilioChannel
-    public class TwilioConfig : J4JChannelConfig<TwilioChannel>
+    public class TwilioConfig : ChannelConfig
     {
+        private readonly StringWriter _writer = new StringWriter();
+
         public string AccountSID { get; set; }
         public string AccountToken { get; set; }
         public string FromNumber { get; set; }
@@ -36,6 +41,16 @@ namespace J4JSoftware.Logging
             {
                 return new List<PhoneNumber>();
             }
+        }
+
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        {
+            TwilioClient.Init(AccountSID, AccountToken);
+
+            return sinkConfig.Logger( lc => lc.Filter
+                .ByIncludingOnly( "SendToSms" )
+                .WriteTo
+                .Sms<TwilioSink>( FromNumber, Recipients ) );
         }
 
         public override bool IsValid

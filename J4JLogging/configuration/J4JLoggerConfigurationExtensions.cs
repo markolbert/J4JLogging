@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Twilio.Base;
 
 namespace J4JSoftware.Logging.configuration
 {
@@ -22,7 +17,7 @@ namespace J4JSoftware.Logging.configuration
             {
                 result = System.Text.Json.JsonSerializer.Deserialize<TConfig>(jsonText);
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }

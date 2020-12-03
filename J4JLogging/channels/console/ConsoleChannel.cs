@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Configuration;
 
@@ -13,10 +12,10 @@ namespace J4JSoftware.Logging
         {
         }
 
-        public ConsoleChannel(IOptions<J4JLoggerConfiguration> config, IOptions<ConsoleConfig> channelConfig)
-            : base(config.Value, channelConfig.Value)
-        {
-        }
+        //public ConsoleChannel(IOptions<J4JLoggerConfiguration> config, IOptions<ConsoleConfig> channelConfig)
+        //    : base(config.Value, channelConfig.Value)
+        //{
+        //}
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {

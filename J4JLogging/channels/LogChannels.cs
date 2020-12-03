@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class LogChannels : ILogChannels
+    public class LogChannels<TChannels> : ILogChannels
+        where TChannels : IJ4JLoggingChannels, new()
     {
         private readonly List<ILogChannel> _channels;
 
-        public LogChannels( IEnumerable<ILogChannel> channels )
+        public LogChannels( IJ4JLoggerConfiguration<TChannels> config )
         {
-            _channels = channels.ToList();
+            _channels = config.Channels.GetChannelInstances( config );
         }
 
         public LogEventLevel MinimumLogLevel => _channels.Min( c => c.MinimumLevel );

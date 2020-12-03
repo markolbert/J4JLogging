@@ -23,16 +23,22 @@ namespace J4JSoftware.Logging
 
         // Creates an instance of Serilog's ILogger to be wrapped by IJ4JLogger. Configures the
         // Serilog ILogger instance to work with IJ4JLogger and sets up the configured channels.
-        public static ILogger? CreateBaseLogger( this IJ4JLoggerConfiguration config, ILogChannels channelSet )
+        public static ILogger? CreateBaseLogger( this IJ4JLoggerConfiguration config )
         {
             var loggerConfig = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .SetMinimumLevel( channelSet.MinimumLogLevel );
+                .Enrich.FromLogContext();
 
-            foreach( var channel in channelSet )
+            var minLevel = LogEventLevel.Fatal;
+
+            foreach( var channel in config )
             {
+                if( channel.MinimumLevel < minLevel ) 
+                    minLevel = channel.MinimumLevel;
+
                 channel.Configure( loggerConfig.WriteTo );
             }
+
+            loggerConfig.SetMinimumLevel( minLevel );
 
             return loggerConfig.CreateLogger();
         }

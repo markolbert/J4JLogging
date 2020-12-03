@@ -15,6 +15,6 @@ namespace J4JLogger.Examples
         public bool SomeOtherProperty { get; set; }
         public List<string> SomeOtherArray { get; set; }
         public SomeOther SomeOtherObject { get; set; }
-        public J4JLoggerConfiguration Logging { get; set; }
+        public J4JLoggerConfiguration<ChannelConfiguration> Logging { get; set; }
     }
 }
