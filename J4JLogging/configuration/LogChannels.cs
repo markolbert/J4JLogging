@@ -9,7 +9,7 @@ namespace J4JSoftware.Logging
         {
         }
 
-        public abstract IEnumerator<IJ4JChannelConfig> GetEnumerator();
+        public abstract IEnumerator<IChannelConfig> GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
         {

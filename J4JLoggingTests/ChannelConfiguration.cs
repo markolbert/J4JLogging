@@ -11,7 +11,7 @@ namespace J4JLoggingTests
         public TwilioTestConfig Twilio { get; set; }
         public LastEventConfig LastEvent { get; } = new LastEventConfig();
 
-        public override IEnumerator<IJ4JChannelConfig> GetEnumerator()
+        public override IEnumerator<IChannelConfig> GetEnumerator()
         {
             yield return Console;
             yield return Debug;

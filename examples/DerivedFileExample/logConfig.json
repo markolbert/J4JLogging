@@ -24,6 +24,9 @@
       "RollingInterval": "Day",
       "FileName": "log.text",
       "MinimumLevel": "Verbose"
+    },
+    "Twilio": {
+      "MinimumLevel": "Verbose"
     }
   }
 }

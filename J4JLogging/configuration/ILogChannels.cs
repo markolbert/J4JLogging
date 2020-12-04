@@ -2,7 +2,7 @@
 
 namespace J4JSoftware.Logging
 {
-    public interface ILogChannels : IEnumerable<IJ4JChannelConfig>
+    public interface ILogChannels : IEnumerable<IChannelConfig>
     {
     }
 }

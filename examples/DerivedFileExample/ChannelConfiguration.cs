@@ -10,7 +10,7 @@ namespace J4JLogger.Examples
         public DebugConfig Debug { get; set; }
         public FileConfig File { get; set; }
 
-        public override IEnumerator<IJ4JChannelConfig> GetEnumerator()
+        public override IEnumerator<IChannelConfig> GetEnumerator()
         {
             yield return Console;
             yield return Debug;

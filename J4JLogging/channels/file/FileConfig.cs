@@ -54,7 +54,7 @@ namespace J4JSoftware.Logging
                 sinkConfig,
                 path: GetFileTemplatePath(),
                 restrictedToMinimumLevel: MinimumLevel,
-                outputTemplate: OutputTemplate,
+                outputTemplate: EnrichedMessageTemplate,
                 rollingInterval: RollingInterval);
     }
 }

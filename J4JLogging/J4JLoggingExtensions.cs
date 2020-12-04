@@ -10,17 +10,6 @@ namespace J4JSoftware.Logging
     // Miscellaneous utility extension methods
     public static class J4JLoggingExtensions
     {
-        // Gets an IConfigurationRoot value given a path to that value and, optionally, the value of the value.
-        public static string GetConfigValue(this IConfigurationRoot configRoot, string path, string? value = null)
-        {
-            return configRoot.AsEnumerable()
-                .SingleOrDefault( kvp =>
-                    Regex.IsMatch( kvp.Key, path, RegexOptions.IgnoreCase )
-                    && ( string.IsNullOrEmpty( value )
-                         || kvp.Value.Equals( value, StringComparison.OrdinalIgnoreCase ) ) )
-                .Value;
-        }
-
         // Creates an instance of Serilog's ILogger to be wrapped by IJ4JLogger. Configures the
         // Serilog ILogger instance to work with IJ4JLogger and sets up the configured channels.
         public static ILogger? CreateBaseLogger( this IJ4JLoggerConfiguration config )

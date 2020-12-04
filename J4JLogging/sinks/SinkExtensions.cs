@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Formatting;
+using Serilog.Formatting.Display;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace J4JSoftware.Logging
 {
@@ -10,6 +13,7 @@ namespace J4JSoftware.Logging
     {
         public static LoggerConfiguration Sms<TSmsSink>( 
             this LoggerSinkConfiguration sinkConfig, 
+            ITextFormatter formatter,
             string fromNumber,
             IEnumerable<string> recipientNumbers )
             where TSmsSink : SmsSink, new()
@@ -17,7 +21,8 @@ namespace J4JSoftware.Logging
             return sinkConfig.Sink( new TSmsSink
             {
                 FromNumber = fromNumber,
-                RecipientNumbers = recipientNumbers.ToList()
+                RecipientNumbers = recipientNumbers.ToList(),
+                TextFormatter = formatter
             } );
         }
 

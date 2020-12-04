@@ -26,37 +26,11 @@ namespace J4JSoftware.Logging
         // configuration information for the log channels
         public TChannels Channels { get; set; } = new TChannels();
 
-        public IEnumerator<IJ4JChannelConfig> GetEnumerator() => Channels.GetEnumerator();
+        public IEnumerator<IChannelConfig> GetEnumerator() => Channels.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        // Gets the Serilog message template in use, augmented/enriched by optional fields
-        // supported by the J4JLogger system (e.g., SourceContext, which represents the 
-        // source code file's path).
-        public string EnrichMessageTemplate(string mesgTemplate)
-        {
-            var sb = new StringBuilder(mesgTemplate);
-
-            foreach (var element in EnumUtils.GetUniqueFlags<EventElements>())
-            {
-                switch (element)
-                {
-                    case EventElements.Type:
-                        sb.Append(" {SourceContext}{MemberName}");
-                        break;
-
-                    case EventElements.SourceCode:
-                        sb.Append(" {SourceCodeInformation}");
-                        break;
-                }
-            }
-
-            sb.Append("{NewLine}{Exception}");
-
-            return sb.ToString();
         }
     }
 }

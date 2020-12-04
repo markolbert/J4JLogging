@@ -11,10 +11,6 @@ namespace J4JSoftware.Logging
     ///     Wrapper for <see cref="Serilog.ILogger"/> which simplifies including calling member
     ///     (e.g., method name) and source code information.
     /// </summary>
-    // added to test SharpDoc
-    [ Dummy( "", typeof(string) ) ]
-    [ Dummy( "test", typeof(int) ) ]
-    [ Dummy( "test", typeof(int) ) ]
     public class J4JLogger : IJ4JLogger
     {
         private bool _sendToSms;
