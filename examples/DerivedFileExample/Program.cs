@@ -26,8 +26,6 @@ namespace J4JLogger.Examples
 
             logger.Information("This is an Informational logging message");
             logger.Fatal("This is a Fatal logging message");
-
-            logger.IncludeSms().Fatal("This is a Fatal logging message");
         }
 
         private static void InitializeServiceProvider()

@@ -54,6 +54,8 @@ namespace J4JSoftware.Logging
             {
                 contextProperty.Dispose();
             }
+
+            _sendToSms = false;
         }
 
         // Sets the type being logged. This is not required to use IJ4JLogger but

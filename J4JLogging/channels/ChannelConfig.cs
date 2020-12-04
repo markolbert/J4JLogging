@@ -33,7 +33,7 @@ namespace J4JSoftware.Logging
         // Gets the Serilog message template in use, augmented/enriched by optional fields
         // supported by the J4JLogger system (e.g., SourceContext, which represents the 
         // source code file's path).
-        public string EnrichedMessageTemplate
+        public virtual string EnrichedMessageTemplate
         {
             get
             {

@@ -1,6 +1,6 @@
 # J4JLogging
 
-A Net Core 3.1 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by
+A Net 5.0 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by
 reporting source code information.
 
 [![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
@@ -13,9 +13,10 @@ using System;
 using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoFacJ4JLogging;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+#pragma warning disable 8618
 
 namespace J4JLogger.Examples
 {
@@ -33,42 +34,92 @@ namespace J4JLogger.Examples
             logger.SetLoggedType<Program>();
 
             logger.Information("This is an Informational logging message");
+            logger.Fatal("This is a Fatal logging message");
         }
 
         private static void InitializeServiceProvider()
         {
+            var configBuilder = new ConfigurationBuilder();
+
+            var config = configBuilder
+                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
+                .Build();
+
             var builder = new ContainerBuilder();
 
-            builder.AddJ4JLogging<J4JLoggerConfiguration>(
-                Path.Combine( Environment.CurrentDirectory, "logConfig.json" ),
-                typeof(ConsoleChannel),
-                typeof(DebugChannel),
-                typeof(FileChannel) );
+            var channelConfig = config.GetSection("Channels").Get<ChannelConfiguration>();
 
-            _svcProvider = new AutofacServiceProvider( builder.Build() );
+            builder.Register(c =>
+                {
+                    var retVal = config.Get<J4JLoggerConfiguration<ChannelConfiguration>>();
+
+                    retVal.Channels = channelConfig;
+
+                    return retVal;
+                } )
+                .As<IJ4JLoggerConfiguration>()
+                .SingleInstance();
+
+            builder.RegisterJ4JLogging();
+
+            _svcProvider = new AutofacServiceProvider(builder.Build());
+        }
+    }
+
+    public class ChannelConfiguration : LogChannels
+    {
+        public ConsoleConfig Console { get; set; }
+        public DebugConfig Debug { get; set; }
+        public FileConfig File { get; set; }
+
+        public override IEnumerator<IChannelConfig> GetEnumerator()
+        {
+            yield return Console;
+            yield return Debug;
+            yield return File;
         }
     }
 }
+
+Contents of logConfig.json:
+{
+  "DefaultElements": "SourceCode",
+  "SourceRootPath": "C:/Programming/J4JLogging/",
+  "Channels": {
+    "Console": {
+      "MinimumLevel": "Information"
+    },
+    "Debug": {
+      "MinimumLevel": "Debug"
+    },
+    "File": {
+      "Location": "AppData",
+      "RollingInterval": "Day",
+      "FileName": "log.text",
+      "MinimumLevel": "Verbose"
+    }
+  }
+}
+
 ```
 ### Important Note
 **There is one significant difference in how you call the logging methods
 from the Serilog standard.** 
 
-If you pass anything other than a simple string (i.e., a value 
-for the template argument) to the methods you **must** specify the types of 
+If you pass a simple string (i.e., a value for the template argument) to the methods you **must** specify the types of 
 the propertyValue arguments explicitly in the method call. 
 
 An example:
 
 ```csharp
-int someIntValue = 1;
-_logger.Debug<int>("The value of that argument is {someIntValue}", someIntValue);
+string someStringValue = "abcd";
+_logger.Debug<string>("The value of that argument is {someIntValue}", someStringValue);
 ```
 This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
 arguments are automagically set for you by the compiler. The fact the 
 `memberName` and `srcPath` arguments of the logging methods are strings and
-"collide" with the `template` argument. That makes explict type 
-specifications for the arguments necessary.
+"collide" string arguments you may specify. That makes explict type 
+specifications for the arguments necessary when strings are referenced by the message template.
 
 ### Table of Contents
 

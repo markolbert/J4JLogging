@@ -1,83 +1,87 @@
 ### Adding a Channel
 
-Adding a `LogChannel` to the framework is a matter of defining a
-class which implements `ILogChannel` and handles configuration properly.
-
-As an example, consider `FileChannel`, which wraps Serilog's **File** sink:
+Channels are a concept I added to the Serilog environment because I wanted to be able to
+configure multiple Serilog sinks in a generalized way. Adding a channel is easy:
+you define a configuration class for the channel which implements `IChannelConfig`:
 ```csharp
-[Channel("File")]
-public partial class FileChannel : LogChannel
+public interface IChannelConfig
 {
-    public FileChannel()
+    LogEventLevel MinimumLevel { get; set; }
+    string? OutputTemplate { get; set; }
+    bool IsValid { get; }
+        
+    // Gets the Serilog message template in use, augmented/enriched by optional fields
+    // supported by the J4JLogger system (e.g., SourceContext, which represents the 
+    // source code file's path).
+    string EnrichedMessageTemplate { get; }
+
+    LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+}
+```
+To make this even easier there's a base class, `ChannelConfig`, from which you
+derive your own channel configuration class:
+```csharp
+// defines the base configuration for a log channel
+public abstract class ChannelConfig : IChannelConfig
+{
+    // the default Serilog message template to be used by the system
+    public const string DefaultMessageTemplate =
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+
+    protected ChannelConfig()
     {
     }
 
-    public FileChannel( IConfigurationRoot configRoot, string loggerSection = "Logger" )
-        : base( configRoot, loggerSection )
+    // the minimum Serilog level the channel will log
+    public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
+        
+    public string? OutputTemplate { get; set; } = DefaultMessageTemplate;
+
+    // flag indicating which event elements (e.g., type information, source code information)
+    // will be added to the output template
+    public EventElements EventElements { get; set; } = EventElements.All;
+
+    public abstract LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+
+    public virtual bool IsValid => true;
+
+    // Gets the Serilog message template in use, augmented/enriched by optional fields
+    // supported by the J4JLogger system (e.g., SourceContext, which represents the 
+    // source code file's path).
+    public virtual string EnrichedMessageTemplate
     {
-        var text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(Location)}" );
-        if( !String.IsNullOrEmpty( text ) )
-            Location = Enum.Parse<LogFileLocation>( text, true );
+        get
+        {
+            var sb = new StringBuilder( OutputTemplate );
 
-        text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(RollingInterval)}" );
-        if( !string.IsNullOrEmpty( text ) )
-            RollingInterval = Enum.Parse<RollingInterval>( text, true );
+            foreach( var element in EnumExtensions.GetUniqueFlags<EventElements>() )
+            {
+                var inclElement = ( EventElements & element ) == element;
 
-        text = configRoot.GetConfigValue( $@"{loggerSection}:Channels:\d:{nameof(FilePath)}" );
-        if( !string.IsNullOrEmpty( text ) )
-            FilePath = text;
+                switch( element )
+                {
+                    case EventElements.Type:
+                        if( inclElement )
+                            sb.Append( " {SourceContext}{MemberName}" );
 
-        text = configRoot.GetConfigValue($@"{loggerSection}:Channels:\d:{nameof(FileName)}");
-        if (!string.IsNullOrEmpty(text))
-            FileName = text;
-    }
+                            break;
 
-    public LogFileLocation Location { get; set; } = LogFileLocation.AppData;
-    public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;
-    public string FilePath { get; set; }
-    public string FileName { get; set; } = "log.txt";
+                    case EventElements.SourceCode:
+                        if( inclElement )
+                            sb.Append( " {SourceCodeInformation}" );
 
-    public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig, string outputTemplate = null )
-    {
-        var path = Location == LogFileLocation.AppData
-            ? DefineLocalAppDataLogPath( FileName, FilePath )
-            : DefineExeLogPath( FileName, FilePath );
+                        break;
+                }
+            }
 
-        return string.IsNullOrEmpty( outputTemplate )
-            ? sinkConfig.File( path : path, restrictedToMinimumLevel : MinimumLevel,
-                rollingInterval : RollingInterval )
-            : sinkConfig.File( path : path, restrictedToMinimumLevel : MinimumLevel,
-                rollingInterval : RollingInterval, outputTemplate : outputTemplate );
+            sb.Append( "{NewLine}" );
+
+            return sb.ToString();
+        }
     }
 }
 ```
-This is only part of the definition for `FileChannel`. The rest consists of
-static methods used by the part of the code shown above and some extension
-utility methods.
-
-There are two different constructors to implement, one for when you're using
-*derived* configuration information (the configuration file's structure maps
-directly to `IJ4JLoggerConfiguration`) or an *embedded* configuration (the
-configuration information is contained in a section of the configuration
-file). Embedded configurations are built off of Microsoft's
-`ConfigurationBuilder` and revolve around `IConfigurationRoot`.
-
-The channel configruation information uniquely needed by `FileChannel` is
-contained in a series of public properties. These are either set in the
-constructor, for *embedded* configurations, or must be set manually for
-*derived* configurations. The latter can be simplified by using 
-`J4JLoggerConfigurationJsonBuilder`.
-
-The `GetConfigValue()` extension method is defined as follows:
-```csharp
-// Gets an IConfigurationRoot value given a path to that value and, optionally, the value of the value.
-public static string GetConfigValue(this IConfigurationRoot configRoot, string path, string? value = null)
-{
-    return configRoot.AsEnumerable()
-        .SingleOrDefault( kvp =>
-            Regex.IsMatch( kvp.Key, path, RegexOptions.IgnoreCase )
-            && ( string.IsNullOrEmpty( value )
-                    || kvp.Value.Equals( value, StringComparison.OrdinalIgnoreCase ) ) )
-        .Value;
-}
-```
+The only method you must implement/override is `Configure()`. You can also add whatever
+additional configuration properties are needed for a particular channel. A good example of this
+is `FileConfig`, which holds the information for configuring a rolling log file sink and
+"knows" how to configure that particular sink.

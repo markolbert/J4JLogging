@@ -7,11 +7,11 @@ log event. Sinks can be anything ranging from the console, a file and beyond.
 
 Sinks, because they cover a broad array of targets, are configured in
 different ways, typically by using extension methods related to the
-Serilog ILogger instance or its underlying configuration. Since **J4JLogger**
-wraps the Serilog ILogger I needed a more generalized approach to 
-configuring sinks.
+Serilog ILogger instance or its underlying configuration. That works fine, but I wanted
+a more generalized way of configuring sinks because I typically use several 
+simultaneously in my projects. 
 
-I use the term channel (`LogChannel`) to refer to a sink that is configured to work with
+I use the term *channel* to refer to a sink that is configured to work with
 IJ4JLogger. Out of the box only certain sinks have channels associated with
 them:
 - Console
@@ -21,43 +21,76 @@ them:
 
 But it's not hard to [create your own](channel.md) and add it to the mix.
 
-#### Post-processing Channels
-
-`TwilioChannel` is an example of a "post-processing" channel. Such channels
-take the formatted text of a Serilog `LogEvent` and do something with it.
-They're defined by a simple interface, `IPostProcess`:
-
+A channel must implement `IChannelConfig`:
 ```csharp
-// defines the functionality of types which are derived from TextChannel and are hence
-// capable of offering extended logging services. An example of this is the Twilio
-// channel.
-public interface IPostProcess
+public interface IChannelConfig
 {
-    // Triggers the post-processing of whatever the current contents of the log channel
-    // are. Typically this would be the last LogEvent because typically PostProcess() calls
-    // Clear() -- which resets the channel's state -- when it completes.
-    void PostProcess();
+    LogEventLevel MinimumLevel { get; set; }
+    string? OutputTemplate { get; set; }
+    bool IsValid { get; }
+        
+    // Gets the Serilog message template in use, augmented/enriched by optional fields
+    // supported by the J4JLogger system (e.g., SourceContext, which represents the 
+    // source code file's path).
+    string EnrichedMessageTemplate { get; }
 
-    // clears the log channel's state
-    void Clear();
-
-    // non-generic interface for configuring the post processor
-    bool Initialize( object config );
-}
-
-public interface IPostProcess<in TSms> : IPostProcess
-    where TSms : class
-{
-    // Configures the post processor based on an instance of a configuration type
-    bool Initialize( TSms config );
+    LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
 }
 ```
 
-`PostProcess()` takes whatever formatted text has been queued up (that's
-an implementation detail) and sends it somewhere, generally clearing the
-queue after doing so. 
+The "central repository" of channels used by a particular configuration of `IJ4JLogger`
+must implement `ILogChannels`. It's very simple, just returning instances of
+whatever channel configuration objects are needed:
+```csharp
+public interface ILogChannels : IEnumerable<IChannelConfig>
+{
+}
+```
 
-The two `Initialize()` methods allow the channel to be configured. That
-doesn't have to be done when `IJ4JLogger` is first set up since the needed
-information (e.g., the mobile number to text to) may not be known at that
-point.
+`LogChannels` is a class you can use as the base for your own configuration repository:
+```csharp
+public abstract class LogChannels : ILogChannels
+{
+    protected LogChannels()
+    {
+    }
+
+    public abstract IEnumerator<IChannelConfig> GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+}
+```
+
+In practice you'd derive your own repository from `LogChannels` like this:
+```csharp
+public class ChannelConfiguration : LogChannels
+{
+    public ConsoleConfig Console { get; set; }
+    public DebugConfig Debug { get; set; }
+    public FileConfig File { get; set; }
+
+    public override IEnumerator<IChannelConfig> GetEnumerator()
+    {
+        yield return Console;
+        yield return Debug;
+        yield return File;
+    }
+}
+```
+
+#### SMS Channels
+
+`TwilioChannel` is an example of an SMS channel which sends log events as text messages.
+SMS channels don't process every log event because to do so would flood the recipients.
+Instead, they are intended for urgent events that demand immediate attention. 
+
+To send a log event through the SMS channels (in addition to whatever other "normal"
+channels you've defined) you call the `IncludeSms()` method on an instance of `IJ4JLogger`.
+That will send the next log event, and only the next log event, to the SMS channels.
+`IncludeSms()` returns the instance of `IJ4JLogger` so you can chain it:
+```csharp
+logger.IncludeSms().Verbose<string, string>( "{0} ({1})", "Verbose", "configPath" );
+```

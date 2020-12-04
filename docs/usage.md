@@ -64,22 +64,17 @@ public interface IJ4JLogger<out TCalling>
 The `Write()` methods are similar, except they each start off with a Serilog 
 `LogEventLevel` argument which specifies the log event level.
 
-**There is one significant difference in how you call these methods 
-from the Serilog standard, however.** 
-
-If you pass anything other than a simple string (i.e., a value 
-for the template argument) to the methods you **must** specify the types of 
+If you pass a simple string (i.e., a value for the template argument) to the methods you **must** specify the types of 
 the propertyValue arguments explicitly in the method call. 
 
 An example:
 
 ```csharp
-int someIntValue = 1;
-_logger.Debug<int>("The value of that argument is {someIntValue}", someIntValue);
+string someStringValue = "abcd";
+_logger.Debug<string>("The value of that argument is {someIntValue}", someStringValue);
 ```
-
 This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
-arguments are automagically set for you by the compiler. The fact that 
-`memberName` and `srcPath` are strings "collides" with the `template` 
-argument, necessitating the explict type specification.
-
+arguments are automagically set for you by the compiler. The fact the 
+`memberName` and `srcPath` arguments of the logging methods are strings and
+"collide" string arguments you may specify. That makes explict type 
+specifications for the arguments necessary when strings are referenced by the message template.

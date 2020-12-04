@@ -9,14 +9,12 @@ namespace J4JLogger.Examples
         public ConsoleConfig Console { get; set; }
         public DebugConfig Debug { get; set; }
         public FileConfig File { get; set; }
-        public TwilioTestConfig Twilio { get; set; }
 
         public override IEnumerator<IChannelConfig> GetEnumerator()
         {
             yield return Console;
             yield return Debug;
             yield return File;
-            yield return Twilio;
         }
     }
 }
