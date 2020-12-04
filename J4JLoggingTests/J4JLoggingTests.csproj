@@ -12,14 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="ConfigurationFileTest.cs" />
-    <Compile Remove="DerivedFileTest.cs" />
-    <Compile Remove="DerivedFileTestBase.cs" />
-    <Compile Remove="EmbeddedFileTest.cs" />
-    <Compile Remove="SerializationTest.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />

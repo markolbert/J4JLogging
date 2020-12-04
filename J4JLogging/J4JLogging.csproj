@@ -25,16 +25,6 @@
 		<Compile Remove="docs\**" />
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="docs\**" />
-		<Compile Remove="channels\file\FileChannel.cs" />
-		<Compile Remove="channels\file\FileChannel.Static.cs" />
-		<Compile Remove="channels\file\IFileConfig.cs" />
-		<Compile Remove="channels\ILogChannels.cs" />
-		<Compile Remove="channels\LogChannels.cs" />
-		<Compile Remove="configuration\J4JLoggerConfigurationBuilder.cs" />
-		<Compile Remove="configuration\J4JLoggerConfigurationJsonBuilder.cs" />
-		<Compile Remove="configuration\J4JLoggerConfigurationNG.cs" />
-		<Compile Remove="configuration\J4JLoggerConfigurationRootBuilder.cs" />
-		<Compile Remove="converters\LogChannelListConverter.cs" />
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>
@@ -53,12 +43,8 @@
 		<PackageReference Include="System.Text.Json" Version="5.0.0" />
 		<PackageReference Include="Twilio" Version="5.50.0" />
 		<PackageReference Include="Serilog" Version="2.10.0" />
-		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1">
-		  <Aliases></Aliases>
-		</PackageReference>
-		<PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1">
-		  <Aliases></Aliases>
-		</PackageReference>
+		<PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
+		<PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1"/>
 		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 		<PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
 	</ItemGroup>
