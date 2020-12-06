@@ -27,14 +27,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
 	    <Pack>True</Pack>
 	    <PackagePath></PackagePath>
 	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
 	</ItemGroup>
 
 </Project>
