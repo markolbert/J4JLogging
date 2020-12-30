@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Formatting.Display;
 using Twilio;
-using Twilio.Types;
+
 #pragma warning disable 8618
 
 namespace J4JSoftware.Logging

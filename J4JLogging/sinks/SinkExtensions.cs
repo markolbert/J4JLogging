@@ -4,8 +4,6 @@ using System.Linq;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Formatting;
-using Serilog.Formatting.Display;
-using Serilog.Sinks.SystemConsole.Themes;
 
 namespace J4JSoftware.Logging
 {

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
 

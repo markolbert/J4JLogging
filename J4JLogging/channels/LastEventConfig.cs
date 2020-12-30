@@ -1,5 +1,4 @@
-﻿using System;
-using Serilog;
+﻿using Serilog;
 using Serilog.Configuration;
 
 namespace J4JSoftware.Logging

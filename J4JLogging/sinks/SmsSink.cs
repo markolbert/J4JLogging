@@ -20,10 +20,13 @@ namespace J4JSoftware.Logging
 
         public string FromNumber { get; internal set; } = string.Empty;
         public List<string> RecipientNumbers { get; internal set; } = new List<string>();
-        public ITextFormatter TextFormatter { get; internal set; }
+        public ITextFormatter? TextFormatter { get; internal set; }
 
         public void Emit( LogEvent logEvent )
         {
+            if( TextFormatter == null )
+                return;
+
             _sb.Clear();
             TextFormatter.Format(logEvent, _stringWriter);
             _stringWriter.Flush();
