@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -13,20 +14,24 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : IJ4JLogger
     {
+        private readonly IJ4JLoggerConfiguration _config;
+        private readonly bool _includingTypeInfo;
+
         private bool _sendToSms;
+        private Type? _loggedType;
 
         public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
         {
-            Configuration = config;
+            _config = config;
             BaseLogger = baseLogger;
+
+            _includingTypeInfo = ( _config.EventElements & EventElements.Type ) == EventElements.Type;
         }
 
         /// <summary>
         /// The <see cref="Serilog.ILogger"/>  instance that handles the actual logging. Read only.
         /// </summary>
         protected ILogger BaseLogger { get; private set; }
-
-        public IJ4JLoggerConfiguration Configuration { get; }
 
         // Initialize the additional LogEvent properties supported by IJ4JLogger
         protected List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
@@ -36,11 +41,11 @@ namespace J4JSoftware.Logging
                 LogContext.PushProperty( "SendToSms", _sendToSms ),
                 LogContext.PushProperty(
                     "MemberName",
-                    ( Configuration.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
+                    ( _config.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
                 )
             };
 
-            if( ( Configuration.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
+            if( ( _config.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
                 retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 
             return retVal;
@@ -62,17 +67,58 @@ namespace J4JSoftware.Logging
         // it enriches the logging information
         public void SetLoggedType<TLogged>()
         {
-            if( ( Configuration.EventElements & EventElements.Type ) == EventElements.Type )
-                BaseLogger = BaseLogger.ForContext<TLogged>();
+            if( ( _config.EventElements & EventElements.Type ) != EventElements.Type ) 
+                return;
+
+            BaseLogger = BaseLogger.ForContext<TLogged>();
+            _loggedType = typeof(TLogged);
         }
 
         // Sets the type being logged. This is not required to use IJ4JLogger but
         // it enriches the logging information
-        public void SetLoggedType( Type toLog )
+        public void SetLoggedType( Type? toLog )
         {
-            if( toLog != null
-                && ( Configuration.EventElements & EventElements.Type ) == EventElements.Type )
-                BaseLogger = BaseLogger.ForContext( toLog );
+            if( toLog == null )
+            {
+                if( _includingTypeInfo )
+                    _config.EventElements = _config.EventElements & ~EventElements.Type;
+            }
+            else
+            {
+                if( !_includingTypeInfo ) 
+                    return;
+
+                _config.EventElements |= EventElements.Type;
+
+                if( toLog != null )
+                    BaseLogger = BaseLogger.ForContext( toLog );
+            }
+        }
+
+        public bool OutputCache( J4JLoggerCache cache )
+        {
+            var curLoggedType = _loggedType;
+
+            foreach( var entry in cache )
+            {
+                if( entry.LoggedType != _loggedType )
+                    SetLoggedType( entry.LoggedType );
+
+                _sendToSms = entry.IncludeSms;
+
+                var contextProperties =
+                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
+
+                BaseLogger.Write(entry.LogEventLevel, entry.Template, entry.PropertyValues);
+
+                DisposeContextProperties(contextProperties);
+            }
+
+            cache.Clear();
+
+            SetLoggedType( curLoggedType );
+
+            return true;
         }
 
         // Force the next LogEvent to be processed by any IPostProcess-implementing channels

@@ -19,7 +19,7 @@ namespace J4JSoftware.Logging
 
         // flag indicating which event elements (e.g., type information, source code information)
         // will be added to the logging output
-        EventElements EventElements { get; }
+        EventElements EventElements { get; set; }
     }
 
     public interface IJ4JLoggerConfiguration<out TChannels> : IJ4JLoggerConfiguration

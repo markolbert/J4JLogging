@@ -16,14 +16,10 @@ namespace J4JSoftware.Logging
         // it enriches the logging information
         void SetLoggedType( Type toLog );
 
+        bool OutputCache( J4JLoggerCache cache );
+
         // Forces the next logging event to be sent to an SmsSink if one was included
         IJ4JLogger IncludeSms();
-
-        // The logger's configuration information
-        IJ4JLoggerConfiguration Configuration { get; }
-
-        //// the channels to which logging output will be directed
-        //LogChannels Channels { get; }
 
         #region Write() methods
 
