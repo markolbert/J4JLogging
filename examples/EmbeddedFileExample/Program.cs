@@ -29,28 +29,13 @@ namespace J4JLogger.Examples
 
         private static void InitializeServiceProvider()
         {
-            var configBuilder = new ConfigurationBuilder();
-
-            var config = configBuilder
+            var config = new ConfigurationBuilder()
                 .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
                 .Build();
 
             var builder = new ContainerBuilder();
 
-            var channelConfig = config.GetSection("Logger:Channels").Get<ChannelConfiguration>();
-
-            builder.Register( c =>
-                {
-                    var retVal = config.GetSection( "Logger" ).Get<J4JLoggerConfiguration<ChannelConfiguration>>();
-
-                    retVal.Channels = channelConfig;
-
-                    return retVal;
-                } )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            builder.RegisterJ4JLogging();
+            builder.RegisterJ4JLogging( config, "Logger" );
 
             _svcProvider = new AutofacServiceProvider(builder.Build());
         }

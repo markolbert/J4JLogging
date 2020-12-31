@@ -10,20 +10,20 @@
     "Property2": "abc"
   },
   "Logging": {
-    "SourceRootPath": "C:/Programming/J4JLogging/"
-  },
-  "Channels": {
-    "Console": {
-      "MinimumLevel": "Information"
-    },
-    "Debug": {
-      "MinimumLevel": "Debug"
-    },
-    "File": {
-      "Location": "AppData",
-      "RollingInterval": "Day",
-      "FileName": "log.text",
-      "MinimumLevel": "Verbose"
+    "SourceRootPath": "C:/Programming/J4JLogging/",
+    "Channels": {
+      "Console": {
+        "MinimumLevel": "Information"
+      },
+      "Debug": {
+        "MinimumLevel": "Debug"
+      },
+      "File": {
+        "Location": "AppData",
+        "RollingInterval": "Day",
+        "FileName": "log.text",
+        "MinimumLevel": "Verbose"
+      }
     }
   }
 }

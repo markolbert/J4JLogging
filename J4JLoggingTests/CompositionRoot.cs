@@ -23,19 +23,6 @@ namespace J4JLoggingTests
             
             var builder = new ContainerBuilder();
 
-            //var channelConfig = config.GetSection(channelsKey).Get<ChannelConfiguration>();
-
-            //builder.Register(c =>
-            //    {
-            //        var retVal = config.GetSection( loggerKey ).Get<J4JLoggerConfiguration<ChannelConfiguration>>();
-
-            //        retVal.Channels = channelConfig;
-
-            //        return retVal;
-            //    } )
-            //    .As<IJ4JLoggerConfiguration>()
-            //    .SingleInstance();
-
             builder.RegisterJ4JLogging( config,
                 loggerKey,
                 AvailableChannels.All | AvailableChannels.LastEvent,

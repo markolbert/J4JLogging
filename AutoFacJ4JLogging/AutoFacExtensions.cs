@@ -27,7 +27,7 @@ namespace J4JSoftware.Logging
         public static ContainerBuilder RegisterJ4JLogging(
             this ContainerBuilder builder, 
             IConfigurationRoot config, 
-            string logSection = "Logging", 
+            string? logKey = null, 
             AvailableChannels channels = AvailableChannels.All,
             EventElements defaultElements = EventElements.All,
             LogEventLevel minLevel = LogEventLevel.Verbose,
@@ -40,9 +40,11 @@ namespace J4JSoftware.Logging
 
             builder.Register(c =>
                 {
-                    var retVal = config.GetSection( logSection )
-                                        .Get<J4JLoggerConfiguration<DefaultLogChannels>>()
-                                    ?? new J4JLoggerConfiguration<DefaultLogChannels>();
+                    var retVal = string.IsNullOrEmpty( logKey )
+                        ? config.Get<J4JLoggerConfiguration<DefaultLogChannels>>()
+                        : config.GetSection( logKey ).Get<J4JLoggerConfiguration<DefaultLogChannels>>();
+
+                    retVal ??= new J4JLoggerConfiguration<DefaultLogChannels>();
 
                     retVal.Channels.ActiveChannels = channels;
                     retVal.Channels.EventElements = defaultElements;
