@@ -9,7 +9,7 @@ namespace J4JSoftware.Logging
     public abstract class ChannelConfig : IChannelConfig
     {
         // the default Serilog message template to be used by the system
-        public const string DefaultMessageTemplate =
+        public const string DefaultOutputTemplate =
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
 
         protected ChannelConfig()
@@ -19,7 +19,7 @@ namespace J4JSoftware.Logging
         // the minimum Serilog level the channel will log
         public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
         
-        public string? OutputTemplate { get; set; } = DefaultMessageTemplate;
+        public string? OutputTemplate { get; set; } = DefaultOutputTemplate;
 
         // flag indicating which event elements (e.g., type information, source code information)
         // will be added to the output template

@@ -18,10 +18,6 @@ namespace J4JSoftware.Logging
         // will be added to the logging output
         public EventElements EventElements { get; set; } = EventElements.All;
 
-        // flag indicating whether or not to use external sinks (i.e., logging sinks that involve
-        // post-processing, like TwilioChannel)
-        public bool UseExternalSinks { get; set; }
-
         // configuration information for the log channels
         public TChannels Channels { get; set; } = new TChannels();
 

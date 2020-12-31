@@ -8,12 +8,12 @@ namespace J4JLoggingTests
     public class FileTest
     {
         [Theory]
-        [InlineData("config-files/Simple.json", "Logger", "Channels")]
-        [InlineData("config-files/Derived.json", "Logger", "Channels")]
-        [InlineData("config-files/Embedded.json", "Container:Logger", "Container:Channels")]
-        public void Simple( string configPath, string loggerKey, string channelsKey )
+        [InlineData("config-files/Simple.json", "Logger")]
+        [InlineData("config-files/Derived.json", "Logger")]
+        [InlineData("config-files/Embedded.json", "Container:Logger")]
+        public void Simple( string configPath, string loggerKey )
         {
-            var compRoot = new CompositionRoot( configPath, loggerKey, channelsKey );
+            var compRoot = new CompositionRoot( configPath, loggerKey );
 
             var logger = compRoot.J4JLogger;
             logger.SetLoggedType(this.GetType());

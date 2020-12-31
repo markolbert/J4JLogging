@@ -10,10 +10,6 @@ namespace J4JSoftware.Logging
         // logging output (i.e., by supressing common path elements)
         string? SourceRootPath { get; }
 
-        // flag indicating whether or not to use external sinks (i.e., logging sinks that involve
-        // post-processing, like TwilioChannel)
-        bool UseExternalSinks { get; }
-
         // flag indicating whether or not multi line events are supported
         bool MultiLineEvents { get; }
 

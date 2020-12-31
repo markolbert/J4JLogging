@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Serilog.Events;
+#pragma warning disable 8618
 
 namespace J4JSoftware.Logging
 {
