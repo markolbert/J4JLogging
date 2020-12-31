@@ -13,7 +13,7 @@ namespace J4JLoggingTests
     {
         private readonly IServiceProvider _svcProvider;
 
-        public CompositionRoot( string configPath, string loggerKey )
+        public CompositionRoot( string configPath, string? loggerKey )
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -23,10 +23,7 @@ namespace J4JLoggingTests
             
             var builder = new ContainerBuilder();
 
-            builder.RegisterJ4JLogging( config,
-                loggerKey,
-                AvailableChannels.All | AvailableChannels.LastEvent,
-                twilioConfig : new TwilioTestConfig() );
+            builder.RegisterJ4JLogging( config, loggerKey, IncludeLastEvent.TrueAlways, new TwilioTestConfig() );
 
             builder.Register( c =>
                 {

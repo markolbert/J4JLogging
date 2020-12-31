@@ -5,10 +5,12 @@ namespace J4JSoftware.Logging
 {
     public class DefaultLogChannels : LogChannels
     {
-        public AvailableChannels ActiveChannels { get; set; }
+        public AvailableChannels ActiveChannels { get; set; } = AvailableChannels.Basic;
         public EventElements EventElements { get; set; } = EventElements.All;
-        public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Information;
+        public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
         public string OutputTemplate { get; set; } = ChannelConfig.DefaultOutputTemplate;
+
+        public bool IncludeLastEvent { get; set; }
 
         public ConsoleConfig? Console { get; set; }
         public DebugConfig? Debug { get; set; }
@@ -49,7 +51,7 @@ namespace J4JSoftware.Logging
             }
 
             if( ( ActiveChannels & AvailableChannels.Twilio ) == AvailableChannels.Twilio
-                && Twilio != null )
+                && Twilio != null && Twilio.IsValid )
             {
                 Twilio.EventElements = EventElements;
                 Twilio.MinimumLevel = MinimumLevel;
@@ -58,7 +60,7 @@ namespace J4JSoftware.Logging
                 yield return Twilio;
             }
 
-            if ( ( ActiveChannels & AvailableChannels.LastEvent ) == AvailableChannels.LastEvent )
+            if ( IncludeLastEvent )
             {
                 LastEvent.EventElements = EventElements;
                 LastEvent.MinimumLevel = MinimumLevel;

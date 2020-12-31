@@ -10,7 +10,7 @@ namespace J4JSoftware.Logging
         public string? LastLogMessage { get; private set; }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig ) =>
-            sinkConfig.LastEvent( LastEventHandler );
+            sinkConfig.LastEvent( LastEventHandler! );
 
         private void LastEventHandler( object sender, string lastLogMessage )
         {

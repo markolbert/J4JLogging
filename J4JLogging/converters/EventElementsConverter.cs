@@ -5,15 +5,15 @@ using System.Text.Json.Serialization;
 namespace J4JSoftware.Logging
 {
     // converts between string values and EventElements enum values. Any recognized text
-    // results results in an EventElements.All value.
+    // results results in an EventElements.Basic value.
     public class EventElementsConverter : JsonConverter<EventElements>
     {
         public override EventElements Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
         {
-            // we return All if something goes wrong
+            // we return Basic if something goes wrong
             try
             {
-                return Enum.Parse<EventElements>( reader.GetString(), true );
+                return Enum.Parse<EventElements>( reader.GetString()!, true );
             }
             catch
             {

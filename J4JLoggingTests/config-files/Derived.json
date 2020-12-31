@@ -9,26 +9,27 @@
     "SomeOtherObject": {
       "Property1": 15,
       "Property2": "abc"
-    }
-  },
-  "Logger" : {
-    "SourceRootPath": "C:/Programming/J4JLogging/"
-  },
-  "Channels": {
-    "Console": {
-      "MinimumLevel": "Information"
     },
-    "Debug": {
-      "MinimumLevel": "Debug"
-    },
-    "File": {
-      "Location": "AppData",
-      "RollingInterval": "Day",
-      "FileName": "log.text",
-      "MinimumLevel": "Verbose"
-    },
-    "Twilio": {
-      "MinimumLevel": "Verbose"
+    "Logger": {
+      "SourceRootPath": "C:/Programming/J4JLogging/",
+      "Channels": {
+        "IncludeLastEvent": true,
+        "Console": {
+          "MinimumLevel": "Information"
+        },
+        "Debug": {
+          "MinimumLevel": "Debug"
+        },
+        "File": {
+          "Location": "AppData",
+          "RollingInterval": "Day",
+          "FileName": "log.text",
+          "MinimumLevel": "Verbose"
+        },
+        "Twilio": {
+          "MinimumLevel": "Verbose"
+        }
+      }
     }
   }
 }

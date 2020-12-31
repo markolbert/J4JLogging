@@ -17,7 +17,7 @@ namespace J4JSoftware.Logging
             string memberName,
             string sourcePath,
             int sourceLine,
-            params object?[] propertyValues) =>
+            params object[] propertyValues) =>
             _entries.Add(new CachedEntry
             {
                 LoggedType = loggedType,

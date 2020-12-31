@@ -30,7 +30,7 @@ namespace J4JSoftware.Logging
             string memberName,
             string sourcePath,
             int sourceLine,
-            params object?[] propertyValues ) 
+            params object[] propertyValues ) 
             => _cache.Add( LoggedType, includeSms, level, template, memberName,
             sourcePath, sourceLine, propertyValues );
     }

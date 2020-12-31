@@ -17,6 +17,6 @@ namespace J4JSoftware.Logging
         public string MemberName { get; set; }
         public string SourcePath { get; set; }
         public int SourceLine { get; set; }
-        public object?[] PropertyValues { get; set; }
+        public object[] PropertyValues { get; set; }
     }
 }

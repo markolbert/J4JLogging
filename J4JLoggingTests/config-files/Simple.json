@@ -1,9 +1,8 @@
 {
-  "Logger": {
-    "DefaultElements": "SourceCode",
-    "SourceRootPath": "C:/Programming/J4JLogging/"
-  },
+  "DefaultElements": "SourceCode",
+  "SourceRootPath": "C:/Programming/J4JLogging/",
   "Channels": {
+    "IncludeLastEvent": true,
     "Console": {
       "MinimumLevel": "Information"
     },

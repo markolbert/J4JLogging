@@ -81,7 +81,7 @@ namespace J4JSoftware.Logging
             if( toLog == null )
             {
                 if( _includingTypeInfo )
-                    _config.EventElements = _config.EventElements & ~EventElements.Type;
+                    _config.EventElements &= ~EventElements.Type;
             }
             else
             {

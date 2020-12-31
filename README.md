@@ -39,44 +39,15 @@ namespace J4JLogger.Examples
 
         private static void InitializeServiceProvider()
         {
-            var configBuilder = new ConfigurationBuilder();
-
-            var config = configBuilder
-                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
+            var config = new ConfigurationBuilder()
+                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )
                 .Build();
 
             var builder = new ContainerBuilder();
 
-            var channelConfig = config.GetSection("Channels").Get<ChannelConfiguration>();
-
-            builder.Register(c =>
-                {
-                    var retVal = config.Get<J4JLoggerConfiguration<ChannelConfiguration>>();
-
-                    retVal.Channels = channelConfig;
-
-                    return retVal;
-                } )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            builder.RegisterJ4JLogging();
+            builder.RegisterJ4JLogging( config );
 
             _svcProvider = new AutofacServiceProvider(builder.Build());
-        }
-    }
-
-    public class ChannelConfiguration : LogChannels
-    {
-        public ConsoleConfig Console { get; set; }
-        public DebugConfig Debug { get; set; }
-        public FileConfig File { get; set; }
-
-        public override IEnumerator<IChannelConfig> GetEnumerator()
-        {
-            yield return Console;
-            yield return Debug;
-            yield return File;
         }
     }
 }
@@ -102,8 +73,18 @@ Contents of logConfig.json:
 }
 
 ```
+### Significant Changes to v3
+- I consolidated all the default channels into the base J4JLogger assembly. Having
+them be in separate assemblies just made typical usage unnecessarily complex.
+- The way log channels are configured was changed substantially (mostly because 
+even the author found the earlier approach difficult to remember :)).
+- A simpler setup `Autofac`-based setup approach was added.
+- To make logging possible before a program is fully set up a cached implementation
+- of IJ4JLogger was added. The contents of the cache can be easily dumped into the actual
+- logging system once it's fully established.
+ 
 ### Important Note
-**There is one significant difference in how you call the logging methods
+**There is one important difference in how you call the logging methods
 from the Serilog standard.** 
 
 If you pass a simple string (i.e., a value for the template argument) to the methods you **must** specify the types of 
@@ -144,6 +125,3 @@ useful during debugging and I wanted to be able to send SMS messages about some 
 **J4JLogging** is my approach to doing both those things. It's a simple wrapper for Serilog 
 which makes it easy to include caller information, source code information and sending text 
 messages via Twilio for selected log events.
-
-Apologies for the sparse documentation. Another project I'm working on is a system for 
-creating ReadTheDocs/Sphinx style documentation for C# projects. But it's not ready yet :).

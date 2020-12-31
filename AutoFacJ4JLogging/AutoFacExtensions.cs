@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System.ComponentModel;
+using Autofac;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using Serilog.Events;
@@ -27,29 +28,40 @@ namespace J4JSoftware.Logging
         public static ContainerBuilder RegisterJ4JLogging(
             this ContainerBuilder builder, 
             IConfigurationRoot config, 
-            string? logKey = null, 
-            AvailableChannels channels = AvailableChannels.All,
-            EventElements defaultElements = EventElements.All,
-            LogEventLevel minLevel = LogEventLevel.Verbose,
-            string outputTemplate = ChannelConfig.DefaultOutputTemplate,
+            string? logKey = null,
+            IncludeLastEvent inclLastEvent = IncludeLastEvent.DoNotOverride,
             TwilioConfig? twilioConfig = null )
         {
-            if( twilioConfig == null )
-                channels = channels & ~AvailableChannels.Twilio;
-            else channels |= AvailableChannels.Twilio;
-
             builder.Register(c =>
                 {
-                    var retVal = string.IsNullOrEmpty( logKey )
-                        ? config.Get<J4JLoggerConfiguration<DefaultLogChannels>>()
-                        : config.GetSection( logKey ).Get<J4JLoggerConfiguration<DefaultLogChannels>>();
+                    var retVal = ( string.IsNullOrEmpty( logKey )
+                                     ? config.Get<J4JLoggerConfiguration<DefaultLogChannels>>()
+                                     : config.GetSection( logKey ).Get<J4JLoggerConfiguration<DefaultLogChannels>>() );
 
-                    retVal ??= new J4JLoggerConfiguration<DefaultLogChannels>();
+                    if( retVal == null )
+                    {
+                        retVal = new J4JLoggerConfiguration<DefaultLogChannels>();
 
-                    retVal.Channels.ActiveChannels = channels;
-                    retVal.Channels.EventElements = defaultElements;
-                    retVal.Channels.MinimumLevel = minLevel;
-                    retVal.Channels.OutputTemplate = outputTemplate;
+                        retVal.Channels.IncludeLastEvent = inclLastEvent switch
+                        {
+                            IncludeLastEvent.FalseAlways => false,
+                            IncludeLastEvent.FalseForDefaultLogChannels => false,
+                            IncludeLastEvent.TrueAlways => true,
+                            IncludeLastEvent.TrueForDefaultLogChannels => true,
+                            _ => retVal.Channels.IncludeLastEvent
+                        };
+                    }
+                    else retVal.Channels.IncludeLastEvent = inclLastEvent switch
+                        {
+                            IncludeLastEvent.FalseAlways => false,
+                            IncludeLastEvent.TrueAlways => true,
+                            _ => retVal.Channels.IncludeLastEvent
+                        };
+
+                    if ( twilioConfig == null ) 
+                        return retVal;
+                    
+                    retVal.Channels.ActiveChannels |= AvailableChannels.Twilio;
                     retVal.Channels.Twilio = twilioConfig;
 
                     return retVal;

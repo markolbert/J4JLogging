@@ -9,10 +9,9 @@ namespace J4JSoftware.Logging
         Debug = 1 << 1,
         File = 1 << 2,
         Twilio = 1 << 3,
-        LastEvent = 1 << 31,
 
         None = 0,
-        All = Console | Debug | File,
+        Basic = Console | Debug | File,
         ConsoleDebug = Console | Debug
     }
 }

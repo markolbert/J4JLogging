@@ -14,23 +14,24 @@
     },
     "Logger": {
       "SourceRootPath": "C:/Programming/J4JLogging/",
-      "EventElements": "SourceCode, Type"
-    },
-    "Channels": {
-      "Console": {
-        "MinimumLevel": "Information"
-      },
-      "Debug": {
-        "MinimumLevel": "Debug"
-      },
-      "File": {
-        "Location": "AppData",
-        "RollingInterval": "Day",
-        "FileName": "log.text",
-        "MinimumLevel": "Verbose"
-      },
-      "Twilio": {
-        "MinimumLevel": "Verbose"
+      "EventElements": "SourceCode, Type",
+      "Channels": {
+        "IncludeLastEvent": true,
+        "Console": {
+          "MinimumLevel": "Information"
+        },
+        "Debug": {
+          "MinimumLevel": "Debug"
+        },
+        "File": {
+          "Location": "AppData",
+          "RollingInterval": "Day",
+          "FileName": "log.text",
+          "MinimumLevel": "Verbose"
+        },
+        "Twilio": {
+          "MinimumLevel": "Verbose"
+        }
       }
     }
   }

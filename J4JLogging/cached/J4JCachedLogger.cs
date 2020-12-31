@@ -1,5 +1,6 @@
 ﻿using System;
 using Serilog.Events;
+#pragma warning disable 8604
 
 namespace J4JSoftware.Logging
 {
