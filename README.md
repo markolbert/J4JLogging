@@ -45,14 +45,21 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            builder.RegisterJ4JLogging( config );
+            var factory = new ChannelFactory( config );
+
+            factory.AddChannel<ConsoleConfig>("channels:console");
+            factory.AddChannel<DebugConfig>("channels:debug");
+            factory.AddChannel<FileConfig>("channels:file");
+
+            builder.RegisterJ4JLogging<J4JLoggerConfiguration>( factory );
 
             _svcProvider = new AutofacServiceProvider(builder.Build());
         }
     }
 }
-
+```
 Contents of logConfig.json:
+```json
 {
   "DefaultElements": "SourceCode",
   "SourceRootPath": "C:/Programming/J4JLogging/",
@@ -71,17 +78,16 @@ Contents of logConfig.json:
     }
   }
 }
-
 ```
 ### Significant Changes to v3
 - I consolidated all the default channels into the base J4JLogger assembly. Having
-them be in separate assemblies just made typical usage unnecessarily complex.
+them in separate assemblies complicated things.
 - The way log channels are configured was changed substantially (mostly because 
 even the author found the earlier approach difficult to remember :)).
-- A simpler setup `Autofac`-based setup approach was added.
+- The `Autofac`-based setup approach was simplified.
 - To make logging possible before a program is fully set up a cached implementation
-- of IJ4JLogger was added. The contents of the cache can be easily dumped into the actual
-- logging system once it's fully established.
+ of IJ4JLogger was added. The contents of the cache can be easily dumped into the actual
+ logging system once it's established.
  
 ### Important Note
 **There is one important difference in how you call the logging methods

@@ -10,18 +10,24 @@ configuration):
 
 ```csharp
 var config = new ConfigurationBuilder()
-    .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
+    .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )
     .Build();
 
 var builder = new ContainerBuilder();
 
-builder.RegisterJ4JLogging(config);
+var factory = new ChannelFactory( config );
 
-_svcProvider = new AutofacServiceProvider(builder.Build());
+factory.AddChannel<ConsoleConfig>( "channels:console" );
+factory.AddChannel<DebugConfig>( "channels:debug" );
+factory.AddChannel<FileConfig>( "channels:file" );
+
+builder.RegisterJ4JLogging<DerivedConfiguration>( factory );
+
+_svcProvider = new AutofacServiceProvider( builder.Build() );
 ```
 
 This assumes the `logConfig.json` file is structured with all the necessary
-`J4JLogging` information contained in a section labeled "Logging":
+`J4JLogging` properties at the root level:
 ```json
 {
   "SomeOtherProperty": true,
@@ -34,44 +40,24 @@ This assumes the `logConfig.json` file is structured with all the necessary
     "Property1": 15,
     "Property2": "abc"
   },
-  "Logging": {
-    "SourceRootPath": "C:/Programming/J4JLogging/",
-    "Channels": {
-      "Console": {
-        "MinimumLevel": "Information"
-      },
-      "Debug": {
-        "MinimumLevel": "Debug"
-      },
-      "File": {
-        "Location": "AppData",
-        "RollingInterval": "Day",
-        "FileName": "log.text",
-        "MinimumLevel": "Verbose"
-      }
+  "SourceRootPath": "C:/Programming/J4JLogging/",
+  "Channels": {
+    "Console": {
+      "MinimumLevel": "Information"
+    },
+    "Debug": {
+      "MinimumLevel": "Debug"
+    },
+    "File": {
+      "Location": "AppData",
+      "RollingInterval": "Day",
+      "FileName": "log.text",
+      "MinimumLevel": "Verbose"
     }
   }
 }
 ```
-This particular `Autofac` method call limits you to using the channels defined
-in the base assembly (Console, Debug, File, Twilio and LastEvent) but lets you
-easily configure a number of logging attributes:
-```csharp
-public static ContainerBuilder RegisterJ4JLogging(
-    this ContainerBuilder builder, 
-    IConfigurationRoot config, 
-    string? logKey = null, 
-    AvailableChannels channels = AvailableChannels.All,
-    EventElements defaultElements = EventElements.All,
-    LogEventLevel minLevel = LogEventLevel.Verbose,
-    string outputTemplate = ChannelConfig.DefaultOutputTemplate,
-    TwilioConfig? twilioConfig = null )
-    {
-    ...
-    }
-```
-- `logKey` is the name of the section containing the logging configuration information.
-If it's empty or null (the default) it assumes the overall configuration object
-you're constructing from the json file is derived from 
-`J4JLoggerConfiguration<ChannelConfiguration>`.
-- `channels` 
+The specific logging channels are specified when the channel factory (`factory`) 
+is set up. The string arguments to each `Add<>()` call are the paths, relative to
+the root of the json file, to the sections which configure the specified type
+of channel. The paths are not case sensitive, as per the JSON spec.

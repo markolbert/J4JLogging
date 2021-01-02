@@ -31,20 +31,20 @@ namespace J4JLogger.Examples
         private static void InitializeServiceProvider()
         {
             var config = new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
+                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )
                 .Build();
 
             var builder = new ContainerBuilder();
 
-            var factory = new ChannelFactory( config);
+            var factory = new ChannelFactory( config );
 
             factory.AddChannel<ConsoleConfig>( "channels:console" );
-            factory.AddChannel<DebugConfig>("channels:debug");
-            factory.AddChannel<FileConfig>("channels:file");
+            factory.AddChannel<DebugConfig>( "channels:debug" );
+            factory.AddChannel<FileConfig>( "channels:file" );
 
-            builder.RegisterJ4JLogging<DerivedConfiguration>(factory);
+            builder.RegisterJ4JLogging<DerivedConfiguration>( factory );
 
-            _svcProvider = new AutofacServiceProvider(builder.Build());
+            _svcProvider = new AutofacServiceProvider( builder.Build() );
         }
     }
 }

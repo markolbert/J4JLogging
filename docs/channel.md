@@ -1,7 +1,7 @@
 ### Adding a Channel
 
-Channels are a concept I added to the Serilog environment because I wanted to be able to
-configure multiple Serilog sinks in a generalized way. Adding a channel is easy:
+Channels are a concept I added to the Serilog environment because I wanted to be able 
+to configure multiple Serilog sinks in a generalized way. Adding a channel is easy:
 you define a configuration class for the channel which implements `IChannelConfig`:
 ```csharp
 public interface IChannelConfig
@@ -81,7 +81,7 @@ public abstract class ChannelConfig : IChannelConfig
     }
 }
 ```
-The only method you must implement/override is `Configure()`. You can also add whatever
-additional configuration properties are needed for a particular channel. A good example of this
-is `FileConfig`, which holds the information for configuring a rolling log file sink and
-"knows" how to configure that particular sink.
+The only method you must implement/override is `Configure()`. You can also add 
+whatever additional configuration properties are needed for a particular channel. 
+A good example of this is `FileConfig`, which holds the information for configuring 
+a rolling log file sink and "knows" how to configure that particular sink.
