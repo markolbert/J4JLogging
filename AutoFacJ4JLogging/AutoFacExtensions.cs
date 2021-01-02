@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using Autofac;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -8,14 +10,20 @@ namespace J4JSoftware.Logging
 {
     public static class AutofacExtensions
     {
-        public static ContainerBuilder RegisterJ4JLogging( this ContainerBuilder builder )
+        public static ContainerBuilder RegisterJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
         {
-            builder.Register(c =>
+            builder.Register(c=>
                 {
-                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
+                    if( config.Channels == null )
+                        throw new NullReferenceException( $"{nameof(config.Channels)} is not defined" );
 
-                    return loggerConfig.CreateBaseLogger()!;
-                })
+                    var retVal = config.CreateBaseLogger();
+
+                    if( retVal != null )
+                        return retVal;
+
+                    throw new NullReferenceException( $"Could not create ILogger from IJ4JLoggerConfiguration" );
+                } )
                 .As<ILogger>()
                 .SingleInstance();
 
@@ -25,44 +33,18 @@ namespace J4JSoftware.Logging
             return builder;
         }
 
-        public static ContainerBuilder RegisterJ4JLogging(
-            this ContainerBuilder builder, 
-            IConfigurationRoot config, 
-            string? logKey = null,
-            IncludeLastEvent inclLastEvent = IncludeLastEvent.DoNotOverride,
-            TwilioConfig? twilioConfig = null )
+        public static ContainerBuilder RegisterJ4JLogging<TJ4JLogger>(
+            this ContainerBuilder builder,
+            IChannelFactory channelFactory )
+        where TJ4JLogger : IJ4JLoggerConfiguration, new()
         {
-            builder.Register(c =>
+            builder.Register( c =>
                 {
-                    var retVal = ( string.IsNullOrEmpty( logKey )
-                                     ? config.Get<J4JLoggerConfiguration<DefaultLogChannels>>()
-                                     : config.GetSection( logKey ).Get<J4JLoggerConfiguration<DefaultLogChannels>>() );
+                    var retVal = channelFactory.GetLoggerConfiguration<TJ4JLogger>();
 
                     if( retVal == null )
-                    {
-                        retVal = new J4JLoggerConfiguration<DefaultLogChannels>();
-
-                        retVal.Channels.IncludeLastEvent = inclLastEvent switch
-                        {
-                            IncludeLastEvent.FalseAlways => false,
-                            IncludeLastEvent.FalseForDefaultLogChannels => false,
-                            IncludeLastEvent.TrueAlways => true,
-                            IncludeLastEvent.TrueForDefaultLogChannels => true,
-                            _ => retVal.Channels.IncludeLastEvent
-                        };
-                    }
-                    else retVal.Channels.IncludeLastEvent = inclLastEvent switch
-                        {
-                            IncludeLastEvent.FalseAlways => false,
-                            IncludeLastEvent.TrueAlways => true,
-                            _ => retVal.Channels.IncludeLastEvent
-                        };
-
-                    if ( twilioConfig == null ) 
-                        return retVal;
-                    
-                    retVal.Channels.ActiveChannels |= AvailableChannels.Twilio;
-                    retVal.Channels.Twilio = twilioConfig;
+                        throw new NullReferenceException(
+                            $"Could not extract an instance of {typeof(TJ4JLogger)} from IConfigurationRoot" );
 
                     return retVal;
                 })
@@ -70,11 +52,11 @@ namespace J4JSoftware.Logging
                 .SingleInstance();
 
             builder.Register(c =>
-                {
-                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
+            {
+                var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
 
-                    return loggerConfig.CreateBaseLogger()!;
-                })
+                return loggerConfig.CreateBaseLogger()!;
+            })
                 .As<ILogger>()
                 .SingleInstance();
 

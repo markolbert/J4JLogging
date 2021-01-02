@@ -4,7 +4,7 @@ using J4JSoftware.Logging;
 
 namespace J4JLogger.Examples
 {
-    public class DerivedConfiguration : J4JLoggerConfiguration<ChannelConfiguration>
+    public class DerivedConfiguration : J4JLoggerConfiguration
     {
         public class SomeOther
         {

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using J4JSoftware.Logging;
+
 #pragma warning disable 8618
 
-namespace J4JLogger.Examples
+namespace J4JLoggingTests
 {
     public class EmbeddedConfiguration
     {

@@ -14,11 +14,14 @@ namespace J4JSoftware.Logging
             var loggerConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext();
 
+            if( config.Channels == null ) 
+                return loggerConfig.CreateLogger();
+
             var minLevel = LogEventLevel.Fatal;
 
-            foreach( var channel in config )
+            foreach( var channel in config.Channels )
             {
-                if( channel.MinimumLevel < minLevel ) 
+                if( channel.MinimumLevel < minLevel )
                     minLevel = channel.MinimumLevel;
 
                 channel.Configure( loggerConfig.WriteTo );

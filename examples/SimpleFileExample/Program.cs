@@ -34,7 +34,13 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            builder.RegisterJ4JLogging( config );
+            var factory = new ChannelFactory( config );
+
+            factory.AddChannel<ConsoleConfig>("channels:console");
+            factory.AddChannel<DebugConfig>("channels:debug");
+            factory.AddChannel<FileConfig>("channels:file");
+
+            builder.RegisterJ4JLogging<J4JLoggerConfiguration>( factory );
 
             _svcProvider = new AutofacServiceProvider(builder.Build());
         }

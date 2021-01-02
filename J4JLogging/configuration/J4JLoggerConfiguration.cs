@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace J4JSoftware.Logging
 {
     // a type that can be used to configure the J4JLogger system
-    public class J4JLoggerConfiguration<TChannels> : IJ4JLoggerConfiguration<TChannels>
-        where TChannels : ILogChannels, new()
+    public class J4JLoggerConfiguration : IJ4JLoggerConfiguration
     {
         // The root path of source code files. Used to eliminate redundant path information in the
         // logging output (i.e., by supressing common path elements)
@@ -19,13 +18,11 @@ namespace J4JSoftware.Logging
         public EventElements EventElements { get; set; } = EventElements.All;
 
         // configuration information for the log channels
-        public TChannels Channels { get; set; } = new TChannels();
+        public IChannelFactory? Channels { get; private set; }
 
-        public IEnumerator<IChannelConfig> GetEnumerator() => Channels.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator()
+        public void SetChannels( IChannelFactory factory )
         {
-            return GetEnumerator();
+            Channels = factory;
         }
     }
 }

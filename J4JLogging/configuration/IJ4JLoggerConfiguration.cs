@@ -4,7 +4,7 @@ namespace J4JSoftware.Logging
 {
     // defines the functionality of a type that can be used to configure the J4JLogger
     // system
-    public interface IJ4JLoggerConfiguration : IEnumerable<IChannelConfig>
+    public interface IJ4JLoggerConfiguration //: IEnumerable<IChannelConfig>
     {
         // The root path of source code files. Used to eliminate redundant path information in the
         // logging output (i.e., by supressing common path elements)
@@ -16,11 +16,15 @@ namespace J4JSoftware.Logging
         // flag indicating which event elements (e.g., type information, source code information)
         // will be added to the logging output
         EventElements EventElements { get; set; }
+
+        IChannelFactory? Channels { get; }
+
+        void SetChannels( IChannelFactory factory );
     }
 
-    public interface IJ4JLoggerConfiguration<out TChannels> : IJ4JLoggerConfiguration
-        where TChannels : ILogChannels, new()
-    {
-        TChannels Channels { get; }
-    }
+    //public interface IJ4JLoggerConfiguration<TChannels> : IJ4JLoggerConfiguration
+    //    where TChannels : ILogChannels, new()
+    //{
+    //    TChannels Channels { get; set; }
+    //}
 }
