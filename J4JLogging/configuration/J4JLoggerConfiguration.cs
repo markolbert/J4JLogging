@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace J4JSoftware.Logging
+﻿namespace J4JSoftware.Logging
 {
     // a type that can be used to configure the J4JLogger system
     public class J4JLoggerConfiguration : IJ4JLoggerConfiguration

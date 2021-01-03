@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging

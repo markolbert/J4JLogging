@@ -1,31 +1,28 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
     public class ChannelFactory : IChannelFactory
     {
+        private readonly IConfiguration _config;
+        private readonly string? _loggingSectionKey;
         private readonly Dictionary<string, Type> _channels =
             new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         public ChannelFactory( 
-            IConfigurationRoot configRoot, 
-            string? rootKey = null,
+            IConfiguration config, 
+            string? loggingSectionKey = null,
             bool inclLastEvent = false 
             )
         {
-            ConfigurationRoot = configRoot;
-            RootKey = rootKey;
+            _config = config;
+            _loggingSectionKey = loggingSectionKey;
             LastEvent = inclLastEvent ? new LastEventConfig() : null;
         }
 
-        public IConfigurationRoot ConfigurationRoot { get; }
-        public string? RootKey { get; }
         public LastEventConfig? LastEvent { get; }
 
         public bool AddChannel<TChannel>(string configPath)
@@ -46,9 +43,9 @@ namespace J4JSoftware.Logging
         {
             IJ4JLoggerConfiguration? retVal = null;
 
-            retVal = string.IsNullOrEmpty( RootKey )
-                ? ConfigurationRoot.Get<TJ4JLogger>()
-                : ConfigurationRoot.GetSection( RootKey ).Get<TJ4JLogger>();
+            retVal = string.IsNullOrEmpty( _loggingSectionKey )
+                ? _config.Get<TJ4JLogger>()
+                : _config.GetSection( _loggingSectionKey ).Get<TJ4JLogger>();
 
             retVal.SetChannels( this );
 
@@ -69,7 +66,7 @@ namespace J4JSoftware.Logging
                 do
                 {
                     curSection = curSection == null 
-                        ? ConfigurationRoot.GetSection( elements[ idx ] ) 
+                        ? _config.GetSection( elements[ idx ] ) 
                         : curSection.GetSection( elements[ idx ] );
 
                     idx++;

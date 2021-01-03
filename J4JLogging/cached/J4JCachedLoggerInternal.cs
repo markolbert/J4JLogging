@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging

@@ -16,9 +16,9 @@
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>2.5.1.0</Version>
-		<AssemblyVersion>2.5.1.0</AssemblyVersion>
-		<PackageReleaseNotes>updated dependencies</PackageReleaseNotes>
+		<Version>3.0.0.0</Version>
+		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<PackageReleaseNotes>targeting Net5; major restructuring and breaking changes</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>

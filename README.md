@@ -80,6 +80,7 @@ Contents of logConfig.json:
 }
 ```
 ### Significant Changes to v3
+- The libraries now target Net5 only, and have null checking enabled.
 - I consolidated all the default channels into the base J4JLogger assembly. Having
 them in separate assemblies complicated things.
 - The way log channels are configured was changed substantially (mostly because 

@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace J4JSoftware.Logging
+﻿namespace J4JSoftware.Logging
 {
     public interface IChannelFactory : ILogChannels
     {
-        IConfigurationRoot? ConfigurationRoot { get; }
-        string? RootKey { get; }
         LastEventConfig? LastEvent { get; }
 
         IJ4JLoggerConfiguration? GetLoggerConfiguration<TJ4JLogger>()

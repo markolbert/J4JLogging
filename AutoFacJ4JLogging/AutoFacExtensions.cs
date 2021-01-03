@@ -1,10 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using Autofac;
-using Microsoft.Extensions.Configuration;
 using Serilog;
-using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
