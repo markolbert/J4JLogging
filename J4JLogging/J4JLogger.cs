@@ -45,7 +45,12 @@ namespace J4JSoftware.Logging
             };
 
             if( ( _config.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
+            {
+                if( !string.IsNullOrEmpty( _config.SourceRootPath ) )
+                    srcPath = srcPath.Replace( _config.SourceRootPath, "" );
+
                 retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
+            }
 
             return retVal;
         }

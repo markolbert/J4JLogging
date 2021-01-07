@@ -9,34 +9,48 @@ namespace J4JSoftware.Logging
     {
         private readonly IConfiguration _config;
         private readonly string? _loggingSectionKey;
-        private readonly Dictionary<string, Type> _channels =
-            new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        private readonly ChannelInformation _channelInfo;
 
         public ChannelFactory( 
             IConfiguration config, 
+            ChannelInformation channelInfo,
             string? loggingSectionKey = null,
             bool inclLastEvent = false 
             )
         {
             _config = config;
+            _channelInfo = channelInfo;
             _loggingSectionKey = loggingSectionKey;
             LastEvent = inclLastEvent ? new LastEventConfig() : null;
         }
 
         public LastEventConfig? LastEvent { get; }
 
-        public bool AddChannel<TChannel>(string configPath)
-            where TChannel : IChannelConfig, new()
-        {
-            if (string.IsNullOrEmpty(configPath))
-                return false;
+        //public bool AddChannel<TChannel>(string configPath)
+        //    where TChannel : IChannelConfig, new()
+        //{
+        //    if (string.IsNullOrEmpty(configPath))
+        //        return false;
 
-            if (_channels.ContainsKey(configPath))
-                _channels[configPath] = typeof(TChannel);
-            else _channels.Add(configPath, typeof(TChannel));
+        //    if (_channelInfo.ContainsKey(configPath))
+        //        _channelInfo[configPath] = typeof(TChannel);
+        //    else _channelInfo.Add(configPath, typeof(TChannel));
 
-            return true;
-        }
+        //    return true;
+        //}
+
+        //public bool AddChannel(Type channelType, string configPath)
+        //{
+        //    if (string.IsNullOrEmpty(configPath) 
+        //        || !typeof(IChannelConfig).IsAssignableFrom(channelType))
+        //        return false;
+
+        //    if (_channelInfo.ContainsKey(configPath))
+        //        _channelInfo[configPath] = channelType;
+        //    else _channelInfo.Add(configPath, channelType);
+
+        //    return true;
+        //}
 
         public IJ4JLoggerConfiguration? GetLoggerConfiguration<TJ4JLogger>()
             where TJ4JLogger: IJ4JLoggerConfiguration, new()
@@ -54,7 +68,7 @@ namespace J4JSoftware.Logging
 
         public IEnumerator<IChannelConfig> GetEnumerator()
         {
-            foreach (var kvp in _channels)
+            foreach (var kvp in _channelInfo)
             {
                 var elements = kvp.Key.Split( ':', StringSplitOptions.RemoveEmptyEntries );
                 if( elements.Length == 0 )
