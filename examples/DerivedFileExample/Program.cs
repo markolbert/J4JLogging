@@ -36,13 +36,12 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            var factory = new ChannelFactory( config );
+            var channelInfo = new ChannelInformation()
+                .AddChannel<ConsoleConfig>( "channels:console" )
+                .AddChannel<DebugConfig>( "channels:debug" )
+                .AddChannel<FileConfig>( "channels:file" );
 
-            factory.AddChannel<ConsoleConfig>( "channels:console" );
-            factory.AddChannel<DebugConfig>( "channels:debug" );
-            factory.AddChannel<FileConfig>( "channels:file" );
-
-            builder.RegisterJ4JLogging<DerivedConfiguration>( factory );
+            builder.RegisterJ4JLogging<DerivedConfiguration>( new ChannelFactory( config, channelInfo ) );
 
             _svcProvider = new AutofacServiceProvider( builder.Build() );
         }

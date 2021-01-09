@@ -2,7 +2,8 @@
 
 Configuring `IJ4JLogger` is a matter of creating an instance of 
 `J4JLoggerConfiguration`. How you do that is up to you, but if you use the Net5 
-configuration system the `ChannelFactory` class simplifies things a lot:
+configuration system the `ChannelInformation` and `ChannelFactory` classes
+simplifies things a lot:
 ```csharp
 var config = new ConfigurationBuilder()
     .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )

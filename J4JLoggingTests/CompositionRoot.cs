@@ -27,21 +27,20 @@ namespace J4JLoggingTests
 
             var builder = new ContainerBuilder();
 
-            var logChannels = new ChannelFactory( config, loggerKey, true );
-
             var configSB = new StringBuilder();
 
             configSB.Append( $"{loggerKey}{( string.IsNullOrEmpty( loggerKey ) ? string.Empty : ":" )}" );
             configSB.Append( "Channels:" );
 
-            loggerKey = configSB.ToString();
+            var keyPrefix = configSB.ToString();
 
-            logChannels.AddChannel<ConsoleConfig>( $"{loggerKey}console" );
-            logChannels.AddChannel<DebugConfig>( $"{loggerKey}debug" );
-            logChannels.AddChannel<FileConfig>( $"{loggerKey}file" );
-            logChannels.AddChannel<TwilioConfig>( "twilio" );
+            var channelInfo = new ChannelInformation()
+                .AddChannel<ConsoleConfig>( $"{keyPrefix}console" )
+                .AddChannel<DebugConfig>( $"{keyPrefix}debug" )
+                .AddChannel<FileConfig>( $"{keyPrefix}file" )
+                .AddChannel<TwilioConfig>( "twilio" );
 
-            builder.RegisterJ4JLogging<TJ4JLogger>( logChannels );
+            builder.RegisterJ4JLogging<TJ4JLogger>( new ChannelFactory( config, channelInfo, loggerKey, true ) );
 
             builder.Register( c =>
                 {
