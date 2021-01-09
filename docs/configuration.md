@@ -11,17 +11,16 @@ var config = new ConfigurationBuilder()
 
 var builder = new ContainerBuilder();
 
-var factory = new ChannelFactory( config );
+var channelInfo = new ChannelInformation()
+    .AddChannel<ConsoleConfig>( "channels:console" )
+    .AddChannel<DebugConfig>( "channels:debug" )
+    .AddChannel<FileConfig>( "channels:file" );
 
-factory.AddChannel<ConsoleConfig>( "channels:console" );
-factory.AddChannel<DebugConfig>( "channels:debug" );
-factory.AddChannel<FileConfig>( "channels:file" );
-
-builder.RegisterJ4JLogging<DerivedConfiguration>( factory );
+builder.RegisterJ4JLogging<DerivedConfiguration>( new ChannelFactory( config, channelInfo ) );
 
 _svcProvider = new AutofacServiceProvider( builder.Build() );
 ```
-All you do is create an instance of `ChannelFactory` and tell it how to 
+All you do is create an instance of `ChannelInformation` and tell it how to 
 locate each of the configuration sections which define the channels you want to
 use. 
 
@@ -101,13 +100,12 @@ var config = new ConfigurationBuilder()
 
 var builder = new ContainerBuilder();
 
-var channelFactory = new ChannelFactory( config, "Logger" );
+var channelInfo = new ChannelInformation()
+    .AddChannel<ConsoleConfig>("Logger:channels:console")
+    .AddChannel<DebugConfig>("Logger:channels:debug")
+    .AddChannel<FileConfig>("Logger:channels:file");
 
-channelFactory.AddChannel<ConsoleConfig>( "Logger:Channels:Console" );
-channelFactory.AddChannel<DebugConfig>("Logger:Channels:Debug");
-channelFactory.AddChannel<FileConfig>("Logger:Channels:File");
-
-builder.RegisterJ4JLogging<J4JLoggerConfiguration>( channelFactory );
+builder.RegisterJ4JLogging<J4JLoggerConfiguration>( new ChannelFactory( config, channelInfo, "Logger" ) );
 
 _svcProvider = new AutofacServiceProvider(builder.Build());
 ```
