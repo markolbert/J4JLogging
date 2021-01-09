@@ -12,6 +12,7 @@
 		<Product>J4JSoftware Serilog wrapper</Product>
 		<Description>embedded configuration example for J4JLogger</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
+		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>

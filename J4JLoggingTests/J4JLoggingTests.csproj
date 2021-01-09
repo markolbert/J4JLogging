@@ -5,6 +5,7 @@
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
     <UserSecretsId>b01035dc-ae08-4c8a-8f23-036581b11a20</UserSecretsId>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

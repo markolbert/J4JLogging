@@ -19,22 +19,33 @@
 		<Version>3.0.0.0</Version>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
 		<PackageReleaseNotes>targeting Net5; major restructuring and breaking changes</PackageReleaseNotes>
+		<Configurations>Debug;Release;NuGetRelease</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac" Version="6.1.0" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
+		<PackageReference Include="Serilog" Version="2.10.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
-	    <Pack>True</Pack>
-	    <PackagePath></PackagePath>
-	  </None>
+		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-	</ItemGroup>
+	<Choose>
+		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
+			<ItemGroup>
+				<PackageReference Include="J4JSoftware.Logging" Version="3.0.0" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
 
 </Project>
