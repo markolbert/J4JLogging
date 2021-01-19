@@ -2,21 +2,30 @@
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using Autofac;
+using Autofac.Core;
+using Autofac.Extensions.DependencyInjection;
 using FluentAssertions;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
+using Serilog.Events;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace J4JLoggingTests
 {
     public class BasicTests
     {
         [Theory]
-        [InlineData(typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
-        [InlineData(typeof(DerivedConfiguration), "config-files/Derived.json", null)]
-        [InlineData(typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
-        public void Uncached( Type configType, string configPath, string? loggerKey )
+        [InlineData(CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
+        [InlineData(CompositionRootType.Dynamic, typeof(DerivedConfiguration), "config-files/Derived.json", null)]
+        [InlineData(CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
+        [InlineData(CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
+        [InlineData(CompositionRootType.Static, typeof(DerivedConfiguration), "config-files/Derived.json", null)]
+        [InlineData(CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
+        public void Uncached(CompositionRootType rootType, Type configType, string configPath, string? loggerKey )
         {
-            var compRoot = GetCompositionRoot( configType, configPath, loggerKey );
+            var compRoot = GetCompositionRoot( rootType, configType, configPath, loggerKey );
 
             var logger = compRoot.J4JLogger;
             logger.SetLoggedType(this.GetType());
@@ -49,13 +58,14 @@ namespace J4JLoggingTests
         }
 
         [Theory]
-        [InlineData(typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
-        [InlineData(typeof(DerivedConfiguration), "config-files/Derived.json", null)]
-        [InlineData(typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
-        public void Cached(Type configType, string configPath, string loggerKey)
+        [InlineData(CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
+        [InlineData(CompositionRootType.Dynamic, typeof(DerivedConfiguration), "config-files/Derived.json", null)]
+        [InlineData(CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
+        [InlineData(CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null)]
+        [InlineData(CompositionRootType.Static, typeof(DerivedConfiguration), "config-files/Derived.json", null)]
+        [InlineData(CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Embedded.json", "Container:Logger")]
+        public void Cached(CompositionRootType rootType, Type configType, string configPath, string loggerKey)
         {
-            var compRoot = GetCompositionRoot(configType, configPath, loggerKey);
-
             var cached = new J4JCachedLogger();
             cached.SetLoggedType(this.GetType());
 
@@ -68,6 +78,8 @@ namespace J4JLoggingTests
             cached.Error<string, string>(template, "Error", configPath);
             cached.Fatal<string, string>(template, "Fatal", configPath);
             cached.IncludeSms().Verbose<string, string>("{0} ({1})", "Verbose", configPath);
+
+            var compRoot = GetCompositionRoot( rootType, configType, configPath, loggerKey );
 
             var logger = compRoot.J4JLogger;
             var lastEvent = compRoot.LastEventConfig;
@@ -87,13 +99,22 @@ namespace J4JLoggingTests
                 template.Replace("{0}", $"\"{prop1}\"").Replace("{1}", $"\"{configPath}\"");
         }
 
-        private ICompositionRoot GetCompositionRoot(Type configType, string configPath, string? loggerKey)
+        private ICompositionRoot GetCompositionRoot( CompositionRootType rootType, Type configType, string configPath, string? loggerKey)
         {
             typeof(IJ4JLoggerConfiguration).IsAssignableFrom( configType ).Should().BeTrue();
 
             var compRootType = typeof(CompositionRoot<>).MakeGenericType(configType);
 
-            var temp = Activator.CreateInstance( compRootType, new object?[] { configPath, loggerKey } );
+            var temp = rootType switch
+            {
+                CompositionRootType.Dynamic => Activator.CreateInstance( 
+                    compRootType,
+                    new object?[] { configPath, loggerKey } ),
+                CompositionRootType.Static => Activator.CreateInstance( compRootType ),
+                _ => throw new InvalidEnumArgumentException(
+                    $"Unsupported {typeof(CompositionRootType)} value '{rootType}'" )
+            };
+
             temp.Should().NotBeNull();
 
             return (ICompositionRoot) temp!;

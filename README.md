@@ -45,12 +45,15 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            var channelInfo = new ChannelInformation()
+            var provider = new DynamicChannelConfigProvider
+                {
+                    Source = config
+                }
                 .AddChannel<ConsoleConfig>("channels:console")
                 .AddChannel<DebugConfig>("channels:debug")
                 .AddChannel<FileConfig>("channels:file");
 
-            builder.RegisterJ4JLogging<J4JLoggerConfiguration>( new ChannelFactory( config, channelInfo ) );
+            builder.RegisterJ4JLogging<J4JLoggerConfiguration>( provider );
 
             _svcProvider = new AutofacServiceProvider(builder.Build());
         }
@@ -88,6 +91,20 @@ even the author found the earlier approach difficult to remember :)).
 - To make logging possible before a program is fully set up a cached implementation
  of IJ4JLogger was added. The contents of the cache can be easily dumped into the actual
  logging system once it's established.
+
+### Changes to v3.1
+I've modified, once again, how the output channels are configured when
+initializing the logger. The `ChannelInformation` and `ChannelFactory`
+classes were replaced by an interface (`IChannelConfigProvider`) for 
+providing the `IChannelConfig` instances when needed.
+
+Two implementations of the `IChannelConfigProvider` are provided. One
+(`StaticChannelConfigProvider`) supports adding manually-created
+instances of `IChannelConfig` objects to the provider.
+
+The more commonly used implementation is `DynamicChannelConfigProvider`.
+It retrieves the channel configuration information from the Net5
+`IConfiguration` system.
  
 ### Important Note
 **There is one important difference in how you call the logging methods

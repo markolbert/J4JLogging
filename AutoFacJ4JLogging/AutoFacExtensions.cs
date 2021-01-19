@@ -6,7 +6,8 @@ namespace J4JSoftware.Logging
 {
     public static class AutofacExtensions
     {
-        public static ContainerBuilder RegisterJ4JLogging( this ContainerBuilder builder, IJ4JLoggerConfiguration config )
+        public static ContainerBuilder RegisterJ4JLogging<TJ4JLogger>( this ContainerBuilder builder, TJ4JLogger config )
+            where TJ4JLogger : IJ4JLoggerConfiguration
         {
             builder.Register(c=>
                 {
@@ -31,19 +32,11 @@ namespace J4JSoftware.Logging
 
         public static ContainerBuilder RegisterJ4JLogging<TJ4JLogger>(
             this ContainerBuilder builder,
-            IChannelFactory channelFactory )
-        where TJ4JLogger : IJ4JLoggerConfiguration, new()
+            IChannelConfigProvider provider )
+        where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
         {
-            builder.Register( c =>
-                {
-                    var retVal = channelFactory.GetLoggerConfiguration<TJ4JLogger>();
-
-                    if( retVal == null )
-                        throw new NullReferenceException(
-                            $"Could not extract an instance of {typeof(TJ4JLogger)} from IConfigurationRoot" );
-
-                    return retVal;
-                })
+            builder.RegisterType<TJ4JLogger>()
+                .OnActivating(x=>provider.AddChannelsToLoggerConfiguration(x.Instance))
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
 

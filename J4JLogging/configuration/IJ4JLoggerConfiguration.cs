@@ -1,4 +1,6 @@
-﻿namespace J4JSoftware.Logging
+﻿using System.Collections.Generic;
+
+namespace J4JSoftware.Logging
 {
     // defines the functionality of a type that can be used to configure the J4JLogger
     // system
@@ -15,9 +17,7 @@
         // will be added to the logging output
         EventElements EventElements { get; set; }
 
-        IChannelFactory? Channels { get; }
-
-        void SetChannels( IChannelFactory factory );
+        List<IChannelConfig> Channels { get; }
     }
 
     //public interface IJ4JLoggerConfiguration<TChannels> : IJ4JLoggerConfiguration
