@@ -35,13 +35,13 @@ namespace J4JLogger.Examples
                 .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
                 .Build();
 
-            var provider = new DynamicChannelConfigProvider("Logger")
+            var provider = new ChannelConfigProvider( "Logger" )
                 {
                     Source = config
                 }
-                .AddChannel<ConsoleConfig>("channels:console")
-                .AddChannel<DebugConfig>("channels:debug")
-                .AddChannel<FileConfig>("channels:file");
+                .AddChannel<ConsoleConfig>( "channels:console" )
+                .AddChannel<DebugConfig>( "channels:debug" )
+                .AddChannel<FileConfig>( "channels:file" );
 
             builder.RegisterJ4JLogging<J4JLoggerConfiguration>( provider );
 

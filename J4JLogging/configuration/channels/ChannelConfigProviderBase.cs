@@ -22,7 +22,7 @@ namespace J4JSoftware.Logging
 
         public LastEventConfig? LastEvent { get; }
 
-        public abstract void AddChannelsToLoggerConfiguration<TJ4JLogger>( TJ4JLogger? loggerConfig = null )
+        public abstract TJ4JLogger GetConfiguration<TJ4JLogger>( IConfiguration config )
             where TJ4JLogger : class, IJ4JLoggerConfiguration, new();
 
         protected abstract IEnumerable<IChannelConfig> EnumerateChannels();

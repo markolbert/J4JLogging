@@ -10,7 +10,7 @@ namespace J4JSoftware.Logging
         private readonly Dictionary<Type, IChannelConfig> _channels = new();
 
         public StaticChannelConfigProvider(
-            bool includeLastEvent,
+            bool includeLastEvent = false,
             IJ4JLogger? logger = null )
             : base( includeLastEvent, logger )
         {

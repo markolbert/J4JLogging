@@ -32,18 +32,21 @@ namespace J4JLoggingTests
         {
             var builder = new ContainerBuilder();
 
-            var provider = new DynamicChannelConfigProvider(loggerKey, true)
+            var configBuilder = new ConfigurationBuilder();
+
+            var config = configBuilder
+                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, configPath ) )
+                .AddUserSecrets<BasicTests>()
+                .Build();
+
+            var provider = new ChannelConfigProvider(loggerKey, true)
+                {
+                    Source = config
+                }
                 .AddChannel<ConsoleConfig>( "channels:console" )
                 .AddChannel<DebugConfig>( "channels:debug" )
                 .AddChannel<FileConfig>( "channels:file" )
                 .AddChannel<TwilioConfig>( "twilio" );
-
-            var configBuilder = new ConfigurationBuilder();
-
-            provider.Source = configBuilder
-                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, configPath ) )
-                .AddUserSecrets<BasicTests>()
-                .Build();
 
             builder.RegisterJ4JLogging<TJ4JLogger>( provider );
 
@@ -63,18 +66,21 @@ namespace J4JLoggingTests
                 .Build();
 
             var twilioConfig = config.GetSection( "twilio" ).Get<TwilioConfig>();
+            var lastConfig = new LastEventConfig();
 
             var builder = new ContainerBuilder();
 
-            var provider = new StaticChannelConfigProvider(true)
-                .AddChannel(new ConsoleConfig())
-                .AddChannel( new DebugConfig())
-                .AddChannel( new FileConfig())
-                .AddChannel( twilioConfig );
+            var j4jConfig = new J4JLoggerConfiguration();
 
-            builder.RegisterJ4JLogging<TJ4JLogger>( provider );
+            j4jConfig.Channels.Add( new ConsoleConfig() );
+            j4jConfig.Channels.Add( new DebugConfig() );
+            j4jConfig.Channels.Add( new FileConfig() );
+            j4jConfig.Channels.Add( twilioConfig );
+            j4jConfig.Channels.Add( lastConfig );
 
-            builder.Register( c => provider.LastEvent! )
+            builder.RegisterJ4JLogging( j4jConfig );
+
+            builder.Register( c => lastConfig )
                 .AsSelf()
                 .SingleInstance();
 

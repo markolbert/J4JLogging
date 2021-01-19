@@ -26,6 +26,8 @@
 		<Compile Remove="docs\**" />
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="docs\**" />
+		<Compile Remove="configuration\channels\ChannelConfigProviderBase.cs" />
+		<Compile Remove="configuration\channels\StaticChannelConfigProvider.cs" />
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
 		  <Pack>True</Pack>
 		  <PackagePath></PackagePath>

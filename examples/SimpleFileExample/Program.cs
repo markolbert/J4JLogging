@@ -34,7 +34,7 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            var provider = new DynamicChannelConfigProvider
+            var provider = new ChannelConfigProvider
                 {
                     Source = config
                 }

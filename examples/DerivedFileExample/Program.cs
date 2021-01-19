@@ -36,7 +36,7 @@ namespace J4JLogger.Examples
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )
                 .Build();
 
-            var provider = new DynamicChannelConfigProvider
+            var provider = new ChannelConfigProvider
                 {
                     Source = config
                 }

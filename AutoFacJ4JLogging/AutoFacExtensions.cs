@@ -1,5 +1,6 @@
 ﻿using System;
 using Autofac;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace J4JSoftware.Logging
@@ -11,9 +12,6 @@ namespace J4JSoftware.Logging
         {
             builder.Register(c=>
                 {
-                    if( config.Channels == null )
-                        throw new NullReferenceException( $"{nameof(config.Channels)} is not defined" );
-
                     var retVal = config.CreateBaseLogger();
 
                     if( retVal != null )
@@ -24,7 +22,12 @@ namespace J4JSoftware.Logging
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.RegisterType<J4JLogger>()
+            builder.Register( c =>
+                {
+                    var baseLogger = c.Resolve<ILogger>();
+
+                    return new J4JLogger( config, baseLogger );
+                })
                 .As<IJ4JLogger>();
 
             return builder;
@@ -35,8 +38,15 @@ namespace J4JSoftware.Logging
             IChannelConfigProvider provider )
         where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
         {
-            builder.RegisterType<TJ4JLogger>()
-                .OnActivating(x=>provider.AddChannelsToLoggerConfiguration(x.Instance))
+            builder.Register(c=>
+                {
+                    var retVal = provider.GetConfiguration<TJ4JLogger>();
+
+                    if( retVal == null )
+                        throw new NullReferenceException( $"Couldn't create an instance of {typeof(TJ4JLogger)}" );
+
+                    return retVal;
+                } )
                 .As<IJ4JLoggerConfiguration>()
                 .SingleInstance();
 
