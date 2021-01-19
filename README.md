@@ -45,7 +45,7 @@ namespace J4JLogger.Examples
 
             var builder = new ContainerBuilder();
 
-            var provider = new DynamicChannelConfigProvider
+            var provider = new ChannelConfigProvider
                 {
                     Source = config
                 }
@@ -94,17 +94,16 @@ even the author found the earlier approach difficult to remember :)).
 
 ### Changes to v3.1
 I've modified, once again, how the output channels are configured when
-initializing the logger. The `ChannelInformation` and `ChannelFactory`
-classes were replaced by an interface (`IChannelConfigProvider`) for 
-providing the `IChannelConfig` instances when needed.
+initializing the logger. 
 
-Two implementations of the `IChannelConfigProvider` are provided. One
-(`StaticChannelConfigProvider`) supports adding manually-created
-instances of `IChannelConfig` objects to the provider.
+You can set up a class implementing `IJ4JLoggerConfiguration` (e.g.,
+`J4JLoggerConfiguration`) manually and add the channels you want to its
+`Channels` property.
 
-The more commonly used implementation is `DynamicChannelConfigProvider`.
-It retrieves the channel configuration information from the Net5
-`IConfiguration` system.
+Or, if you're using the Net5 `IConfiguration` system you can implement
+an instance of `IChannelConfigProvider` and use the Autofac registration
+methods to do the work for you. See the [configuration section](docs/configuration.md)
+section for more details.
  
 ### Important Note
 **There is one important difference in how you call the logging methods
