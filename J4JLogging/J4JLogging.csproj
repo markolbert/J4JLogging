@@ -8,7 +8,7 @@
 		<Authors>Mark A. Olbert</Authors>
 		<Company>Jump for Joy Software</Company>
 		<Product>J4JSoftware Logging Extensions for Serilog</Product>
-		<Description>adds source code annotations to a Serilog logger</Description>
+		<Description>Wrapper for Serilog ILogger to provide source code information and enable SMS logging</Description>
 		<Copyright>© Mark A. Olbert all rights reserved</Copyright>
 		<PackageDescription>Wrapper for Serilog ILogger to provide source code information and enable SMS logging</PackageDescription>
 		<RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
@@ -18,7 +18,7 @@
 		<RepositoryType>git</RepositoryType>
 		<Version>3.1.0.0</Version>
 		<AssemblyVersion>3.1.0.0</AssemblyVersion>
-		<PackageReleaseNotes>targeting Net5; major restructuring and breaking changes</PackageReleaseNotes>
+		<PackageReleaseNotes>revised channel configuration from IConfiguration system</PackageReleaseNotes>
 		<Configurations>Debug;Release;NuGetRelease</Configurations>
 	</PropertyGroup>
 
