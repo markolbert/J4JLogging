@@ -19,7 +19,7 @@
 		<Version>3.1.0.0</Version>
 		<AssemblyVersion>3.1.0.0</AssemblyVersion>
 		<PackageReleaseNotes>changed IConfiguration initialization</PackageReleaseNotes>
-		<Configurations>Debug;Release</Configurations>
+		<Configurations>Debug;Release;NuGetRelease</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,9 +28,18 @@
 		<PackageReference Include="Serilog" Version="2.10.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-	</ItemGroup>
+	<Choose>
+		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
+			<ItemGroup>
+				<PackageReference Include="J4JSoftware.Logging" Version="3.1.0" />
+			</ItemGroup>
+		</When>
+		<Otherwise>
+			<ItemGroup>
+				<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+			</ItemGroup>
+		</Otherwise>
+	</Choose>
 
 	<ItemGroup>
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
