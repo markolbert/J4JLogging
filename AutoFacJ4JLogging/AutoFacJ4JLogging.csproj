@@ -19,7 +19,7 @@
 		<Version>3.1.0.0</Version>
 		<AssemblyVersion>3.1.0.0</AssemblyVersion>
 		<PackageReleaseNotes>changed IConfiguration initialization</PackageReleaseNotes>
-		<Configurations>Debug;Release;NuGetRelease</Configurations>
+		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -29,23 +29,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
-
-	<Choose>
-		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
-			<ItemGroup>
-				<PackageReference Include="J4JSoftware.Logging" Version="3.0.0" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
 
 </Project>
