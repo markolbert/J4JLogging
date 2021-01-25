@@ -13,13 +13,12 @@
 		<PackageDescription>addon library providing Autofac dependency injection support</PackageDescription>
 		<RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<Version>3.1.0.0</Version>
 		<AssemblyVersion>3.1.0.0</AssemblyVersion>
 		<PackageReleaseNotes>changed IConfiguration initialization</PackageReleaseNotes>
-		<Configurations>Debug;Release;NuGetRelease</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,18 +27,9 @@
 		<PackageReference Include="Serilog" Version="2.10.0" />
 	</ItemGroup>
 
-	<Choose>
-		<When Condition=" '$(Configuration)' == 'NuGetRelease' ">
-			<ItemGroup>
-				<PackageReference Include="J4JSoftware.Logging" Version="3.1.0" />
-			</ItemGroup>
-		</When>
-		<Otherwise>
-			<ItemGroup>
-				<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
-			</ItemGroup>
-		</Otherwise>
-	</Choose>
+	<ItemGroup>
+		<ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">

@@ -1,6 +1,5 @@
 ﻿using System;
 using Autofac;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace J4JSoftware.Logging

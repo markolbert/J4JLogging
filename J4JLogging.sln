@@ -34,44 +34,31 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		NuGetRelease|Any CPU = NuGetRelease|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.Build.0 = Release|Any CPU
 		{619BF188-3D4A-47F6-AECA-084DC8002065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{619BF188-3D4A-47F6-AECA-084DC8002065}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.NuGetRelease|Any CPU.ActiveCfg = NuGetRelease|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.NuGetRelease|Any CPU.Build.0 = NuGetRelease|Any CPU
 		{619BF188-3D4A-47F6-AECA-084DC8002065}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{619BF188-3D4A-47F6-AECA-084DC8002065}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E724D950-8108-4B98-8063-1C30CEEDE432}.NuGetRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{E724D950-8108-4B98-8063-1C30CEEDE432}.NuGetRelease|Any CPU.Build.0 = Release|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
