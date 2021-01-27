@@ -31,5 +31,16 @@ namespace J4JSoftware.Logging
 
             return sinkConfig.Sink( sink );
         }
+
+        public static LoggerConfiguration NetEvent( 
+            this LoggerSinkConfiguration sinkConfig, 
+            ITextFormatter formatter,
+            EventHandler<NetEventArgs>? handler )
+        {
+            var sink = new NetEventSink { TextFormatter = formatter };
+            sink.LogEvent += handler;
+
+            return sinkConfig.Sink( sink );
+        }
     }
 }
