@@ -10,13 +10,15 @@ namespace J4JSoftware.Logging
 {
     public class NetEventSink : ILogEventSink
     {
-        public event EventHandler<NetEventArgs>? LogEvent;
+        private readonly NetEventConfig _config;
 
         private readonly StringWriter _stringWriter;
         private readonly StringBuilder _sb;
 
-        public NetEventSink()
+        public NetEventSink( NetEventConfig config )
         {
+            _config = config;
+
             _sb = new StringBuilder();
             _stringWriter = new StringWriter( _sb );
         }
@@ -32,7 +34,7 @@ namespace J4JSoftware.Logging
             TextFormatter.Format( logEvent, _stringWriter );
             _stringWriter.Flush();
 
-            LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
+            _config.OnLogEvent(new NetEventArgs(logEvent.Level, _sb.ToString()));
         }
     }
 }

@@ -25,6 +25,8 @@ namespace J4JSoftware.Logging
         // will be added to the output template
         public EventElements EventElements { get; set; } = EventElements.All;
 
+        public bool RequireNewline { get; set; } = true;
+
         public abstract LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
 
         public virtual bool IsValid => true;
@@ -58,7 +60,8 @@ namespace J4JSoftware.Logging
                     }
                 }
 
-                sb.Append( "{NewLine}" );
+                if( RequireNewline )
+                    sb.Append( "{NewLine}" );
 
                 return sb.ToString();
             }

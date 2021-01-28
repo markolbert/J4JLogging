@@ -7,7 +7,8 @@ namespace J4JSoftware.Logging
 {
     public class ChannelConfigProvider : IChannelConfigProvider
     {
-        private readonly Dictionary<string, Type> _channels = new( StringComparer.OrdinalIgnoreCase );
+        private readonly Dictionary<string, Type> _configurableChannels = new( StringComparer.OrdinalIgnoreCase );
+        private readonly List<IChannelConfig> _configuredChannels = new();
         private readonly string? _loggerSectionKey;
 
         public ChannelConfigProvider(
@@ -30,9 +31,9 @@ namespace J4JSoftware.Logging
             if( string.IsNullOrEmpty( configPath ) )
                 return this;
 
-            if( _channels.ContainsKey( configPath ) )
-                _channels[ configPath ] = typeof(TChannel);
-            else _channels.Add( configPath, typeof(TChannel) );
+            if( _configurableChannels.ContainsKey( configPath ) )
+                _configurableChannels[ configPath ] = typeof(TChannel);
+            else _configurableChannels.Add( configPath, typeof(TChannel) );
 
             return this;
         }
@@ -43,9 +44,16 @@ namespace J4JSoftware.Logging
                 || !typeof(IChannelConfig).IsAssignableFrom( channelType ) )
                 return this;
 
-            if( _channels.ContainsKey( configPath ) )
-                _channels[ configPath ] = channelType;
-            else _channels.Add( configPath, channelType );
+            if( _configurableChannels.ContainsKey( configPath ) )
+                _configurableChannels[ configPath ] = channelType;
+            else _configurableChannels.Add( configPath, channelType );
+
+            return this;
+        }
+
+        public ChannelConfigProvider AddChannel( IChannelConfig channelConfig )
+        {
+            _configuredChannels.Add( channelConfig );
 
             return this;
         }
@@ -64,7 +72,7 @@ namespace J4JSoftware.Logging
             if( retVal == null )
                 return retVal;
 
-            foreach( var kvp in _channels )
+            foreach( var kvp in _configurableChannels )
             {
                 var elements = kvp.Key.Split( ':', StringSplitOptions.RemoveEmptyEntries )
                     .ToList();
@@ -90,6 +98,8 @@ namespace J4JSoftware.Logging
                 if( curSection.Get( kvp.Value ) is IChannelConfig curConfig )
                     retVal.Channels.Add( curConfig );
             }
+
+            retVal.Channels.AddRange( _configuredChannels );
 
             if( LastEvent != null )
                 retVal.Channels.Add( LastEvent );

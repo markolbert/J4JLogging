@@ -9,11 +9,22 @@ namespace J4JSoftware.Logging
     // even logged
     public class NetEventConfig : ChannelConfig
     {
+        public const string DefaultNetEventConfigOutputTemplate = "[{Level:u3}] {Message}";
+
+        public NetEventConfig()
+        {
+            OutputTemplate = DefaultNetEventConfigOutputTemplate;
+            EventElements = EventElements.None;
+            RequireNewline = false;
+        }
+
         public event EventHandler<NetEventArgs>? LogEvent;
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            return sinkConfig.NetEvent( new MessageTemplateTextFormatter( EnrichedMessageTemplate ), LogEvent );
+            return sinkConfig.NetEvent( new MessageTemplateTextFormatter( EnrichedMessageTemplate ), this );
         }
+
+        internal void OnLogEvent( NetEventArgs args ) => LogEvent?.Invoke( this, args );
     }
 }
