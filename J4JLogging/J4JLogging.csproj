@@ -27,13 +27,16 @@
 		<None Remove="docs\**" />
 		<Compile Remove="configuration\channels\ChannelConfigProviderBase.cs" />
 		<Compile Remove="configuration\channels\StaticChannelConfigProvider.cs" />
-		<None Include="E:\Pix\JumpForJoy\Diego nuspec.png">
-		  <Pack>True</Pack>
-		  <PackagePath></PackagePath>
-		</None>
 	</ItemGroup>
 
-	<ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
 		<None Remove="J4JSoftware.Logging.xml" />
 	</ItemGroup>
 
