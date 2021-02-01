@@ -32,4 +32,8 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="Twilio" Version="5.53.1" />
+	</ItemGroup>
+
 </Project>
