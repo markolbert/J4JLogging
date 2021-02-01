@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gitdoc", "gitdoc", "{33976A4C-64BD-4142-BF64-DA4714E000AA}"
 	ProjectSection(SolutionItems) = preProject
 		docs\autofac.md = docs\autofac.md
+		docs\changes.md = docs\changes.md
 		docs\channel.md = docs\channel.md
 		docs\configuration.md = docs\configuration.md
 		docs\elements.md = docs\elements.md
@@ -30,6 +31,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedFileExample", "examples\EmbeddedFileExample\EmbeddedFileExample.csproj", "{E5AB57C3-D38D-416C-893F-71289EC0900A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{E724D950-8108-4B98-8063-1C30CEEDE432}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +64,10 @@ Global
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C21270BA-083B-4054-8143-8FA17520D918}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C21270BA-083B-4054-8143-8FA17520D918}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C21270BA-083B-4054-8143-8FA17520D918}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C21270BA-083B-4054-8143-8FA17520D918}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

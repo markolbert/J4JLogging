@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
+    <ProjectReference Include="..\J4JLoggingTwilio\J4JLoggingTwilio.csproj" />
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  <TargetFramework>net5.0</TargetFramework>
+	  <Nullable>enable</Nullable>
+	  <AssemblyName>J4JSoftware.Logging.Twilio</AssemblyName>
+	  <RootNamespace>J4JSoftware.Logging</RootNamespace>
+	  <Authors>Mark A. Olbert</Authors>
+	  <Company>Jump for Joy Software</Company>
+	  <Product>J4JSoftware Logging Extensions for Serilog and Twilio</Product>
+	  <Description>Extends the J4JLogger library to support SMS logging via Twilio</Description>
+	  <Copyright>© Mark A. Olbert all rights reserved</Copyright>
+	  <PackageDescription>Extends the J4JLogger library to support SMS logging via Twilio</PackageDescription>
+	  <RepositoryUrl>https://github.com/markolbert/J4JLogger</RepositoryUrl>
+	  <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <PackageIcon>Diego nuspec.png</PackageIcon>
+	  <RepositoryType>git</RepositoryType>
+	  <Version>1.0.0.0</Version>
+	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <PackageReleaseNotes>Initial release as extension library</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\Media\JumpForJoy\Diego nuspec.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

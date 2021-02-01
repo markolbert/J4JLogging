@@ -3,6 +3,8 @@
 A Net 5.0 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by
 reporting source code information.
 
+Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
+
 [![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
 
 
@@ -81,30 +83,9 @@ Contents of logConfig.json:
   }
 }
 ```
-### Significant Changes to v3
-- The libraries now target Net5 only, and have null checking enabled.
-- I consolidated all the default channels into the base J4JLogger assembly. Having
-them in separate assemblies complicated things.
-- The way log channels are configured was changed substantially (mostly because 
-even the author found the earlier approach difficult to remember :)).
-- The `Autofac`-based setup approach was simplified.
-- To make logging possible before a program is fully set up a cached implementation
- of IJ4JLogger was added. The contents of the cache can be easily dumped into the actual
- logging system once it's established.
 
-### Changes to v3.1
-I've modified, once again, how the output channels are configured when
-initializing the logger. 
+See the [change log](docs/changes.md) for information on changes.
 
-You can set up a class implementing `IJ4JLoggerConfiguration` (e.g.,
-`J4JLoggerConfiguration`) manually and add the channels you want to its
-`Channels` property.
-
-Or, if you're using the Net5 `IConfiguration` system you can implement
-an instance of `IChannelConfigProvider` and use the Autofac registration
-methods to do the work for you. See the [configuration section](docs/configuration.md)
-section for more details.
- 
 ### Important Note
 **There is one important difference in how you call the logging methods
 from the Serilog standard.** 
@@ -126,6 +107,7 @@ specifications for the arguments necessary when strings are referenced by the me
 
 ### Table of Contents
 
+- [Change Log](docs/changes.md)
 - [Goal and Concept](docs/goal-concept.md)
 - [Terminology](docs/terminology.md)
 - [Usage](docs/usage.md)
