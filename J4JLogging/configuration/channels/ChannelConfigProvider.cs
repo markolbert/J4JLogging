@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'J4JLogging' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
@@ -24,39 +43,6 @@ namespace J4JSoftware.Logging
 
         public IConfiguration? Source { get; set; }
         public LastEventConfig? LastEvent { get; }
-
-        public ChannelConfigProvider AddChannel<TChannel>( string configPath )
-            where TChannel : IChannelConfig, new()
-        {
-            if( string.IsNullOrEmpty( configPath ) )
-                return this;
-
-            if( _configurableChannels.ContainsKey( configPath ) )
-                _configurableChannels[ configPath ] = typeof(TChannel);
-            else _configurableChannels.Add( configPath, typeof(TChannel) );
-
-            return this;
-        }
-
-        public ChannelConfigProvider AddChannel( Type channelType, string configPath )
-        {
-            if( string.IsNullOrEmpty( configPath )
-                || !typeof(IChannelConfig).IsAssignableFrom( channelType ) )
-                return this;
-
-            if( _configurableChannels.ContainsKey( configPath ) )
-                _configurableChannels[ configPath ] = channelType;
-            else _configurableChannels.Add( configPath, channelType );
-
-            return this;
-        }
-
-        public ChannelConfigProvider AddChannel( IChannelConfig channelConfig )
-        {
-            _configuredChannels.Add( channelConfig );
-
-            return this;
-        }
 
         public TJ4JLogger? GetConfiguration<TJ4JLogger>()
             where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
@@ -105,6 +91,39 @@ namespace J4JSoftware.Logging
                 retVal.Channels.Add( LastEvent );
 
             return retVal;
+        }
+
+        public ChannelConfigProvider AddChannel<TChannel>( string configPath )
+            where TChannel : IChannelConfig, new()
+        {
+            if( string.IsNullOrEmpty( configPath ) )
+                return this;
+
+            if( _configurableChannels.ContainsKey( configPath ) )
+                _configurableChannels[ configPath ] = typeof(TChannel);
+            else _configurableChannels.Add( configPath, typeof(TChannel) );
+
+            return this;
+        }
+
+        public ChannelConfigProvider AddChannel( Type channelType, string configPath )
+        {
+            if( string.IsNullOrEmpty( configPath )
+                || !typeof(IChannelConfig).IsAssignableFrom( channelType ) )
+                return this;
+
+            if( _configurableChannels.ContainsKey( configPath ) )
+                _configurableChannels[ configPath ] = channelType;
+            else _configurableChannels.Add( configPath, channelType );
+
+            return this;
+        }
+
+        public ChannelConfigProvider AddChannel( IChannelConfig channelConfig )
+        {
+            _configuredChannels.Add( channelConfig );
+
+            return this;
         }
     }
 }

@@ -1,4 +1,23 @@
-﻿using System;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'J4JLogging' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog;
@@ -8,16 +27,16 @@ using Serilog.Events;
 namespace J4JSoftware.Logging
 {
     /// <summary>
-    ///     Wrapper for <see cref="Serilog.ILogger"/> which simplifies including calling member
+    ///     Wrapper for <see cref="Serilog.ILogger" /> which simplifies including calling member
     ///     (e.g., method name) and source code information.
     /// </summary>
     public class J4JLogger : IJ4JLogger
     {
         private readonly IJ4JLoggerConfiguration _config;
         private readonly bool _includingTypeInfo;
+        private Type? _loggedType;
 
         private bool _sendToSms;
-        private Type? _loggedType;
 
         public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
         {
@@ -28,9 +47,74 @@ namespace J4JSoftware.Logging
         }
 
         /// <summary>
-        /// The <see cref="Serilog.ILogger"/>  instance that handles the actual logging. Read only.
+        ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
         /// </summary>
         protected ILogger BaseLogger { get; private set; }
+
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
+        public void SetLoggedType<TLogged>()
+        {
+            if( ( _config.EventElements & EventElements.Type ) != EventElements.Type )
+                return;
+
+            BaseLogger = BaseLogger.ForContext<TLogged>();
+            _loggedType = typeof(TLogged);
+        }
+
+        // Sets the type being logged. This is not required to use IJ4JLogger but
+        // it enriches the logging information
+        public void SetLoggedType( Type? toLog )
+        {
+            if( toLog == null )
+            {
+                if( _includingTypeInfo )
+                    _config.EventElements &= ~EventElements.Type;
+            }
+            else
+            {
+                if( !_includingTypeInfo )
+                    return;
+
+                _config.EventElements |= EventElements.Type;
+
+                if( toLog != null )
+                    BaseLogger = BaseLogger.ForContext( toLog );
+            }
+        }
+
+        public bool OutputCache( J4JLoggerCache cache )
+        {
+            var curLoggedType = _loggedType;
+
+            foreach( var entry in cache )
+            {
+                if( entry.LoggedType != _loggedType )
+                    SetLoggedType( entry.LoggedType );
+
+                _sendToSms = entry.IncludeSms;
+
+                var contextProperties =
+                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
+
+                BaseLogger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues );
+
+                DisposeContextProperties( contextProperties );
+            }
+
+            cache.Clear();
+
+            SetLoggedType( curLoggedType );
+
+            return true;
+        }
+
+        // Force the next LogEvent to be processed by any IPostProcess-implementing channels
+        public IJ4JLogger IncludeSms()
+        {
+            _sendToSms = true;
+            return this;
+        }
 
         // Initialize the additional LogEvent properties supported by IJ4JLogger
         protected List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
@@ -59,95 +143,35 @@ namespace J4JSoftware.Logging
         // after each LogEvent is processed to comply with Serilog's design.
         protected void DisposeContextProperties( List<IDisposable> contextProperties )
         {
-            foreach( var contextProperty in contextProperties )
-            {
-                contextProperty.Dispose();
-            }
+            foreach( var contextProperty in contextProperties ) contextProperty.Dispose();
 
             _sendToSms = false;
-        }
-
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType<TLogged>()
-        {
-            if( ( _config.EventElements & EventElements.Type ) != EventElements.Type ) 
-                return;
-
-            BaseLogger = BaseLogger.ForContext<TLogged>();
-            _loggedType = typeof(TLogged);
-        }
-
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType( Type? toLog )
-        {
-            if( toLog == null )
-            {
-                if( _includingTypeInfo )
-                    _config.EventElements &= ~EventElements.Type;
-            }
-            else
-            {
-                if( !_includingTypeInfo ) 
-                    return;
-
-                _config.EventElements |= EventElements.Type;
-
-                if( toLog != null )
-                    BaseLogger = BaseLogger.ForContext( toLog );
-            }
-        }
-
-        public bool OutputCache( J4JLoggerCache cache )
-        {
-            var curLoggedType = _loggedType;
-
-            foreach( var entry in cache )
-            {
-                if( entry.LoggedType != _loggedType )
-                    SetLoggedType( entry.LoggedType );
-
-                _sendToSms = entry.IncludeSms;
-
-                var contextProperties =
-                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
-
-                BaseLogger.Write(entry.LogEventLevel, entry.Template, entry.PropertyValues);
-
-                DisposeContextProperties(contextProperties);
-            }
-
-            cache.Clear();
-
-            SetLoggedType( curLoggedType );
-
-            return true;
-        }
-
-        // Force the next LogEvent to be processed by any IPostProcess-implementing channels
-        public IJ4JLogger IncludeSms()
-        {
-            _sendToSms = true;
-            return this;
         }
 
         #region Write() methods
 
         /// <summary>
-        /// Writes an event to ILogger, including the calling member and calling type, and
-        /// optionally the source code file and line number of the method.
+        ///     Writes an event to ILogger, including the calling member and calling type, and
+        ///     optionally the source code file and line number of the method.
         /// </summary>
-        /// <param name="level">the <see cref="LogEventLevel"/> of the event</param>
-        /// <param name="template">the <see cref="Serilog"/> message template for constructing the
-        /// log message. Note that this will be included within the output template as the
-        /// value of the Message parameter.</param>
-        /// <param name="memberName">the name of the method calling the Write method (supplied
-        /// automatically by the compiler)</param>
-        /// <param name="srcPath">the path to the source code file in which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
-        /// <param name="srcLine">the line number within the source code file at which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
+        /// <param name="level">the <see cref="LogEventLevel" /> of the event</param>
+        /// <param name="template">
+        ///     the <see cref="Serilog" /> message template for constructing the
+        ///     log message. Note that this will be included within the output template as the
+        ///     value of the Message parameter.
+        /// </param>
+        /// <param name="memberName">
+        ///     the name of the method calling the Write method (supplied
+        ///     automatically by the compiler)
+        /// </param>
+        /// <param name="srcPath">
+        ///     the path to the source code file in which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
+        /// <param name="srcLine">
+        ///     the line number within the source code file at which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
         public virtual void Write(
             LogEventLevel level,
             string template,
@@ -164,27 +188,36 @@ namespace J4JSoftware.Logging
         }
 
         /// <summary>
-        /// Writes an event to ILogger, including the calling member and calling type, and
-        /// optionally the source code file and line number of the method.
-        ///
-        /// This overload
-        /// lets you pass a parameter in to the <see cref="Serilog"/> logging system to
-        /// be incorporated into the supplied message template./>
+        ///     Writes an event to ILogger, including the calling member and calling type, and
+        ///     optionally the source code file and line number of the method.
+        ///     This overload
+        ///     lets you pass a parameter in to the <see cref="Serilog" /> logging system to
+        ///     be incorporated into the supplied message template./>
         /// </summary>
         /// <typeparam name="T0">the Type of the supplied propertyValue</typeparam>
-        /// <param name="level">the <see cref="LogEventLevel"/> of the event</param>
-        /// <param name="template">the <see cref="MessageTemplate"/> message template for constructing the
-        /// log message. Note that this will be included within the output template as the
-        /// value of the Message parameter.</param>
-        /// <param name="propertyValue">the parameter value to be incorporated into the
-        /// supplied message template (see the <see cref="Serilog"/> documentation for how
-        /// the value is matched to the token in the message template)</param>
-        /// <param name="memberName">the name of the method calling the Write method (supplied
-        /// automatically by the compiler)</param>
-        /// <param name="srcPath">the path to the source code file in which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
-        /// <param name="srcLine">the line number within the source code file at which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
+        /// <param name="level">the <see cref="LogEventLevel" /> of the event</param>
+        /// <param name="template">
+        ///     the <see cref="MessageTemplate" /> message template for constructing the
+        ///     log message. Note that this will be included within the output template as the
+        ///     value of the Message parameter.
+        /// </param>
+        /// <param name="propertyValue">
+        ///     the parameter value to be incorporated into the
+        ///     supplied message template (see the <see cref="Serilog" /> documentation for how
+        ///     the value is matched to the token in the message template)
+        /// </param>
+        /// <param name="memberName">
+        ///     the name of the method calling the Write method (supplied
+        ///     automatically by the compiler)
+        /// </param>
+        /// <param name="srcPath">
+        ///     the path to the source code file in which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
+        /// <param name="srcLine">
+        ///     the line number within the source code file at which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
         public virtual void Write<T0>(
             LogEventLevel level,
             string template,
@@ -202,31 +235,42 @@ namespace J4JSoftware.Logging
         }
 
         /// <summary>
-        /// Writes an event to ILogger, including the calling member and calling type, and
-        /// optionally the source code file and line number of the method.
-        ///
-        /// This overload
-        /// lets you pass two parameters in to the <see cref="Serilog"/> logging system to
-        /// be incorporated into the supplied message template./>
+        ///     Writes an event to ILogger, including the calling member and calling type, and
+        ///     optionally the source code file and line number of the method.
+        ///     This overload
+        ///     lets you pass two parameters in to the <see cref="Serilog" /> logging system to
+        ///     be incorporated into the supplied message template./>
         /// </summary>
         /// <typeparam name="T0">the Type of the first supplied propertyValue</typeparam>
         /// <typeparam name="T1">the Type of the second supplied propertyValue</typeparam>
-        /// <param name="level">the <see cref="LogEventLevel"/> of the event</param>
-        /// <param name="template">the <see cref="MessageTemplate"/> message template for constructing the
-        /// log message. Note that this will be included within the output template as the
-        /// value of the Message parameter.</param>
-        /// <param name="propertyValue0">the first parameter value to be incorporated into the
-        /// supplied message template (see the <see cref="Serilog"/> documentation for how
-        /// the value is matched to the token in the message template)</param>
-        /// <param name="propertyValue1">the second parameter value to be incorporated into the
-        /// supplied message template (see the <see cref="Serilog"/> documentation for how
-        /// the value is matched to the token in the message template)</param>
-        /// <param name="memberName">the name of the method calling the Write method (supplied
-        /// automatically by the compiler)</param>
-        /// <param name="srcPath">the path to the source code file in which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
-        /// <param name="srcLine">the line number within the source code file at which the method calling the
-        /// Write method is defined (supplied automatically by the compiler)</param>
+        /// <param name="level">the <see cref="LogEventLevel" /> of the event</param>
+        /// <param name="template">
+        ///     the <see cref="MessageTemplate" /> message template for constructing the
+        ///     log message. Note that this will be included within the output template as the
+        ///     value of the Message parameter.
+        /// </param>
+        /// <param name="propertyValue0">
+        ///     the first parameter value to be incorporated into the
+        ///     supplied message template (see the <see cref="Serilog" /> documentation for how
+        ///     the value is matched to the token in the message template)
+        /// </param>
+        /// <param name="propertyValue1">
+        ///     the second parameter value to be incorporated into the
+        ///     supplied message template (see the <see cref="Serilog" /> documentation for how
+        ///     the value is matched to the token in the message template)
+        /// </param>
+        /// <param name="memberName">
+        ///     the name of the method calling the Write method (supplied
+        ///     automatically by the compiler)
+        /// </param>
+        /// <param name="srcPath">
+        ///     the path to the source code file in which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
+        /// <param name="srcLine">
+        ///     the line number within the source code file at which the method calling the
+        ///     Write method is defined (supplied automatically by the compiler)
+        /// </param>
         public virtual void Write<T0, T1>(
             LogEventLevel level,
             string template,

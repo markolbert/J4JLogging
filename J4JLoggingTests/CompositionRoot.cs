@@ -1,20 +1,34 @@
-﻿using System;
-using System.ComponentModel;
+﻿#region license
+
+// Copyright 2021 Mark A. Olbert
+// 
+// This library or program 'J4JLoggingTests' is free software: you can redistribute it
+// and/or modify it under the terms of the GNU General Public License as
+// published by the Free Software Foundation, either version 3 of the License,
+// or (at your option) any later version.
+// 
+// This library or program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License along with
+// this library or program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Events;
-using Xunit.Sdk;
 
 namespace J4JLoggingTests
 {
     public class CompositionRoot<TJ4JLogger> : ICompositionRoot
-        where TJ4JLogger: class, IJ4JLoggerConfiguration, new()
+        where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
     {
         private readonly IServiceProvider _svcProvider;
 
@@ -28,6 +42,9 @@ namespace J4JLoggingTests
             _svcProvider = ConfigDynamic( configPath, loggerKey );
         }
 
+        public IJ4JLogger J4JLogger => _svcProvider.GetRequiredService<IJ4JLogger>();
+        public LastEventConfig LastEventConfig => _svcProvider.GetRequiredService<LastEventConfig>();
+
         private IServiceProvider ConfigDynamic( string configPath, string loggerKey )
         {
             var builder = new ContainerBuilder();
@@ -39,7 +56,7 @@ namespace J4JLoggingTests
                 .AddUserSecrets<BasicTests>()
                 .Build();
 
-            var provider = new ChannelConfigProvider(loggerKey, true)
+            var provider = new ChannelConfigProvider( loggerKey, true )
                 {
                     Source = config
                 }
@@ -86,8 +103,5 @@ namespace J4JLoggingTests
 
             return new AutofacServiceProvider( builder.Build() );
         }
-
-        public IJ4JLogger J4JLogger => _svcProvider.GetRequiredService<IJ4JLogger>();
-        public LastEventConfig LastEventConfig => _svcProvider.GetRequiredService<LastEventConfig>();
     }
 }
