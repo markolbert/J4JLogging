@@ -33,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Twilio" Version="5.53.1" />
+	  <PackageReference Include="Twilio" Version="5.64.0" />
 	</ItemGroup>
 
 </Project>
