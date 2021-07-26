@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
@@ -32,85 +33,156 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : IJ4JLogger
     {
-        private readonly IJ4JLoggerConfiguration _config;
-        private readonly bool _includingTypeInfo;
-        private Type? _loggedType;
+        public const string DefaultOutputTemplate =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
 
+        private readonly Dictionary<Type, IChannelConfig> _channels = new();
+
+        private ILogger? _baseLogger;
         private bool _sendToSms;
 
-        public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
+        public J4JLogger()
         {
-            _config = config;
-            BaseLogger = baseLogger;
-
-            _includingTypeInfo = ( _config.EventElements & EventElements.Type ) == EventElements.Type;
         }
 
         /// <summary>
         ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
         /// </summary>
-        protected ILogger BaseLogger { get; private set; }
-
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType<TLogged>()
+        protected internal ILogger BaseLogger
         {
-            if( ( _config.EventElements & EventElements.Type ) != EventElements.Type )
-                return;
+            get
+            {
+                if( _baseLogger == null )
+                    _baseLogger = CreateBaseLogger();
 
-            BaseLogger = BaseLogger.ForContext<TLogged>();
-            _loggedType = typeof(TLogged);
+                return _baseLogger;
+            }
+
+            internal set => _baseLogger = value;
         }
 
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType( Type? toLog )
+        internal void ResetBaseLogger() => _baseLogger = null;
+
+        private ILogger CreateBaseLogger()
         {
-            if( toLog == null )
-            {
-                if( _includingTypeInfo )
-                    _config.EventElements &= ~EventElements.Type;
-            }
-            else
-            {
-                if( !_includingTypeInfo )
-                    return;
+            var loggerConfig = new LoggerConfiguration()
+                .Enrich.FromLogContext();
 
-                _config.EventElements |= EventElements.Type;
+            var minLevel = LogEventLevel.Fatal;
 
-                if( toLog != null )
-                    BaseLogger = BaseLogger.ForContext( toLog );
+            foreach (var kvp in _channels)
+            {
+                if (kvp.Value.MinimumLevel < minLevel)
+                    minLevel = kvp.Value.MinimumLevel;
+
+                kvp.Value.Configure(loggerConfig.WriteTo);
             }
+
+            SetMinimumLevel(loggerConfig, minLevel);
+
+            return loggerConfig.CreateLogger();
+        }
+
+        private static LoggerConfiguration SetMinimumLevel( LoggerConfiguration config, LogEventLevel minLevel)
+        {
+            switch (minLevel)
+            {
+                case LogEventLevel.Debug:
+                    config.MinimumLevel.Debug();
+                    break;
+
+                case LogEventLevel.Error:
+                    config.MinimumLevel.Error();
+                    break;
+
+                case LogEventLevel.Fatal:
+                    config.MinimumLevel.Fatal();
+                    break;
+
+                case LogEventLevel.Information:
+                    config.MinimumLevel.Information();
+                    break;
+
+                case LogEventLevel.Verbose:
+                    config.MinimumLevel.Verbose();
+                    break;
+
+                case LogEventLevel.Warning:
+                    config.MinimumLevel.Warning();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(minLevel), minLevel, null);
+            }
+
+            return config;
+        }
+
+        public Type? LoggedType { get; internal set; }
+        public bool IncludeSourcePath { get; internal set; } = true;
+        public string? SourceRootPath { get; internal set; }
+        public bool MultiLineEvents { get; internal set; }
+        public string OutputTemplate { get; internal set; } = DefaultOutputTemplate;
+        public bool RequireNewline { get; internal set; }
+
+        public List<ChannelConfigNG> ChannelsInternal { get; } = new();
+        public ReadOnlyCollection<ChannelConfigNG> Channels => ChannelsInternal.AsReadOnly();
+
+        public IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig )
+            where TChannel : IChannelConfig
+        {
+            var channelType = typeof( TChannel );
+
+            if( _channels.ContainsKey( channelType ) )
+                return this;
+
+            _channels.Add( channelType, channelConfig  );
+            _baseLogger = null;
+
+            return this;
+        }
+
+        public IJ4JLogger RemoveOutputChannel<TChannel>()
+            where TChannel : IChannelConfig
+        {
+            var channelType = typeof( TChannel );
+
+            if( _channels.ContainsKey( channelType ) )
+                _channels.Remove( channelType );
+
+            return this;
         }
 
         public bool OutputCache( J4JLoggerCache cache )
         {
-            var curLoggedType = _loggedType;
+            var curLoggedType = LoggedType;
 
-            foreach( var entry in cache )
+            foreach( var curContext in cache )
             {
-                if( entry.LoggedType != _loggedType )
-                    SetLoggedType( entry.LoggedType );
+                LoggedType = curContext.LoggedType ?? null;
 
-                _sendToSms = entry.IncludeSms;
+                _sendToSms = curContext.OutputToSms;
 
-                var contextProperties =
-                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
+                foreach( var entry in curContext.Entries )
+                {
+                    var contextProperties =
+                        InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
 
-                BaseLogger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues );
+                    BaseLogger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues );
 
-                DisposeContextProperties( contextProperties );
+                    DisposeContextProperties( contextProperties );
+                }
             }
 
             cache.Clear();
 
-            SetLoggedType( curLoggedType );
+            LoggedType = curLoggedType ?? curLoggedType;
 
             return true;
         }
 
         // Force the next LogEvent to be processed by any IPostProcess-implementing channels
-        public IJ4JLogger IncludeSms()
+        public IJ4JLogger OutputNextEventToSms()
         {
             _sendToSms = true;
             return this;
@@ -122,19 +194,16 @@ namespace J4JSoftware.Logging
             var retVal = new List<IDisposable>
             {
                 LogContext.PushProperty( "SendToSms", _sendToSms ),
-                LogContext.PushProperty(
-                    "MemberName",
-                    ( _config.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
-                )
+                LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
             };
 
-            if( ( _config.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
-            {
-                if( !string.IsNullOrEmpty( _config.SourceRootPath ) )
-                    srcPath = srcPath.Replace( _config.SourceRootPath, "" );
+            if( !IncludeSourcePath ) 
+                return retVal;
 
-                retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
-            }
+            if( !string.IsNullOrEmpty( SourceRootPath ) )
+                srcPath = srcPath.Replace( SourceRootPath, "" );
+
+            retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 
             return retVal;
         }

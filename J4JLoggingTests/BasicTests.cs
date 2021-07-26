@@ -64,7 +64,7 @@ namespace J4JLoggingTests
             logger.Fatal<string, string>( template, "Fatal", configPath );
             lastEvent.LastLogMessage.Should().Be( format_message( "Fatal" ) );
 
-            logger.IncludeSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
+            logger.OutputNextEventToSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
 
             string format_message( string prop1 )
             {
@@ -94,22 +94,29 @@ namespace J4JLoggingTests
             cached.Debug<string, string>( template, "Debug", configPath );
             cached.Error<string, string>( template, "Error", configPath );
             cached.Fatal<string, string>( template, "Fatal", configPath );
-            cached.IncludeSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
+            cached.OutputNextEventToSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
 
             var compRoot = GetCompositionRoot( rootType, configType, configPath, loggerKey );
 
             var logger = compRoot.J4JLogger;
             var lastEvent = compRoot.LastEventConfig;
 
-            foreach( var entry in cached.Cache )
+            foreach( var context in cached.Cache )
             {
-                if( entry.IncludeSms )
-                    logger.IncludeSms();
+                if( context.OutputToSms )
+                    logger.OutputNextEventToSms();
 
-                logger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues, entry.MemberName,
-                    entry.SourcePath, entry.SourceLine );
+                if( context.LoggedType == null )
+                    logger.ClearLoggedType();
+                else logger.SetLoggedType( context.LoggedType );
 
-                lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
+                foreach( var entry in context.Entries )
+                {
+                    logger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues, entry.MemberName,
+                        entry.SourcePath, entry.SourceLine );
+
+                    lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
+                }
             }
 
             string format_message( string prop1 )
@@ -118,7 +125,7 @@ namespace J4JLoggingTests
             }
         }
 
-        private ICompositionRoot GetCompositionRoot( CompositionRootType rootType, Type configType, string configPath,
+        private static ICompositionRoot GetCompositionRoot( CompositionRootType rootType, Type configType, string configPath,
             string? loggerKey )
         {
             typeof(IJ4JLoggerConfiguration).IsAssignableFrom( configType ).Should().BeTrue();

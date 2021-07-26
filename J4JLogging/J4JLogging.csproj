@@ -25,9 +25,13 @@
 		<Compile Remove="docs\**" />
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="docs\**" />
+		<Compile Remove="cached\J4JCachedLoggerInternal.cs" />
 		<Compile Remove="channels\TwilioConfig.cs" />
+		<Compile Remove="configuration\AvailableChannels.cs" />
 		<Compile Remove="configuration\channels\ChannelConfigProviderBase.cs" />
 		<Compile Remove="configuration\channels\StaticChannelConfigProvider.cs" />
+		<Compile Remove="configuration\ILogChannels.cs" />
+		<Compile Remove="configuration\LogChannels.cs" />
 		<Compile Remove="sinks\TwilioSink.cs" />
 	</ItemGroup>
 

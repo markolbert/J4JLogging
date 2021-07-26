@@ -27,18 +27,13 @@ namespace J4JSoftware.Logging
     // and provides extended source code information
     public interface IJ4JLogger
     {
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        void SetLoggedType<TLogged>();
-
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        void SetLoggedType( Type toLog );
+        IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig ) where TChannel: IChannelConfig;
+        IJ4JLogger RemoveOutputChannel<TChannel>() where TChannel: IChannelConfig;
 
         bool OutputCache( J4JLoggerCache cache );
 
         // Forces the next logging event to be sent to an SmsSink if one was included
-        IJ4JLogger IncludeSms();
+        IJ4JLogger OutputNextEventToSms();
 
         #region Write() methods
 

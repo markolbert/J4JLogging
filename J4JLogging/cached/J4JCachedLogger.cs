@@ -26,26 +26,86 @@ namespace J4JSoftware.Logging
 {
     public class J4JCachedLogger : IJ4JLogger
     {
-        private bool _includeSms;
-        private J4JCachedLoggerInternal _internal;
+        private bool _outputNextToSms;
+        private readonly J4JLoggerCache _cache;
 
         public J4JCachedLogger( J4JLoggerCache? cache = null )
         {
             Cache = cache ?? new J4JLoggerCache();
 
-            _internal = new J4JCachedLoggerInternal( Cache );
+            _cache = new J4JLoggerCache();
         }
 
         public J4JLoggerCache Cache { get; }
 
-        public void SetLoggedType<TLogged>()
+        public IJ4JLogger SetLoggedType<TLogged>() => SetLoggedType( typeof( TLogged ) );
+
+        public IJ4JLogger SetLoggedType( Type typeToLog )
         {
-            _internal = _internal.SetLoggedType( typeof(TLogged) );
+            _cache.Context = _cache.Context with { LoggedType = typeToLog };
+
+            return this;
         }
 
-        public void SetLoggedType( Type toLog )
+        public IJ4JLogger ClearLoggedType()
         {
-            _internal = _internal.SetLoggedType( toLog );
+            _cache.Context = _cache.Context with { LoggedType = null };
+
+            return this;
+        }
+
+        public IJ4JLogger IncludeSourcePath()
+        {
+            _cache.Context = _cache.Context with { IncludeSourcePath = true };
+
+            return this;
+        }
+
+        public IJ4JLogger ExcludeSourcePath()
+        {
+            _cache.Context = _cache.Context with { IncludeSourcePath = false };
+
+            return this;
+        }
+
+        public IJ4JLogger SetSourceRootPath( string path )
+        {
+            _cache.Context = _cache.Context with { SourcePathRoot = path };
+
+            return this;
+        }
+
+        public IJ4JLogger ClearSourceRootPath()
+        {
+            _cache.Context = _cache.Context with { SourcePathRoot = null };
+
+            return this;
+        }
+
+        public IJ4JLogger OutputMultiLineEvents()
+        {
+            _cache.Context = _cache.Context with { OutputMultiLineEvents = true };
+
+            return this;
+        }
+
+        public IJ4JLogger OutputSingleLineEvents()
+        {
+            _cache.Context = _cache.Context with { OutputMultiLineEvents = false };
+
+            return this;
+        }
+
+        public IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig ) where TChannel: IChannelConfig
+        {
+            // irrelevant in a cached logging situation
+            return this;
+        }
+
+        public IJ4JLogger RemoveOutputChannel<TChannel>() where TChannel: IChannelConfig
+        {
+            // irrelevant in a cached logging situation
+            return this;
         }
 
         // do nothing; no reason to output cache when we're caching entries
@@ -54,50 +114,62 @@ namespace J4JSoftware.Logging
             return false;
         }
 
-        public IJ4JLogger IncludeSms()
+        public IJ4JLogger OutputNextEventToSms()
         {
-            _includeSms = true;
+            _outputNextToSms = true;
+
+            _cache.Context = _cache.Context with { OutputToSms = true };
+
             return this;
+        }
+
+        private void ResetSms()
+        {
+            if( _outputNextToSms )
+            {
+                _cache.Context = _cache.Context with { OutputToSms = false };
+                _outputNextToSms = false;
+            }
         }
 
         public void Write( LogEventLevel level, string template, string memberName = "", string srcPath = "",
             int srcLine = 0 )
         {
-            _internal.Add( _includeSms, level, template, memberName, srcPath, srcLine );
-            _includeSms = false;
+            _cache.Context.Add( level, template, memberName, srcPath, srcLine );
+            ResetSms();
         }
 
         public void Write<T0>( LogEventLevel level, string template, T0 propertyValue, string memberName = "",
             string srcPath = "",
             int srcLine = 0 )
         {
-            _internal.Add( _includeSms, level, template, memberName, srcPath, srcLine, propertyValue );
-            _includeSms = false;
+            _cache.Context.Add( level, template, memberName, srcPath, srcLine, propertyValue );
+            _outputNextToSms = false;
         }
 
         public void Write<T0, T1>( LogEventLevel level, string template, T0 propertyValue0, T1 propertyValue1,
             string memberName = "",
             string srcPath = "", int srcLine = 0 )
         {
-            _internal.Add( _includeSms, level, template, memberName, srcPath, srcLine, propertyValue0, propertyValue1 );
-            _includeSms = false;
+            _cache.Context.Add( level, template, memberName, srcPath, srcLine, propertyValue0, propertyValue1 );
+            ResetSms();
         }
 
         public void Write<T0, T1, T2>( LogEventLevel level, string template, T0 propertyValue0, T1 propertyValue1,
             T2 propertyValue2,
             string memberName = "", string srcPath = "", int srcLine = 0 )
         {
-            _internal.Add( _includeSms, level, template, memberName, srcPath, srcLine, propertyValue0, propertyValue1,
+            _cache.Context.Add( level, template, memberName, srcPath, srcLine, propertyValue0, propertyValue1,
                 propertyValue2 );
-            _includeSms = false;
+            ResetSms();
         }
 
         public void Write( LogEventLevel level, string template, object[] propertyValues, string memberName = "",
             string srcPath = "",
             int srcLine = 0 )
         {
-            _internal.Add( _includeSms, level, template, memberName, srcPath, srcLine, propertyValues );
-            _includeSms = false;
+            _cache.Context.Add( level, template, memberName, srcPath, srcLine, propertyValues );
+            ResetSms();
         }
 
         public void Debug( string template, string memberName = "", string srcPath = "", int srcLine = 0 )

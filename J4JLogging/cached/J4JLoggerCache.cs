@@ -24,13 +24,38 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class J4JLoggerCache : IEnumerable<CachedEntry>
+    public class J4JLoggerCache : IEnumerable<CachedEntries>
     {
-        private readonly List<CachedEntry> _entries = new();
+        private readonly List<CachedEntries> _entries = new();
 
-        public IEnumerator<CachedEntry> GetEnumerator()
+        private CachedEntries _context = new( null, false, null, false, false );
+
+        public CachedEntries Context
         {
-            foreach( var entry in _entries ) yield return entry;
+            get => _context;
+
+            set
+            {
+                _context = value;
+
+                _entries.Add( value );
+            }
+        }
+
+        public void Clear( bool resetContext = false )
+        {
+            _entries.Clear();
+
+            if( resetContext )
+                Context = new CachedEntries( null, false, null, false, false );
+        }
+
+        public IEnumerator<CachedEntries> GetEnumerator()
+        {
+            foreach (var entry in _entries)
+            {
+                yield return entry;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -38,32 +63,5 @@ namespace J4JSoftware.Logging
             return GetEnumerator();
         }
 
-        public void Add(
-            Type? loggedType,
-            bool includeSms,
-            LogEventLevel level,
-            string template,
-            string memberName,
-            string sourcePath,
-            int sourceLine,
-            params object[] propertyValues )
-        {
-            _entries.Add( new CachedEntry
-            {
-                LoggedType = loggedType,
-                IncludeSms = includeSms,
-                LogEventLevel = level,
-                Template = template,
-                MemberName = memberName,
-                SourcePath = sourcePath,
-                SourceLine = sourceLine,
-                PropertyValues = propertyValues
-            } );
-        }
-
-        public void Clear()
-        {
-            _entries.Clear();
-        }
     }
 }

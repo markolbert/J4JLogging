@@ -41,13 +41,8 @@ namespace J4JSoftware.Logging
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.Register( c =>
-                {
-                    var baseLogger = c.Resolve<ILogger>();
-
-                    return new J4JLogger( config, baseLogger );
-                } )
-                .As<IJ4JLogger>();
+            builder.RegisterType<J4JLogger>()
+                .AsImplementedInterfaces();
 
             return builder;
         }

@@ -38,10 +38,4 @@ namespace J4JSoftware.Logging
 
         List<IChannelConfig> Channels { get; }
     }
-
-    //public interface IJ4JLoggerConfiguration<TChannels> : IJ4JLoggerConfiguration
-    //    where TChannels : ILogChannels, new()
-    //{
-    //    TChannels Channels { get; set; }
-    //}
 }
