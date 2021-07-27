@@ -24,36 +24,18 @@ using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public record TwilioParameters : ChannelParameters
+    public class TwilioParameters : ChannelParameters
     {
-        private readonly string _acctSID = string.Empty;
-        private readonly string _acctToken = string.Empty;
-        private readonly string _fromNum = string.Empty;
-
         public TwilioParameters(
-            J4JLogger logger )
+            J4JLogger logger
+        )
             : base( logger )
         {
         }
 
-        public string AccountSID
-        {
-            get => _acctSID;
-            init => SetProperty( ref _acctSID, value );
-        }
-
-        public string AccountToken
-        {
-            get => _acctToken;
-            init => SetProperty( ref _acctToken, value );
-        }
-
-        public string FromNumber
-        {
-            get => _fromNum;
-            init => SetProperty( ref _fromNum, value );
-        }
-
+        public string AccountSID { get; internal set; } = string.Empty;
+        public string AccountToken { get; internal set; } = string.Empty;
+        public string FromNumber { get; internal set; } = string.Empty;
         public List<string> Recipients { get; } = new();
     }
 }

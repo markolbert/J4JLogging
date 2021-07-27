@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Serilog;
 using Serilog.Events;
@@ -8,6 +9,15 @@ namespace J4JSoftware.Logging
 {
     public static class J4JLoggerExtensions
     {
+        public static Func<TProp> GetGlobalAccessor<TProp>(
+            this J4JBaseLogger logger,
+            Expression<Func<J4JBaseLogger, TProp>> expr)
+        {
+            var compiled = expr.Compile();
+
+            return () => compiled(logger);
+        }
+
         public static J4JBaseLogger SetLoggedType<TLogged>( this J4JBaseLogger logger ) =>
             logger.SetLoggedType( typeof(TLogged) );
 
@@ -19,73 +29,69 @@ namespace J4JSoftware.Logging
 
         public static J4JBaseLogger ClearLoggedType(this J4JBaseLogger logger )
         {
-            logger.LoggedType= null;
+            logger.LoggedType = null;
             return logger;
         }
 
-        public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger logger)
+        public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger container )
         {
-            logger.Parameters = logger.Parameters with { IncludeSourcePath = true };
-            return logger;
+            container.IncludeSourcePath = true;
+            return container;
         }
 
-        public static J4JBaseLogger ExcludeSourcePath(this J4JBaseLogger logger)
+        public static J4JBaseLogger ExcludeSourcePath(this J4JBaseLogger container)
         {
-            logger.Parameters = logger.Parameters with { IncludeSourcePath = false };
-            return logger;
+            container.IncludeSourcePath = false;
+            return container;
         }
 
-        public static J4JBaseLogger SetSourceRootPath(this J4JBaseLogger logger, string path)
+        public static J4JBaseLogger SetSourceRootPath( this J4JBaseLogger container, string path)
         {
-            logger.Parameters = logger.Parameters with { IncludeSourcePath = true, SourceRootPath = path };
-            return logger;
+            container.IncludeSourcePath = true;
+            container.SourceRootPath = path;
+
+            return container;
         }
 
-        public static J4JBaseLogger ClearSourceRootPath(this J4JBaseLogger logger)
+        public static J4JBaseLogger ClearSourceRootPath( this J4JBaseLogger container)
         {
-            logger.Parameters = logger.Parameters with { SourceRootPath = null };
-            return logger;
+            container.SourceRootPath = null;
+            return container;
         }
 
-        public static J4JBaseLogger OutputMultiLineEvents(this J4JBaseLogger logger)
+        public static J4JBaseLogger SetOutputTemplate( this J4JBaseLogger container, string template)
         {
-            logger.Parameters = logger.Parameters with { MultiLineEvents = true };
-            return logger;
+            container.OutputTemplate = template;
+            return container;
         }
 
-        public static J4JBaseLogger OutputSingleLineEvents(this J4JBaseLogger logger)
+        public static J4JBaseLogger ResetOutputTemplate( this J4JBaseLogger container)
         {
-            logger.Parameters = logger.Parameters with { MultiLineEvents = false };
-            return logger;
+            container.OutputTemplate = J4JBaseLogger.DefaultOutputTemplate;
+            return container;
         }
 
-        public static J4JBaseLogger SetOutputTemplate(this J4JBaseLogger logger, string template)
+        public static J4JBaseLogger UseNewLineInOutput( this J4JBaseLogger container)
         {
-            logger.Parameters = logger.Parameters with { OutputTemplate = template };
-            return logger;
+            container.RequireNewLine = true;
+            return container;
         }
 
-        public static J4JBaseLogger ResetOutputTemplate(this J4JBaseLogger logger)
+        public static J4JBaseLogger ClearNewLineInOutput( this J4JBaseLogger container)
         {
-            logger.Parameters = logger.Parameters with { OutputTemplate = J4JBaseLogger.DefaultOutputTemplate };
-            return logger;
+            container.RequireNewLine = false;
+            return container;
         }
 
-        public static J4JBaseLogger UseNewLineInOutput(this J4JBaseLogger logger)
+        public static J4JBaseLogger MinimumLevel( this J4JBaseLogger container, LogEventLevel minLevel)
         {
-            logger.Parameters = logger.Parameters with { RequireNewLine = true };
-            return logger;
+            container.MinimumLevel = minLevel;
+            return container;
         }
 
-        public static J4JBaseLogger ClearNewLineInOutput(this J4JBaseLogger logger)
+        public static J4JBaseLogger OutputNextEventToSms( this J4JBaseLogger logger )
         {
-            logger.Parameters = logger.Parameters with { RequireNewLine = false };
-            return logger;
-        }
-
-        public static J4JBaseLogger MinimumLevel(this J4JBaseLogger logger, LogEventLevel minLevel)
-        {
-            logger.Parameters = logger.Parameters with { MinimumLevel = minLevel };
+            logger.OutputNextToSms = true;
             return logger;
         }
 
@@ -147,10 +153,7 @@ namespace J4JSoftware.Logging
         public static DebugChannel AddDebug( this J4JLogger logger, LogEventLevel minLevel = LogEventLevel.Verbose )
         {
             var retVal = new DebugChannel( logger );
-
-            retVal.Parameters = retVal.Parameters == null
-                ? new ChannelParameters( null ) { MinimumLevel = minLevel }
-                : retVal.Parameters with { MinimumLevel = minLevel };
+            retVal.Parameters.MinimumLevel= minLevel;
 
             logger.Channels.Add( retVal );
 
@@ -160,40 +163,27 @@ namespace J4JSoftware.Logging
         public static ConsoleChannel AddConsole(this J4JLogger logger, LogEventLevel minLevel = LogEventLevel.Verbose)
         {
             var retVal = new ConsoleChannel(logger);
-
-            retVal.Parameters = retVal.Parameters == null
-                ? new ChannelParameters(null) { MinimumLevel = minLevel, RequireNewLine = true }
-                : retVal.Parameters with { MinimumLevel = minLevel, RequireNewLine = true };
+            retVal.Parameters.MinimumLevel = minLevel;
+            retVal.Parameters.RequireNewLine = true;
 
             logger.Channels.Add(retVal);
 
             return retVal;
         }
 
-        public static FileConfig AddFile(
+        public static FileChannel AddFile(
             this J4JLogger logger,
             LogEventLevel minLevel = LogEventLevel.Verbose,
             string fileStub = "log.txt",
             RollingInterval interval = RollingInterval.Day,
             string? folder = null )
         {
-            var retVal = new FileConfig( logger );
+            var retVal = new FileChannel( logger );
 
-            retVal.Parameters = retVal.Parameters == null
-                ? new FileParameters( logger )
-                {
-                    MinimumLevel = minLevel,
-                    FileName = fileStub,
-                    RollingInterval = interval,
-                    Folder = folder ?? Environment.CurrentDirectory
-                }
-                : retVal.Parameters! with
-                {
-                    MinimumLevel = minLevel,
-                    FileName = fileStub,
-                    RollingInterval = interval,
-                    Folder = folder ?? Environment.CurrentDirectory
-                };
+            retVal.Parameters.MinimumLevel = minLevel;
+            retVal.Parameters.FileName = fileStub;
+            retVal.Parameters.RollingInterval = interval;
+            retVal.Parameters.Folder = folder ?? Environment.CurrentDirectory;
 
             logger.Channels.Add( retVal );
 
@@ -205,11 +195,7 @@ namespace J4JSoftware.Logging
             LogEventLevel minLevel = LogEventLevel.Verbose )
         {
             var retVal = new LastEventChannel(logger);
-
-            retVal.Parameters = retVal.Parameters == null
-                ? new ChannelParameters(null) { MinimumLevel = minLevel }
-                : retVal.Parameters with { MinimumLevel = minLevel };
-
+            retVal.Parameters.MinimumLevel = minLevel;
 
             logger.Channels.Add(retVal);
 
@@ -221,10 +207,7 @@ namespace J4JSoftware.Logging
             LogEventLevel minLevel = LogEventLevel.Verbose)
         {
             var retVal = new NetEventChannel(logger);
-
-            retVal.Parameters = retVal.Parameters == null
-                ? new ChannelParameters(null) { MinimumLevel = minLevel }
-                : retVal.Parameters with { MinimumLevel = minLevel };
+            retVal.Parameters.MinimumLevel = minLevel;
 
             logger.Channels.Add(retVal);
 

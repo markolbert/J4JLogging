@@ -37,7 +37,6 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add( new CachedEntry(
-                Parameters,
                 level,
                 template,
                 memberName,
@@ -61,7 +60,6 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
-                Parameters,
                 level,
                 template,
                 memberName,
@@ -84,7 +82,6 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
-                Parameters,
                 level,
                 template,
                 memberName,
@@ -109,7 +106,6 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add( new CachedEntry(
-                Parameters,
                 level,
                 template,
                 memberName,
@@ -133,7 +129,6 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
-                Parameters,
                 level,
                 template,
                 memberName,

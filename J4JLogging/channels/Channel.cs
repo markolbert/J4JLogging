@@ -29,36 +29,19 @@ namespace J4JSoftware.Logging
     public abstract class Channel<TParameters> : IChannel
         where TParameters : ChannelParameters
     {
-        private TParameters? _channelParams;
-
         protected Channel(
             J4JLogger logger
         )
         {
             Logger = logger;
+            Parameters = (TParameters) Activator.CreateInstance( typeof(TParameters), new object[] { logger } )!;
         }
 
         public J4JLogger Logger { get; }
+        public LogEventLevel MinimumLevel => Parameters.MinimumLevel;
+        public string EnrichedMessageTemplate => Parameters.EnrichedMessageTemplate;
 
-        public bool LocallyDefined => _channelParams != null;
-
-        public LogEventLevel MinimumLevel => _channelParams?.MinimumLevel ?? Logger.Parameters.MinimumLevel;
-
-        public string EnrichedMessageTemplate =>
-            _channelParams?.EnrichedMessageTemplate ?? Logger.Parameters.EnrichedMessageTemplate;
-
-        public TParameters? Parameters
-        {
-            get => _channelParams;
-
-            set
-            {
-                _channelParams = value;
-                Logger.ResetBaseLogger();
-            }
-        }
-
-        public void ResetToGlobal() => _channelParams = null;
+        public TParameters Parameters { get; }
 
         public abstract LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
     }

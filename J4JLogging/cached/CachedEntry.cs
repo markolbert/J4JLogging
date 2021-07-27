@@ -22,7 +22,6 @@ using Serilog.Events;
 namespace J4JSoftware.Logging
 {
     public record CachedEntry(
-        IChannelParameters Parameters,
         LogEventLevel LogEventLevel,
         string Template,
         string MemberName,

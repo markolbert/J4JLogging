@@ -37,18 +37,6 @@ namespace J4JSoftware.Logging
 
         protected internal override void ResetBaseLogger() => _baseLogger = null;
 
-        public override J4JBaseLogger SetLoggedType( Type typeToLog )
-        {
-            var changed = typeToLog != LoggedType;
-
-            base.SetLoggedType( typeToLog );
-
-            if( changed )
-                ResetBaseLogger();
-
-            return this;
-        }
-
         /// <summary>
         ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
         /// </summary>
@@ -73,8 +61,8 @@ namespace J4JSoftware.Logging
 
             var retVal = loggerConfig.CreateLogger();
 
-            if( LoggedType != null )
-                retVal.ForContext( LoggedType );
+            if( ( (IJ4JLogger) this ).LoggedType != null )
+                retVal.ForContext( ( (IJ4JLogger) this ).LoggedType );
 
             return retVal;
         }
@@ -119,12 +107,12 @@ namespace J4JSoftware.Logging
             foreach( var entry in cachedLogger.Entries )
             {
                 if( entry.OutputToSms )
-                    OutputNextEventToSms();
+                    this.OutputNextEventToSms();
 
                 var contextProperties =
                     InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
 
-                BaseLogger.Write( entry.LogEventLevel, entry.Parameters.OutputTemplate, entry.PropertyValues );
+                BaseLogger.Write( entry.LogEventLevel, ((IJ4JLogger)this).OutputTemplate, entry.PropertyValues );
 
                 DisposeContextProperties( contextProperties );
             }
@@ -140,14 +128,14 @@ namespace J4JSoftware.Logging
             var retVal = new List<IDisposable>
             {
                 LogContext.PushProperty( "SendToSms", OutputNextToSms ),
-                LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
+                LogContext.PushProperty( "MemberName", ((IJ4JLogger)this).LoggedType != null ? $"::{memberName}" : "" )
             };
 
-            if( !Parameters.IncludeSourcePath ) 
+            if( !((IJ4JLogger)this).IncludeSourcePath ) 
                 return retVal;
 
-            if( !string.IsNullOrEmpty( Parameters.SourceRootPath ) )
-                srcPath = srcPath.Replace( Parameters.SourceRootPath, "" );
+            if( !string.IsNullOrEmpty(((IJ4JLogger)this).SourceRootPath ) )
+                srcPath = srcPath.Replace(((IJ4JLogger)this).SourceRootPath, "" );
 
             retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 

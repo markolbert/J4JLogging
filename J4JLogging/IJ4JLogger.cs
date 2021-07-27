@@ -25,15 +25,12 @@ namespace J4JSoftware.Logging
 {
     // defines the functionality of IJ4JLogger, which wraps a Serilog ILogger
     // and provides extended source code information
-    public interface IJ4JBaseLogger
+    public interface IJ4JBaseLogger : IChannelParameters
     {
         Type? LoggedType { get; }
 
         //IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig ) where TChannel: IChannelParameters;
         //IJ4JLogger RemoveOutputChannel<TChannel>() where TChannel: IChannelParameters;
-
-        // Forces the next logging event to be sent to an SmsSink if one was included
-        J4JBaseLogger OutputNextEventToSms();
 
         #region Write() methods
 

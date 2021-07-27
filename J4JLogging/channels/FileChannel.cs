@@ -27,9 +27,9 @@ using Serilog.Configuration;
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of FileChannel
-    public class FileConfig : Channel<FileParameters>
+    public class FileChannel : Channel<FileParameters>
     {
-        public FileConfig(
+        public FileChannel(
             J4JLogger logger
         )
             : base(logger)
@@ -38,10 +38,6 @@ namespace J4JSoftware.Logging
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            if( !LocallyDefined )
-                throw new ArgumentException(
-                    $"Cannot configure the File channel because its configuration parameters were not locally defined" );
-
             return sinkConfig.File( Parameters!.FileTemplatePath,
                 MinimumLevel,
                 EnrichedMessageTemplate,

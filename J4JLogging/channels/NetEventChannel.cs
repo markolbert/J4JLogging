@@ -35,11 +35,8 @@ namespace J4JSoftware.Logging
         )
             : base( logger )
         {
-            Parameters = new ChannelParameters( logger )
-            {
-                OutputTemplate = DefaultNetEventConfigOutputTemplate,
-                RequireNewLine = false
-            };
+            Parameters.OutputTemplate = DefaultNetEventConfigOutputTemplate;
+            Parameters.RequireNewLine = false;
         }
 
         public event EventHandler<NetEventArgs>? LogEvent;

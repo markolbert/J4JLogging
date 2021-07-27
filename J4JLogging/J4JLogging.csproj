@@ -22,12 +22,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="channels\file\**" />
 		<Compile Remove="configuration\**" />
 		<Compile Remove="converters\**" />
 		<Compile Remove="docs\**" />
+		<EmbeddedResource Remove="channels\file\**" />
 		<EmbeddedResource Remove="configuration\**" />
 		<EmbeddedResource Remove="converters\**" />
 		<EmbeddedResource Remove="docs\**" />
+		<None Remove="channels\file\**" />
 		<None Remove="configuration\**" />
 		<None Remove="converters\**" />
 		<None Remove="docs\**" />

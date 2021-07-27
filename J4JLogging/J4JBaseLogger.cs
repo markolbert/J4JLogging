@@ -33,37 +33,19 @@ namespace J4JSoftware.Logging
 
         protected J4JBaseLogger()
         {
-            Parameters = new ChannelParameters(this);
         }
 
         public Type? LoggedType { get; internal set; }
+        public bool IncludeSourcePath { get; internal set; }
+        public string? SourceRootPath { get; internal set; }
+        public string OutputTemplate { get; internal set; } = DefaultOutputTemplate;
+        public bool RequireNewLine { get; internal set; }
+        public LogEventLevel MinimumLevel { get; internal set; } = LogEventLevel.Verbose;
 
-        public ChannelParameters Parameters { get; set; }
-
-        protected bool OutputNextToSms { get; private set; }
+        protected internal bool OutputNextToSms { get; set; }
 
         protected internal virtual void ResetBaseLogger()
         {
-        }
-
-        public J4JBaseLogger SetLoggedType<TLogged>() => SetLoggedType( typeof( TLogged ) );
-
-        public virtual J4JBaseLogger SetLoggedType( Type typeToLog )
-        {
-            LoggedType = typeToLog;
-            return this;
-        }
-
-        public virtual J4JBaseLogger ClearLoggedType()
-        {
-            LoggedType = null;
-            return this;
-        }
-
-        public J4JBaseLogger OutputNextEventToSms()
-        {
-            OutputNextToSms = true;
-            return this;
         }
 
         protected void ResetSms()

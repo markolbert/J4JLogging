@@ -17,20 +17,16 @@
 
 #endregion
 
-using Serilog;
-using Serilog.Configuration;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public interface IChannel
+    public interface IChannelParameters
     {
-        bool LocallyDefined { get; }
-
+        bool IncludeSourcePath { get; }
+        string? SourceRootPath { get; }
+        string OutputTemplate { get; }
+        bool RequireNewLine { get; }
         LogEventLevel MinimumLevel { get; }
-        string EnrichedMessageTemplate { get; }
-
-        LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
-        void ResetToGlobal();
     }
 }
