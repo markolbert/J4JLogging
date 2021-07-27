@@ -31,7 +31,7 @@ namespace J4JSoftware.Logging
     ///     Wrapper for <see cref="Serilog.ILogger" /> which simplifies including calling member
     ///     (e.g., method name) and source code information.
     /// </summary>
-    public class J4JLogger : J4JBaseLogger, IJ4JLogger
+    public class J4JLogger : J4JBaseLogger
     {
         private ILogger? _baseLogger;
 
@@ -61,8 +61,8 @@ namespace J4JSoftware.Logging
 
             var retVal = loggerConfig.CreateLogger();
 
-            if( ( (IJ4JLogger) this ).LoggedType != null )
-                retVal.ForContext( ( (IJ4JLogger) this ).LoggedType );
+            if( LoggedType != null )
+                retVal.ForContext( LoggedType );
 
             return retVal;
         }
@@ -112,7 +112,7 @@ namespace J4JSoftware.Logging
                 var contextProperties =
                     InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
 
-                BaseLogger.Write( entry.LogEventLevel, ((IJ4JLogger)this).OutputTemplate, entry.PropertyValues );
+                BaseLogger.Write( entry.LogEventLevel, OutputTemplate, entry.PropertyValues );
 
                 DisposeContextProperties( contextProperties );
             }
@@ -122,27 +122,27 @@ namespace J4JSoftware.Logging
             return true;
         }
 
-        // Initialize the additional LogEvent properties supported by IJ4JLogger
+        // Initialize the additional LogEvent properties supported by J4JLogger
         private List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
         {
             var retVal = new List<IDisposable>
             {
                 LogContext.PushProperty( "SendToSms", OutputNextToSms ),
-                LogContext.PushProperty( "MemberName", ((IJ4JLogger)this).LoggedType != null ? $"::{memberName}" : "" )
+                LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
             };
 
-            if( !((IJ4JLogger)this).IncludeSourcePath ) 
+            if( !IncludeSourcePath ) 
                 return retVal;
 
-            if( !string.IsNullOrEmpty(((IJ4JLogger)this).SourceRootPath ) )
-                srcPath = srcPath.Replace(((IJ4JLogger)this).SourceRootPath, "" );
+            if( !string.IsNullOrEmpty(SourceRootPath ) )
+                srcPath = srcPath.Replace(SourceRootPath, "" );
 
             retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 
             return retVal;
         }
 
-        // Clear the additional LogEvent properties supported by IJ4JLogger. This must be done
+        // Clear the additional LogEvent properties supported by J4JLogger. This must be done
         // after each LogEvent is processed to comply with Serilog's design.
         private void DisposeContextProperties( List<IDisposable> contextProperties )
         {

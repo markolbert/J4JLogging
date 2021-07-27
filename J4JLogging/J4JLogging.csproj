@@ -43,6 +43,7 @@
 		<Compile Remove="channels\TwilioConfig.cs" />
 		<Compile Remove="EnumExtensions.cs" />
 		<Compile Remove="EventElements.cs" />
+		<Compile Remove="IJ4JLogger.cs" />
 		<Compile Remove="J4JLoggingExtensions.cs" />
 		<Compile Remove="sinks\TwilioSink.cs" />
 	</ItemGroup>

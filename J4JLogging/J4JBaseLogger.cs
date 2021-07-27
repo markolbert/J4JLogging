@@ -26,7 +26,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public abstract class J4JBaseLogger : IJ4JBaseLogger
+    public abstract class J4JBaseLogger : IChannelParameters
     {
         public const string DefaultOutputTemplate =
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
