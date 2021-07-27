@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
+using Serilog;
 using Serilog.Events;
 
 #pragma warning disable 8604
@@ -37,6 +38,7 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add( new CachedEntry(
+                LoggedType,
                 level,
                 template,
                 memberName,
@@ -49,6 +51,14 @@ namespace J4JSoftware.Logging
             ResetSms();
         }
 
+        protected override void OnLoggedTypeChanged()
+        {
+            // no op
+        }
+
+        // should never be called
+        public override bool OutputCache( J4JCachedLogger cachedLogger ) => false;
+
         public List<CachedEntry> Entries { get; } = new();
 
         public override void Write<T0>( 
@@ -60,6 +70,7 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
+                LoggedType,
                 level,
                 template,
                 memberName,
@@ -82,6 +93,7 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
+                LoggedType,
                 level,
                 template,
                 memberName,
@@ -106,6 +118,7 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add( new CachedEntry(
+                LoggedType,
                 level,
                 template,
                 memberName,
@@ -129,6 +142,7 @@ namespace J4JSoftware.Logging
             [CallerLineNumber] int srcLine = 0)
         {
             Entries.Add(new CachedEntry(
+                LoggedType,
                 level,
                 template,
                 memberName,

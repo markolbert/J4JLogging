@@ -67,6 +67,13 @@ namespace J4JSoftware.Logging
             return retVal;
         }
 
+        protected override void OnLoggedTypeChanged()
+        {
+            if( LoggedType == null )
+                ResetBaseLogger();
+            else _baseLogger?.ForContext( LoggedType );
+        }
+
         private static void SetMinimumLevel( LoggerConfiguration config, LogEventLevel minLevel)
         {
             switch (minLevel)
@@ -102,10 +109,15 @@ namespace J4JSoftware.Logging
 
         public List<IChannel> Channels { get; } = new();
 
-        public bool OutputCache( J4JCachedLogger cachedLogger )
+        public override bool OutputCache( J4JCachedLogger cachedLogger )
         {
+            var curLoggedType = LoggedType;
+
             foreach( var entry in cachedLogger.Entries )
             {
+                if( LoggedType != entry.LoggedType)
+                    LoggedType = entry.LoggedType;
+
                 if( entry.OutputToSms )
                     this.OutputNextEventToSms();
 
@@ -118,6 +130,8 @@ namespace J4JSoftware.Logging
             }
 
             cachedLogger.Entries.Clear();
+
+            LoggedType = curLoggedType;
 
             return true;
         }

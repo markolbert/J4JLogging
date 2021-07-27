@@ -26,18 +26,56 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public abstract class J4JBaseLogger : IChannelParameters, IJ4JLogger
+    public abstract class J4JBaseLogger : IJ4JLogger
     {
         public const string DefaultOutputTemplate =
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+
+        private Type? _loggedType;
 
         protected J4JBaseLogger()
         {
         }
 
+        protected internal virtual void ResetBaseLogger()
+        {
+        }
+
         #region Global parameters
 
-        public Type? LoggedType { get; internal set; }
+        public Type? LoggedType
+        {
+            get => _loggedType;
+
+            protected set
+            {
+                var changed = _loggedType != value;
+
+                _loggedType = value;
+
+                if( changed )
+                    OnLoggedTypeChanged();
+            }
+        }
+
+        protected abstract void OnLoggedTypeChanged();
+
+        public abstract bool OutputCache( J4JCachedLogger cachedLogger );
+
+        public J4JBaseLogger SetLoggedType<TLogged>() => SetLoggedType(typeof(TLogged));
+
+        public J4JBaseLogger SetLoggedType(Type typeToLog)
+        {
+            LoggedType = typeToLog;
+            return this;
+        }
+
+        public J4JBaseLogger ClearLoggedType()
+        {
+            LoggedType = null;
+            return this;
+        }
+
         public bool IncludeSourcePath { get; internal set; }
         public string? SourceRootPath { get; internal set; }
         public string OutputTemplate { get; internal set; } = DefaultOutputTemplate;
@@ -47,10 +85,6 @@ namespace J4JSoftware.Logging
         #endregion
 
         protected internal bool OutputNextToSms { get; set; }
-
-        protected internal virtual void ResetBaseLogger()
-        {
-        }
 
         protected void ResetSms()
         {

@@ -27,6 +27,12 @@ namespace J4JSoftware.Logging
     {
         Type? LoggedType { get; }
 
+        J4JBaseLogger SetLoggedType<T>();
+        J4JBaseLogger SetLoggedType( Type typeToLog );
+        J4JBaseLogger ClearLoggedType();
+
+        bool OutputCache( J4JCachedLogger cachedLogger );
+
         #region Write methods
 
         void Write( 

@@ -18,21 +18,6 @@ namespace J4JSoftware.Logging
             return () => compiled(logger);
         }
 
-        public static J4JBaseLogger SetLoggedType<TLogged>( this J4JBaseLogger logger ) =>
-            logger.SetLoggedType( typeof(TLogged) );
-
-        public static J4JBaseLogger SetLoggedType( this J4JBaseLogger logger, Type typeToLog )
-        {
-            logger.LoggedType = typeToLog;
-            return logger;
-        }
-
-        public static J4JBaseLogger ClearLoggedType(this J4JBaseLogger logger )
-        {
-            logger.LoggedType = null;
-            return logger;
-        }
-
         public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger container )
         {
             container.IncludeSourcePath = true;

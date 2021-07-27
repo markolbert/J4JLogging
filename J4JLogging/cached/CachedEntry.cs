@@ -17,11 +17,13 @@
 
 #endregion
 
+using System;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
     public record CachedEntry(
+        Type? LoggedType,
         LogEventLevel LogEventLevel,
         string Template,
         string MemberName,
