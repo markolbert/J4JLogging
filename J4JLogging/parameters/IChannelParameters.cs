@@ -23,10 +23,10 @@ namespace J4JSoftware.Logging
 {
     public interface IChannelParameters
     {
-        bool IncludeSourcePath { get; }
-        string? SourceRootPath { get; }
-        string OutputTemplate { get; }
-        bool RequireNewLine { get; }
-        LogEventLevel MinimumLevel { get; }
+        public bool IncludeSourcePath { get; }
+        public string? SourceRootPath { get; }
+        public string OutputTemplate { get; }
+        public bool RequireNewLine { get; }
+        public LogEventLevel MinimumLevel { get; }
     }
 }
