@@ -19,131 +19,121 @@
 
 using System;
 using System.ComponentModel;
+using System.IO;
 using FluentAssertions;
 using J4JSoftware.Logging;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace J4JLoggingTests
 {
     public class BasicTests
     {
-        [ Theory ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null ) ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(DerivedConfiguration), "config-files/Derived.json", null ) ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Embedded.json",
-            "Container:Logger" ) ]
-        [ InlineData( CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null ) ]
-        [ InlineData( CompositionRootType.Static, typeof(DerivedConfiguration), "config-files/Derived.json", null ) ]
-        [ InlineData( CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Embedded.json",
-            "Container:Logger" ) ]
-        public void Uncached( CompositionRootType rootType, Type configType, string configPath, string? loggerKey )
-        {
-            var compRoot = GetCompositionRoot( rootType, configType, configPath, loggerKey );
+        private string _acctSID;
+        private string _acctToken;
+        private string _fromNumber;
 
-            var logger = compRoot.J4JLogger;
+        public BasicTests()
+        {
+            var configBuilder = new ConfigurationBuilder();
+
+            var config = configBuilder
+                .AddUserSecrets<BasicTests>()
+                .Build();
+
+            _acctSID = config.GetValue<string>( "twilio:AccountSID" );
+            _acctToken = config.GetValue<string>( "twilio:AccountToken" );
+            _fromNumber = config.GetValue<string>( "twilio:FromNumber" );
+        }
+
+        [ Fact ]
+        public void Uncached()
+        {
+            var logger = new J4JLogger();
+
+            logger.AddDebug();
+            
+            var twilio = logger.AddTwilio( _acctSID, _acctToken, _fromNumber );
+            twilio.Parameters!.Recipients.Add( "+1 650 868 3367" );
+
+            var lastEvent = (LastEventChannel) logger.AddChannel<LastEventChannel>();
+
             logger.SetLoggedType( GetType() );
 
-            var lastEvent = compRoot.LastEventConfig;
-            var template = "{0} ({1})";
+            var template = "{0} (test message)";
 
-            logger.Verbose<string, string>( template, "Verbose", configPath );
+            logger.Verbose<string>( template, "Verbose" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Verbose" ) );
 
-            logger.Warning<string, string>( template, "Warning", configPath );
+            logger.Warning<string>( template, "Warning" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Warning" ) );
 
-            logger.Information<string, string>( template, "Information", configPath );
+            logger.Information<string>( template, "Information" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Information" ) );
 
-            logger.Debug<string, string>( template, "Debug", configPath );
+            logger.Debug<string>( template, "Debug" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Debug" ) );
 
-            logger.Error<string, string>( template, "Error", configPath );
+            logger.Error<string>( template, "Error" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Error" ) );
 
-            logger.Fatal<string, string>( template, "Fatal", configPath );
+            logger.Fatal<string>( template, "Fatal" );
             lastEvent.LastLogMessage.Should().Be( format_message( "Fatal" ) );
 
-            logger.OutputNextEventToSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
+            logger.OutputNextEventToSms().Verbose<string>( "{0}", "Verbose" );
 
             string format_message( string prop1 )
             {
-                return template.Replace( "{0}", $"\"{prop1}\"" ).Replace( "{1}", $"\"{configPath}\"" );
+                return template.Replace( "{0}", $"\"{prop1}\"" );
             }
         }
 
-        [ Theory ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null ) ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(DerivedConfiguration), "config-files/Derived.json", null ) ]
-        [ InlineData( CompositionRootType.Dynamic, typeof(J4JLoggerConfiguration), "config-files/Embedded.json",
-            "Container:Logger" ) ]
-        [ InlineData( CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Simple.json", null ) ]
-        [ InlineData( CompositionRootType.Static, typeof(DerivedConfiguration), "config-files/Derived.json", null ) ]
-        [ InlineData( CompositionRootType.Static, typeof(J4JLoggerConfiguration), "config-files/Embedded.json",
-            "Container:Logger" ) ]
-        public void Cached( CompositionRootType rootType, Type configType, string configPath, string loggerKey )
+        [Fact]
+        public void Cached()
         {
             var cached = new J4JCachedLogger();
-            cached.SetLoggedType( GetType() );
+            cached.SetLoggedType(GetType());
 
-            var template = "{0} ({1})";
+            var template = "{0} (test message)";
 
-            cached.Verbose<string, string>( template, "Verbose", configPath );
-            cached.Warning<string, string>( template, "Warning", configPath );
-            cached.Information<string, string>( template, "Information", configPath );
-            cached.Debug<string, string>( template, "Debug", configPath );
-            cached.Error<string, string>( template, "Error", configPath );
-            cached.Fatal<string, string>( template, "Fatal", configPath );
-            cached.OutputNextEventToSms().Verbose<string, string>( "{0} ({1})", "Verbose", configPath );
+            cached.Verbose<string>(template, "Verbose");
+            cached.Warning<string>(template, "Warning");
+            cached.Information<string>(template, "Information");
+            cached.Debug<string>(template, "Debug");
+            cached.Error<string>(template, "Error");
+            cached.Fatal<string>(template, "Fatal");
+            cached.OutputNextEventToSms().Verbose<string>("{0} (test message)", "Verbose");
 
-            var compRoot = GetCompositionRoot( rootType, configType, configPath, loggerKey );
+            var logger = new J4JLogger();
 
-            var logger = compRoot.J4JLogger;
-            var lastEvent = compRoot.LastEventConfig;
+            logger.AddDebug();
 
-            foreach( var context in cached.Cache )
+            var twilio = logger.AddTwilio(_acctSID, _acctToken, _fromNumber);
+            twilio.Parameters!.Recipients.Add("+1 650 868 3367");
+
+            var lastEvent = (LastEventChannel)logger.AddChannel<LastEventChannel>();
+
+            logger.SetLoggedType(GetType());
+
+            foreach( var entry in cached.Entries )
             {
-                if( context.OutputToSms )
+                if( entry.OutputToSms )
                     logger.OutputNextEventToSms();
 
-                if( context.LoggedType == null )
+                if( cached.LoggedType == null )
                     logger.ClearLoggedType();
-                else logger.SetLoggedType( context.LoggedType );
+                else logger.SetLoggedType( cached.LoggedType );
 
-                foreach( var entry in context.Entries )
-                {
-                    logger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues, entry.MemberName,
-                        entry.SourcePath, entry.SourceLine );
+                logger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues, entry.MemberName,
+                    entry.SourcePath, entry.SourceLine );
 
-                    lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
-                }
+                lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
             }
 
-            string format_message( string prop1 )
+            string format_message(string prop1)
             {
-                return template.Replace( "{0}", $"\"{prop1}\"" ).Replace( "{1}", $"\"{configPath}\"" );
+                return template.Replace("{0}", $"\"{prop1}\"");
             }
-        }
-
-        private static ICompositionRoot GetCompositionRoot( CompositionRootType rootType, Type configType, string configPath,
-            string? loggerKey )
-        {
-            typeof(IJ4JLoggerConfiguration).IsAssignableFrom( configType ).Should().BeTrue();
-
-            var compRootType = typeof(CompositionRoot<>).MakeGenericType( configType );
-
-            var temp = rootType switch
-            {
-                CompositionRootType.Dynamic => Activator.CreateInstance(
-                    compRootType, configPath, loggerKey ),
-                CompositionRootType.Static => Activator.CreateInstance( compRootType ),
-                _ => throw new InvalidEnumArgumentException(
-                    $"Unsupported {typeof(CompositionRootType)} value '{rootType}'" )
-            };
-
-            temp.Should().NotBeNull();
-
-            return (ICompositionRoot) temp!;
         }
     }
 }

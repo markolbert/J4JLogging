@@ -18,7 +18,6 @@
 #endregion
 
 using System.ComponentModel;
-using Autofac;
 using FluentAssertions;
 using J4JSoftware.Logging;
 using Serilog.Events;
@@ -30,7 +29,6 @@ namespace J4JLoggingTests
     {
         private LogEventLevel _curLevel = LogEventLevel.Verbose;
         private string _curTemplate = string.Empty;
-        private IJ4JLogger? _logger;
 
         [ Theory ]
         [ InlineData( LogEventLevel.Information ) ]
@@ -41,28 +39,17 @@ namespace J4JLoggingTests
         [ InlineData( LogEventLevel.Verbose ) ]
         public void TestEvent( LogEventLevel level )
         {
-            var loggerConfig = new J4JLoggerConfiguration();
+            var logger = new J4JLogger();
 
-            var netEventConfig = new NetEventConfig
-            {
-                EventElements = EventElements.None,
-                OutputTemplate = "[{Level:u3}] {Message:lj}"
-            };
-
+            var netEventConfig = new NetEventChannel( logger );
             netEventConfig.LogEvent += NetEventConfigOnLogEvent;
 
-            loggerConfig.Channels.Add( netEventConfig );
+            logger.AddChannels( netEventConfig );
 
-            var builder = new ContainerBuilder();
-            builder.RegisterJ4JLogging( loggerConfig );
-
-            var container = builder.Build();
-            _logger = container.Resolve<IJ4JLogger>();
-
-            LogMessage( level );
+            LogMessage( logger, level );
         }
 
-        private void LogMessage( LogEventLevel level )
+        private void LogMessage( J4JLogger logger, LogEventLevel level )
         {
             _curLevel = level;
 
@@ -79,7 +66,7 @@ namespace J4JLoggingTests
 
             _curTemplate = $"[{abbr}] This is a(n) \"{level}\" event\r\n";
 
-            _logger!.Write( level, "This is a(n) {0} event", level );
+            logger!.Write( level, "This is a(n) {0} event", level );
         }
 
         private void NetEventConfigOnLogEvent( object? sender, NetEventArgs e )

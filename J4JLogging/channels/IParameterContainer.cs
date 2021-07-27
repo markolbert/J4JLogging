@@ -19,15 +19,18 @@
 
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    // defines the configuration for a debug channel
-    public class DebugConfig : ChannelConfig
+    public interface IChannel
     {
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
-        {
-            return sinkConfig.Debug( MinimumLevel, EnrichedMessageTemplate );
-        }
+        bool LocallyDefined { get; }
+
+        LogEventLevel MinimumLevel { get; }
+        string EnrichedMessageTemplate { get; }
+
+        LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+        void ResetToGlobal();
     }
 }

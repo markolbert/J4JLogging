@@ -18,35 +18,41 @@
 #endregion
 
 using System;
+using System.IO;
 using Serilog;
-using Serilog.Configuration;
-using Serilog.Formatting.Display;
 
 namespace J4JSoftware.Logging
 {
-    // defines the configuration for a channel that retains the text of the last
-    // even logged
-    public class NetEventConfig : ChannelConfig
+    public record FileParameters : ChannelParameters
     {
-        public const string DefaultNetEventConfigOutputTemplate = "[{Level:u3}] {Message}";
+        private readonly RollingInterval _interval = RollingInterval.Day;
+        private readonly string _folder = Environment.CurrentDirectory;
+        private readonly string _fileName = "log.txt";
 
-        public NetEventConfig()
+        public FileParameters(
+            J4JLogger logger )
+            : base( logger )
         {
-            OutputTemplate = DefaultNetEventConfigOutputTemplate;
-            EventElements = EventElements.None;
-            RequireNewline = false;
         }
 
-        public event EventHandler<NetEventArgs>? LogEvent;
-
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        public RollingInterval RollingInterval
         {
-            return sinkConfig.NetEvent( new MessageTemplateTextFormatter( EnrichedMessageTemplate ), this );
+            get => _interval;
+            init => SetProperty( ref _interval, value );
         }
 
-        internal void OnLogEvent( NetEventArgs args )
+        public string Folder
         {
-            LogEvent?.Invoke( this, args );
+            get => _folder;
+            init => SetProperty( ref _folder, value );
         }
+
+        public string FileName
+        {
+            get => _folder;
+            init => SetProperty( ref _fileName, value );
+        }
+
+        public string FileTemplatePath => Path.Combine( Folder, FileName );
     }
 }

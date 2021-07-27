@@ -17,19 +17,18 @@
 
 #endregion
 
-using Serilog;
-using Serilog.Configuration;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    //extern alias SerilogConsole;
-
-    // defines the configuration for a console channel
-    public class ConsoleConfig : ChannelConfig
+    public interface IChannelParameters
     {
-        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
-        {
-            return sinkConfig.Console( MinimumLevel, EnrichedMessageTemplate );
-        }
+        public bool IncludeSourcePath { get; }
+        public string? SourceRootPath { get; }
+        public bool MultiLineEvents { get; }
+        public string OutputTemplate { get; }
+        public bool RequireNewLine { get; }
+        public LogEventLevel MinimumLevel { get; }
+        public string EnrichedMessageTemplate { get; }
     }
 }

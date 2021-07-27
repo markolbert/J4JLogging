@@ -22,20 +22,21 @@ using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
-    // defines the configuration for a channel that retains the text of the last
-    // even logged
-    public class LastEventConfig : ChannelConfig
+    //extern alias SerilogConsole;
+
+    // defines the configuration for a console channel
+    public class ConsoleChannel : Channel<ChannelParameters>
     {
-        public string? LastLogMessage { get; private set; }
+        public ConsoleChannel(
+            J4JLogger logger
+        )
+            : base( logger )
+        {
+        }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            return sinkConfig.LastEvent( LastEventHandler! );
-        }
-
-        private void LastEventHandler( object sender, string lastLogMessage )
-        {
-            LastLogMessage = lastLogMessage;
+            return sinkConfig.Console( MinimumLevel, EnrichedMessageTemplate );
         }
     }
 }

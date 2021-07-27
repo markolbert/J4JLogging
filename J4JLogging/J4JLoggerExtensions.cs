@@ -1,136 +1,234 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
+using Serilog;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
     public static class J4JLoggerExtensions
     {
-        public static J4JLogger SetLoggedType<T>( this J4JLogger logger )=>
-            logger.SetLoggedType( typeof( T ) );
+        public static J4JBaseLogger SetLoggedType<TLogged>( this J4JBaseLogger logger ) =>
+            logger.SetLoggedType( typeof(TLogged) );
 
-        public static J4JLogger SetLoggedType( this J4JLogger logger, Type typeToLog )
+        public static J4JBaseLogger SetLoggedType( this J4JBaseLogger logger, Type typeToLog )
         {
             logger.LoggedType = typeToLog;
+            return logger;
+        }
+
+        public static J4JBaseLogger ClearLoggedType(this J4JBaseLogger logger )
+        {
+            logger.LoggedType= null;
+            return logger;
+        }
+
+        public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { IncludeSourcePath = true };
+            return logger;
+        }
+
+        public static J4JBaseLogger ExcludeSourcePath(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { IncludeSourcePath = false };
+            return logger;
+        }
+
+        public static J4JBaseLogger SetSourceRootPath(this J4JBaseLogger logger, string path)
+        {
+            logger.Parameters = logger.Parameters with { IncludeSourcePath = true, SourceRootPath = path };
+            return logger;
+        }
+
+        public static J4JBaseLogger ClearSourceRootPath(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { SourceRootPath = null };
+            return logger;
+        }
+
+        public static J4JBaseLogger OutputMultiLineEvents(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { MultiLineEvents = true };
+            return logger;
+        }
+
+        public static J4JBaseLogger OutputSingleLineEvents(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { MultiLineEvents = false };
+            return logger;
+        }
+
+        public static J4JBaseLogger SetOutputTemplate(this J4JBaseLogger logger, string template)
+        {
+            logger.Parameters = logger.Parameters with { OutputTemplate = template };
+            return logger;
+        }
+
+        public static J4JBaseLogger ResetOutputTemplate(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { OutputTemplate = J4JBaseLogger.DefaultOutputTemplate };
+            return logger;
+        }
+
+        public static J4JBaseLogger UseNewLineInOutput(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { RequireNewLine = true };
+            return logger;
+        }
+
+        public static J4JBaseLogger ClearNewLineInOutput(this J4JBaseLogger logger)
+        {
+            logger.Parameters = logger.Parameters with { RequireNewLine = false };
+            return logger;
+        }
+
+        public static J4JBaseLogger MinimumLevel(this J4JBaseLogger logger, LogEventLevel minLevel)
+        {
+            logger.Parameters = logger.Parameters with { MinimumLevel = minLevel };
+            return logger;
+        }
+
+        public static IChannel AddChannel<T>( this J4JLogger logger )
+            where T : class, IChannel
+        {
+            var channelType = typeof(T);
+
+            var retVal = logger.Channels.FirstOrDefault( x => x.GetType() == channelType );
+            if( retVal != null )
+                return retVal;
+
+            try
+            {
+                retVal = (IChannel) Activator.CreateInstance( channelType, new object[] { logger }, null )!;
+            }
+            catch( Exception e )
+            {
+                throw new ArgumentException(
+                    $"Could not create instance of '{typeof(T)}'. It must have a public constructor taking an instance of {nameof(J4JBaseLogger)} as its only argument",
+                    e );
+            }
+
+            logger.Channels.Add( retVal );
+            logger.ResetBaseLogger();
+
+            return retVal;
+        }
+
+        public static J4JLogger AddChannels(this J4JLogger logger, params IChannel[] channels )
+        {
+            foreach( var channel in channels.Where( x => 
+                logger.Channels.All( y => x.GetType() != y.GetType() ) ) 
+            )
+            {
+                logger.Channels.Add(channel!);
+            }
+
             logger.ResetBaseLogger();
 
             return logger;
         }
 
-        public static J4JLogger ClearLoggedType(this J4JLogger logger )
+        public static J4JLogger RemoveChannel<T>(this J4JLogger logger)
+            where T : class, IChannel, new()
         {
-            if (logger.LoggedType == null)
+            var index = logger.Channels
+                .FindIndex(x => x is T);
+
+            if (index < 0)
                 return logger;
 
-            logger.LoggedType= null;
+            logger.Channels.RemoveAt(index);
             logger.ResetBaseLogger();
 
             return logger;
         }
 
-        public static J4JLogger IncludeSourcePath( this J4JLogger logger )
+        public static DebugChannel AddDebug( this J4JLogger logger, LogEventLevel minLevel = LogEventLevel.Verbose )
         {
-            logger.IncludeSourcePath= true;
+            var retVal = new DebugChannel( logger );
 
-            return logger;
+            retVal.Parameters = retVal.Parameters == null
+                ? new ChannelParameters( null ) { MinimumLevel = minLevel }
+                : retVal.Parameters with { MinimumLevel = minLevel };
+
+            logger.Channels.Add( retVal );
+
+            return retVal;
         }
 
-        public static J4JLogger ExcludeSourcePath(this J4JLogger logger)
+        public static ConsoleChannel AddConsole(this J4JLogger logger, LogEventLevel minLevel = LogEventLevel.Verbose)
         {
-            logger.IncludeSourcePath = false;
+            var retVal = new ConsoleChannel(logger);
 
-            return logger;
+            retVal.Parameters = retVal.Parameters == null
+                ? new ChannelParameters(null) { MinimumLevel = minLevel, RequireNewLine = true }
+                : retVal.Parameters with { MinimumLevel = minLevel, RequireNewLine = true };
+
+            logger.Channels.Add(retVal);
+
+            return retVal;
         }
 
-        public static J4JLogger SetSourceRootPath(this J4JLogger logger, string path)
+        public static FileConfig AddFile(
+            this J4JLogger logger,
+            LogEventLevel minLevel = LogEventLevel.Verbose,
+            string fileStub = "log.txt",
+            RollingInterval interval = RollingInterval.Day,
+            string? folder = null )
         {
-            logger.SourceRootPath = path;
-            logger.IncludeSourcePath= true;
+            var retVal = new FileConfig( logger );
 
-            return logger;
+            retVal.Parameters = retVal.Parameters == null
+                ? new FileParameters( logger )
+                {
+                    MinimumLevel = minLevel,
+                    FileName = fileStub,
+                    RollingInterval = interval,
+                    Folder = folder ?? Environment.CurrentDirectory
+                }
+                : retVal.Parameters! with
+                {
+                    MinimumLevel = minLevel,
+                    FileName = fileStub,
+                    RollingInterval = interval,
+                    Folder = folder ?? Environment.CurrentDirectory
+                };
+
+            logger.Channels.Add( retVal );
+
+            return retVal;
         }
 
-        public static J4JLogger ClearSourceRootPath( this J4JLogger logger )
+        public static LastEventChannel AddLastEvent(
+            this J4JLogger logger,
+            LogEventLevel minLevel = LogEventLevel.Verbose )
         {
-            logger.SourceRootPath= null;
+            var retVal = new LastEventChannel(logger);
 
-            return logger;
+            retVal.Parameters = retVal.Parameters == null
+                ? new ChannelParameters(null) { MinimumLevel = minLevel }
+                : retVal.Parameters with { MinimumLevel = minLevel };
+
+
+            logger.Channels.Add(retVal);
+
+            return retVal;
         }
 
-        public static J4JLogger OutputMultiLineEvents( this J4JLogger logger )
+        public static NetEventChannel AddNetEvent(
+            this J4JLogger logger,
+            LogEventLevel minLevel = LogEventLevel.Verbose)
         {
-            logger.MultiLineEvents = true;
+            var retVal = new NetEventChannel(logger);
 
-            return logger;
-        }
+            retVal.Parameters = retVal.Parameters == null
+                ? new ChannelParameters(null) { MinimumLevel = minLevel }
+                : retVal.Parameters with { MinimumLevel = minLevel };
 
-        public static J4JLogger OutputSingleLineEvents( this J4JLogger logger )
-        {
-            logger.MultiLineEvents = false;
+            logger.Channels.Add(retVal);
 
-            return logger;
-        }
-
-        public static J4JLogger SetOutputTemplate( this J4JLogger logger, string template )
-        {
-            logger.OutputTemplate = template;
-            logger.ResetBaseLogger();
-
-            return logger;
-        }
-
-        public static J4JLogger ResetOutputTemplate( this J4JLogger logger )
-        {
-            logger.OutputTemplate = J4JLogger.DefaultOutputTemplate;
-            logger.ResetBaseLogger();
-
-            return logger;
-        }
-
-        public static J4JLogger UseNewLineInOutput( this J4JLogger logger )
-        {
-            logger.RequireNewline = true;
-            logger.ResetBaseLogger();
-
-            return logger;
-        }
-
-        public static J4JLogger ClearNewLineInOutput( this J4JLogger logger )
-        {
-            logger.RequireNewline = false;
-            logger.ResetBaseLogger();
-
-            return logger;
-        }
-
-        public static bool AddChannel<T>( this J4JLogger logger, out T? channelConfig )
-            where T : ChannelConfigNG, new()
-        {
-            channelConfig = null;
-
-            if( logger.ChannelsInternal.Any( x => x.GetType() == typeof( T ) ) )
-                return false;
-
-            channelConfig = new T();
-
-            logger.ChannelsInternal.Add( channelConfig );
-            logger.ResetBaseLogger();
-
-            return true;
-        }
-
-        public static bool RemoveChannel<T>( this J4JLogger logger )
-            where T : ChannelConfigNG, new()
-        {
-            var index = logger.ChannelsInternal
-                .FindIndex( x => x is T );
-
-            if( index < 0 )
-                return false;
-
-            logger.ChannelsInternal.RemoveAt( index );
-            logger.ResetBaseLogger();
-
-            return true;
+            return retVal;
         }
     }
 }

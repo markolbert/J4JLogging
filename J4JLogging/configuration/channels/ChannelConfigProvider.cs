@@ -27,7 +27,7 @@ namespace J4JSoftware.Logging
     public class ChannelConfigProvider : IChannelConfigProvider
     {
         private readonly Dictionary<string, Type> _configurableChannels = new( StringComparer.OrdinalIgnoreCase );
-        private readonly List<IChannelConfig> _configuredChannels = new();
+        private readonly List<IChannelParameters> _configuredChannels = new();
         private readonly string? _loggerSectionKey;
 
         public ChannelConfigProvider(
@@ -81,7 +81,7 @@ namespace J4JSoftware.Logging
                     idx++;
                 } while( idx < elements.Count );
 
-                if( curSection.Get( kvp.Value ) is IChannelConfig curConfig )
+                if( curSection.Get( kvp.Value ) is IChannelParameters curConfig )
                     retVal.Channels.Add( curConfig );
             }
 
@@ -94,7 +94,7 @@ namespace J4JSoftware.Logging
         }
 
         public ChannelConfigProvider AddChannel<TChannel>( string configPath )
-            where TChannel : IChannelConfig, new()
+            where TChannel : IChannelParameters, new()
         {
             if( string.IsNullOrEmpty( configPath ) )
                 return this;
@@ -109,7 +109,7 @@ namespace J4JSoftware.Logging
         public ChannelConfigProvider AddChannel( Type channelType, string configPath )
         {
             if( string.IsNullOrEmpty( configPath )
-                || !typeof(IChannelConfig).IsAssignableFrom( channelType ) )
+                || !typeof(IChannelParameters).IsAssignableFrom( channelType ) )
                 return this;
 
             if( _configurableChannels.ContainsKey( configPath ) )
@@ -119,7 +119,7 @@ namespace J4JSoftware.Logging
             return this;
         }
 
-        public ChannelConfigProvider AddChannel( IChannelConfig channelConfig )
+        public ChannelConfigProvider AddChannel( IChannelParameters channelConfig )
         {
             _configuredChannels.Add( channelConfig );
 

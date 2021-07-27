@@ -17,41 +17,43 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Formatting;
+using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public class NetEventSink : ILogEventSink
+    public record TwilioParameters : ChannelParameters
     {
-        private readonly NetEventChannel _channel;
-        private readonly StringBuilder _sb;
+        private readonly string _acctSID = string.Empty;
+        private readonly string _acctToken = string.Empty;
+        private readonly string _fromNum = string.Empty;
 
-        private readonly StringWriter _stringWriter;
-
-        public NetEventSink( NetEventChannel channel )
+        public TwilioParameters(
+            J4JLogger logger )
+            : base( logger )
         {
-            _channel = channel;
-
-            _sb = new StringBuilder();
-            _stringWriter = new StringWriter( _sb );
         }
 
-        public ITextFormatter? TextFormatter { get; internal set; }
-
-        public void Emit( LogEvent logEvent )
+        public string AccountSID
         {
-            if( TextFormatter == null )
-                return;
-
-            _sb.Clear();
-            TextFormatter.Format( logEvent, _stringWriter );
-            _stringWriter.Flush();
-
-            _channel.OnLogEvent( new NetEventArgs( logEvent.Level, _sb.ToString() ) );
+            get => _acctSID;
+            init => SetProperty( ref _acctSID, value );
         }
+
+        public string AccountToken
+        {
+            get => _acctToken;
+            init => SetProperty( ref _acctToken, value );
+        }
+
+        public string FromNumber
+        {
+            get => _fromNum;
+            init => SetProperty( ref _fromNum, value );
+        }
+
+        public List<string> Recipients { get; } = new();
     }
 }

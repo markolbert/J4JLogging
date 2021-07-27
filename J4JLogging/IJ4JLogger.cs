@@ -25,15 +25,15 @@ namespace J4JSoftware.Logging
 {
     // defines the functionality of IJ4JLogger, which wraps a Serilog ILogger
     // and provides extended source code information
-    public interface IJ4JLogger
+    public interface IJ4JBaseLogger
     {
-        IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig ) where TChannel: IChannelConfig;
-        IJ4JLogger RemoveOutputChannel<TChannel>() where TChannel: IChannelConfig;
+        Type? LoggedType { get; }
 
-        bool OutputCache( J4JLoggerCache cache );
+        //IJ4JLogger AddOutputChannel<TChannel>( TChannel channelConfig ) where TChannel: IChannelParameters;
+        //IJ4JLogger RemoveOutputChannel<TChannel>() where TChannel: IChannelParameters;
 
         // Forces the next logging event to be sent to an SmsSink if one was included
-        IJ4JLogger OutputNextEventToSms();
+        J4JBaseLogger OutputNextEventToSms();
 
         #region Write() methods
 
@@ -451,5 +451,10 @@ namespace J4JSoftware.Logging
         );
 
         #endregion
+    }
+
+    public interface IJ4JLogger : IJ4JBaseLogger
+    {
+        bool OutputCache( J4JCachedLogger cachedLogger );
     }
 }

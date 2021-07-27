@@ -36,6 +36,6 @@ namespace J4JSoftware.Logging
         // will be added to the logging output
         EventElements EventElements { get; set; }
 
-        List<IChannelConfig> Channels { get; }
+        List<IChannelParameters> Channels { get; }
     }
 }

@@ -17,7 +17,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Formatting.Display;
@@ -28,36 +30,42 @@ using Twilio;
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of TwilioChannel
-    public class TwilioConfig : ChannelConfig
+    public class TwilioChannel : Channel<TwilioParameters>
     {
-        public string AccountSID { get; set; }
-        public string AccountToken { get; set; }
-        public string FromNumber { get; set; }
-        public List<string> Recipients { get; set; }
+        public TwilioChannel(
+            J4JLogger logger )
+            : base( logger )
+        {
 
-        public override bool IsValid
+        }
+
+        public bool IsValid
         {
             get
             {
-                if( string.IsNullOrEmpty( AccountSID ) ) return false;
-                if( string.IsNullOrEmpty( AccountToken ) ) return false;
-                if( string.IsNullOrEmpty( FromNumber ) ) return false;
+                if( string.IsNullOrEmpty( Parameters?.AccountSID ?? string.Empty ) ) return false;
+                if( string.IsNullOrEmpty( Parameters?.AccountToken ?? string.Empty ) ) return false;
+                if( string.IsNullOrEmpty( Parameters?.FromNumber ?? string.Empty ) ) return false;
 
-                return Recipients.Count != 0;
+                return Parameters?.Recipients.Count != 0;
             }
         }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            TwilioClient.Init( AccountSID, AccountToken );
+            if( !IsValid )
+                throw new ArgumentException(
+                    "Could not configure the Twilio channel because one or more required parameters required by Twilio were not defined locally" );
+
+            TwilioClient.Init( Parameters!.AccountSID, Parameters!.AccountToken );
 
             return sinkConfig.Logger( lc => lc.Filter
                 .ByIncludingOnly( "SendToSms" )
                 .WriteTo
                 .Sms<TwilioSink>(
                     new MessageTemplateTextFormatter( EnrichedMessageTemplate ),
-                    FromNumber,
-                    Recipients ) );
+                    Parameters!.FromNumber,
+                    Parameters!.Recipients ) );
         }
     }
 }

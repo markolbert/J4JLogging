@@ -36,6 +36,6 @@ namespace J4JSoftware.Logging
         public EventElements EventElements { get; set; } = EventElements.All;
 
         // configuration information for the log channels
-        public List<IChannelConfig> Channels { get; } = new();
+        public List<IChannelParameters> Channels { get; } = new();
     }
 }

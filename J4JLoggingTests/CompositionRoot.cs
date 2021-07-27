@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using Autofac;
+using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
@@ -27,22 +28,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace J4JLoggingTests
 {
-    public class CompositionRoot<TJ4JLogger> : ICompositionRoot
-        where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
+    public class CompositionRoot : ICompositionRoot
     {
-        private readonly IServiceProvider _svcProvider;
+        public static CompositionRoot Default { get; } = new();
 
-        public CompositionRoot()
+        private IContainer _container;
+
+        private CompositionRoot()
         {
-            _svcProvider = ConfigStatic();
+            var builder = new ContainerBuilder();
+
+            builder.RegisterJ4JLoggingForUnitTesting( "c:/Programming/J4JLogger/J4JLoggingTests" );
+
+            _container = builder.Build();
         }
 
-        public CompositionRoot( string configPath, string loggerKey )
-        {
-            _svcProvider = ConfigDynamic( configPath, loggerKey );
-        }
-
-        public IJ4JLogger J4JLogger => _svcProvider.GetRequiredService<IJ4JLogger>();
+        public IJ4JLogger J4JLogger => _container.Resolve<IJ4JLogger>();
         public LastEventConfig LastEventConfig => _svcProvider.GetRequiredService<LastEventConfig>();
 
         private IServiceProvider ConfigDynamic( string configPath, string loggerKey )

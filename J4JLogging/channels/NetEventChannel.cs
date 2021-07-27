@@ -18,34 +18,40 @@
 #endregion
 
 using System;
-using System.IO;
 using Serilog;
 using Serilog.Configuration;
-
-#pragma warning disable 8618
+using Serilog.Formatting.Display;
 
 namespace J4JSoftware.Logging
 {
-    // Base class for containing the information needed to configure an instance of FileChannel
-    public class FileConfig : Channel<FileParameters>
+    // defines the configuration for a channel that retains the text of the last
+    // even logged
+    public class NetEventChannel : Channel<ChannelParameters>
     {
-        public FileConfig(
+        public const string DefaultNetEventConfigOutputTemplate = "[{Level:u3}] {Message}";
+
+        public NetEventChannel(
             J4JLogger logger
         )
-            : base(logger)
+            : base( logger )
         {
+            Parameters = new ChannelParameters( logger )
+            {
+                OutputTemplate = DefaultNetEventConfigOutputTemplate,
+                RequireNewLine = false
+            };
         }
+
+        public event EventHandler<NetEventArgs>? LogEvent;
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            if( !LocallyDefined )
-                throw new ArgumentException(
-                    $"Cannot configure the File channel because its configuration parameters were not locally defined" );
+            return sinkConfig.NetEvent( new MessageTemplateTextFormatter( EnrichedMessageTemplate ), this );
+        }
 
-            return sinkConfig.File( Parameters!.FileTemplatePath,
-                MinimumLevel,
-                EnrichedMessageTemplate,
-                rollingInterval: Parameters?.RollingInterval ?? RollingInterval.Day);
+        internal void OnLogEvent( NetEventArgs args )
+        {
+            LogEvent?.Invoke( this, args );
         }
     }
 }

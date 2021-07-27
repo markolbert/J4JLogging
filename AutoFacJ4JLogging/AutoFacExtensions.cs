@@ -20,61 +20,121 @@
 using System;
 using Autofac;
 using Serilog;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
     public static class AutofacExtensions
     {
-        public static ContainerBuilder RegisterJ4JLogging<TJ4JLogger>( this ContainerBuilder builder,
-            TJ4JLogger config )
-            where TJ4JLogger : IJ4JLoggerConfiguration
+        public static ContainerBuilder RegisterJ4JLogging( 
+            this ContainerBuilder builder,
+            ChannelParameters? globalChannelParameters = null,
+            params IChannelConfig[] channels )
         {
             builder.Register( c =>
                 {
-                    var retVal = config.CreateBaseLogger();
+                    globalChannelParameters ??= new ChannelParameters( null );
+                    
+                    var retVal = new J4JLogger() { Parameters = globalChannelParameters };
 
-                    if( retVal != null )
-                        return retVal;
+                    retVal.AddChannels( channels );
 
-                    throw new NullReferenceException( "Could not create ILogger from IJ4JLoggerConfiguration" );
-                } )
+                    return retVal;
+                })
                 .As<ILogger>()
                 .SingleInstance();
-
-            builder.RegisterType<J4JLogger>()
-                .AsImplementedInterfaces();
 
             return builder;
         }
 
-        public static ContainerBuilder RegisterJ4JLogging<TJ4JLogger>(
+        public static ContainerBuilder RegisterJ4JLoggingForUnitTesting( 
             this ContainerBuilder builder,
-            IChannelConfigProvider provider )
-            where TJ4JLogger : class, IJ4JLoggerConfiguration, new()
+            string? sourceRootPath = null,
+            LogEventLevel minLevel = LogEventLevel.Verbose,
+            string? logFileStub = null )
         {
-            builder.Register( c =>
-                {
-                    var retVal = provider.GetConfiguration<TJ4JLogger>();
+            var globalChannelParameters = new ChannelParameters(null);
 
-                    if( retVal == null )
-                        throw new NullReferenceException( $"Couldn't create an instance of {typeof(TJ4JLogger)}" );
+            builder.Register(c =>
+                {
+                    var retVal = new J4JLogger() { Parameters = globalChannelParameters };
+
+                    var debug = retVal.AddChannel<DebugChannel>();
+
+                    debug.Parameters = debug.Parameters with
+                    {
+                        IncludeSourcePath = !string.IsNullOrEmpty( sourceRootPath ),
+                        SourceRootPath = sourceRootPath,
+                        MinimumLevel = minLevel
+                    };
+
+                    if( string.IsNullOrEmpty( logFileStub ) ) 
+                        return retVal;
+
+                    var file = retVal.AddChannel<FileConfig>();
+
+                    file.Parameters = ( (FileParameters) file.Parameters ) with
+                    {
+                        IncludeSourcePath = !string.IsNullOrEmpty( sourceRootPath ),
+                        SourceRootPath = sourceRootPath,
+                        MinimumLevel = minLevel
+                    };
 
                     return retVal;
-                } )
-                .As<IJ4JLoggerConfiguration>()
-                .SingleInstance();
-
-            builder.Register( c =>
-                {
-                    var loggerConfig = c.Resolve<IJ4JLoggerConfiguration>();
-
-                    return loggerConfig.CreateBaseLogger()!;
-                } )
+                })
                 .As<ILogger>()
                 .SingleInstance();
 
-            builder.RegisterType<J4JLogger>()
-                .As<IJ4JLogger>();
+            return builder;
+        }
+
+
+        public static ContainerBuilder RegisterJ4JLoggingForConsoleApp(
+            this ContainerBuilder builder,
+            string? sourceRootPath = null,
+            LogEventLevel minLevel = LogEventLevel.Verbose,
+            string? logFileStub = null)
+        {
+            var globalChannelParameters = new ChannelParameters(null);
+
+            builder.Register(c =>
+                {
+                    var retVal = new J4JLogger() { Parameters = globalChannelParameters };
+
+                    var debug = retVal.AddChannel<DebugChannel>();
+
+                    debug.Parameters = debug.Parameters with
+                    {
+                        IncludeSourcePath = !string.IsNullOrEmpty(sourceRootPath),
+                        SourceRootPath = sourceRootPath,
+                        MinimumLevel = minLevel
+                    };
+
+                    var console = retVal.AddChannel<ConsoleChannel>();
+
+                    console.Parameters = console.Parameters with
+                    {
+                        IncludeSourcePath = !string.IsNullOrEmpty( sourceRootPath ),
+                        SourceRootPath = sourceRootPath,
+                        MinimumLevel = minLevel
+                    };
+
+                    if (string.IsNullOrEmpty(logFileStub))
+                        return retVal;
+
+                    var file = retVal.AddChannel<FileConfig>();
+
+                    file.Parameters = ((FileParameters)file.Parameters) with
+                    {
+                        IncludeSourcePath = !string.IsNullOrEmpty(sourceRootPath),
+                        SourceRootPath = sourceRootPath,
+                        MinimumLevel = minLevel
+                    };
+
+                    return retVal;
+                })
+                .As<ILogger>()
+                .SingleInstance();
 
             return builder;
         }

@@ -22,17 +22,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gitdoc", "gitdoc", "{33976A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DerivedFileExample", "examples\DerivedFileExample\DerivedFileExample.csproj", "{6F18D9CB-028A-4C7D-8F9E-915141F7F743}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutofacJ4JLogging", "AutoFacJ4JLogging\AutofacJ4JLogging.csproj", "{619BF188-3D4A-47F6-AECA-084DC8002065}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFileExample", "examples\SimpleFileExample\SimpleFileExample.csproj", "{AEF43022-2DBC-4888-94D0-7C4A345CD147}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmbeddedFileExample", "examples\EmbeddedFileExample\EmbeddedFileExample.csproj", "{E5AB57C3-D38D-416C-893F-71289EC0900A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{E724D950-8108-4B98-8063-1C30CEEDE432}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,22 +38,10 @@ Global
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743}.Release|Any CPU.Build.0 = Release|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{619BF188-3D4A-47F6-AECA-084DC8002065}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E5AB57C3-D38D-416C-893F-71289EC0900A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E724D950-8108-4B98-8063-1C30CEEDE432}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,9 +55,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{6F18D9CB-028A-4C7D-8F9E-915141F7F743} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
-		{E5AB57C3-D38D-416C-893F-71289EC0900A} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}
