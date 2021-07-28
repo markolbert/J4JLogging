@@ -27,18 +27,18 @@ using Xunit;
 
 namespace J4JLoggingTests
 {
-    public class BasicTests
+    public class LoggingTests
     {
         private string _acctSID;
         private string _acctToken;
         private string _fromNumber;
 
-        public BasicTests()
+        public LoggingTests()
         {
             var configBuilder = new ConfigurationBuilder();
 
             var config = configBuilder
-                .AddUserSecrets<BasicTests>()
+                .AddUserSecrets<LoggingTests>()
                 .Build();
 
             _acctSID = config.GetValue<string>( "twilio:AccountSID" );

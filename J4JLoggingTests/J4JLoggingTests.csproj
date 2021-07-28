@@ -54,14 +54,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="config-files\Simple.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="config-files\Derived.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="config-files\Embedded.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="support\global-only.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
