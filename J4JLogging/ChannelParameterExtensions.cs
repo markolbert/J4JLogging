@@ -9,21 +9,41 @@ namespace J4JSoftware.Logging
 {
     public static class ChannelParameterExtensions
     {
+        public static ChannelParameters ApplySettings(this ChannelParameters container, ChannelInfo channelInfo)
+        {
+            container.SourcePathIncluded = channelInfo.IncludeSourcePath;
+            container.MinimumLevel = channelInfo.MinimumLevel;
+            container.OutputTemplate = channelInfo.OutputTemplate;
+            container.RequireNewLine = channelInfo.RequireNewLine;
+            container.SourceRootPath = channelInfo.SourceRootPath;
+
+            if (channelInfo is not FileChannelInfo fileInfo) return container;
+
+            if (container is not FileParameters fileParameters)
+                return container;
+
+            fileInfo.FileName = fileParameters.FileName;
+            fileInfo.Folder = fileParameters.Folder;
+            fileInfo.RollingInterval = fileParameters.RollingInterval;
+
+            return container;
+        }
+
         public static ChannelParameters IncludeSourcePath(this ChannelParameters container )
         {
-            container.IncludeSourcePath = true;
+            container.SourcePathIncluded = true;
             return container;
         }
 
         public static ChannelParameters ExcludeSourcePath(this ChannelParameters container)
         {
-            container.IncludeSourcePath = false;
+            container.SourcePathIncluded = false;
             return container;
         }
 
         public static ChannelParameters SetSourceRootPath( this ChannelParameters container, string path)
         {
-            container.IncludeSourcePath = true;
+            container.SourcePathIncluded = true;
             container.SourceRootPath = path;
 
             return container;

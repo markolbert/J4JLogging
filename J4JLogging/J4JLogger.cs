@@ -145,7 +145,7 @@ namespace J4JSoftware.Logging
                 LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
             };
 
-            if( !IncludeSourcePath ) 
+            if( !SourcePathIncluded ) 
                 return retVal;
 
             if( !string.IsNullOrEmpty(SourceRootPath ) )

@@ -23,7 +23,7 @@ namespace J4JSoftware.Logging
 {
     public interface IChannelParameters
     {
-        public bool IncludeSourcePath { get; }
+        public bool SourcePathIncluded { get; }
         public string? SourceRootPath { get; }
         public string OutputTemplate { get; }
         public bool RequireNewLine { get; }

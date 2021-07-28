@@ -76,7 +76,7 @@ namespace J4JSoftware.Logging
             return this;
         }
 
-        public bool IncludeSourcePath { get; internal set; }
+        public bool SourcePathIncluded { get; internal set; }
         public string? SourceRootPath { get; internal set; }
         public string OutputTemplate { get; internal set; } = DefaultOutputTemplate;
         public bool RequireNewLine { get; internal set; }

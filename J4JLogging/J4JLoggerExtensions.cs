@@ -18,21 +18,35 @@ namespace J4JSoftware.Logging
             return () => compiled(logger);
         }
 
+        public static J4JBaseLogger ApplySettings( this J4JBaseLogger container, LoggerInfo loggerInfo )
+        {
+            if( loggerInfo.Global == null )
+                return container;
+
+            container.SourcePathIncluded = loggerInfo.Global.IncludeSourcePath;
+            container.MinimumLevel = loggerInfo.Global.MinimumLevel;
+            container.OutputTemplate = loggerInfo.Global.OutputTemplate;
+            container.RequireNewLine = loggerInfo.Global.RequireNewLine;
+            container.SourceRootPath = loggerInfo.Global.SourceRootPath;
+
+            return container;
+        }
+
         public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger container )
         {
-            container.IncludeSourcePath = true;
+            container.SourcePathIncluded = true;
             return container;
         }
 
         public static J4JBaseLogger ExcludeSourcePath(this J4JBaseLogger container)
         {
-            container.IncludeSourcePath = false;
+            container.SourcePathIncluded = false;
             return container;
         }
 
         public static J4JBaseLogger SetSourceRootPath( this J4JBaseLogger container, string path)
         {
-            container.IncludeSourcePath = true;
+            container.SourcePathIncluded = true;
             container.SourceRootPath = path;
 
             return container;

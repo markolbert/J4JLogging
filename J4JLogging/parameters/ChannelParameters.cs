@@ -50,7 +50,7 @@ namespace J4JSoftware.Logging
         {
             Logger = logger;
 
-            _globalInclSrcPath = logger.GetGlobalAccessor( x => ( (IChannelParameters) x ).IncludeSourcePath );
+            _globalInclSrcPath = logger.GetGlobalAccessor( x => ( (IChannelParameters) x ).SourcePathIncluded );
             _globalSrcPath = logger.GetGlobalAccessor( x => x.SourceRootPath );
             _globalOutputTemplate = logger.GetGlobalAccessor( x => x.OutputTemplate );
             _globalRequireNewLine = logger.GetGlobalAccessor( x => x.RequireNewLine );
@@ -59,7 +59,7 @@ namespace J4JSoftware.Logging
 
         protected J4JBaseLogger? Logger { get; }
 
-        public bool IncludeSourcePath
+        public bool SourcePathIncluded
         {
             get => _inclSrcPath ?? _globalInclSrcPath();
             internal set => SetPropertyAndNotifyLogger( ref _inclSrcPath, value );
@@ -119,7 +119,7 @@ namespace J4JSoftware.Logging
                 if( Logger?.LoggedType != null )
                     sb.Append( " {SourceContext}{MemberName}" );
 
-                if( IncludeSourcePath )
+                if( SourcePathIncluded )
                     sb.Append( " {SourceCodeInformation}" );
 
                 if( RequireNewLine )
