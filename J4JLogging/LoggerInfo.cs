@@ -17,28 +17,42 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 
-namespace J4JLoggingTests
+namespace J4JSoftware.Logging
 {
     public class LoggerInfo
     {
+        public static LoggerInfo Create(IConfiguration config)
+        {
+            var retVal = new LoggerInfo
+            {
+                Global = config.GetSection( nameof(Global) ).Get<ChannelParameters>() ?? new ChannelParameters( null ),
+                Channels = config.GetSection( nameof(Channels) ).Get<List<string>>() ?? new List<string>(),
+                ChannelSpecific = config.GetSection( nameof(ChannelSpecific) )
+                    .Get<Dictionary<string, ChannelParameters>>() ?? new Dictionary<string, ChannelParameters>()
+            };
+
+            // make sure all the channels specified in ChannelSpecific also appear in Channels
+            foreach (var kvp in retVal.ChannelSpecific)
+            {
+                if (!retVal.Channels.Any(x => x.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase)))
+                    retVal.Channels.Add(kvp.Key);
+            }
+
+            return retVal;
+        }
+
         public LoggerInfo()
         {
             Global = new ChannelParameters( null );
             Channels = new List<string>();
             ChannelSpecific = new Dictionary<string, ChannelParameters>();
         }
-
-        //public LoggerInfo( IConfiguration config )
-        //{
-        //    Global = config.GetSection( nameof(Global) ).Get<ChannelParameters>();
-        //    Channels = config.GetSection( nameof(Channels) ).Get<List<string>>();
-        //    ChannelSpecific = config.GetSection( nameof(ChannelSpecific) ).Get<Dictionary<string, ChannelParameters>>();
-        //}
 
         public ChannelParameters Global { get; set; }
         public List<string> Channels { get; set; }

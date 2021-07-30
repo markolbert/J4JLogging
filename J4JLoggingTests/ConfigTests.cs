@@ -23,7 +23,7 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = configRoot.Get<LoggerInfo>();
+            var settings = LoggerInfo.Create( configRoot );
             settings.Global.Should().NotBeNull();
 
             CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
@@ -48,7 +48,7 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = configRoot.GetSection( "LoggerInfo" ).Get<LoggerInfo>();
+            var settings = LoggerInfo.Create(configRoot.GetSection("LoggerInfo"));
             settings.Global.Should().NotBeNull();
 
             CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
@@ -75,7 +75,7 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = configRoot.Get<LoggerInfo>();
+            var settings = LoggerInfo.Create(configRoot);
             settings.Global.Should().NotBeNull();
 
             CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
