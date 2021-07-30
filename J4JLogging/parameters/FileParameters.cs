@@ -23,14 +23,19 @@ using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public class FileParameters : ChannelParameters
+    public class FileParameters : ChannelParameters, IFileParameters
     {
         private RollingInterval _interval = RollingInterval.Day;
         private string _folder = Environment.CurrentDirectory;
         private string _fileName = "log.txt";
 
+        public FileParameters()
+            : this( null )
+        {
+        }
+
         public FileParameters(
-            J4JLogger logger
+            J4JLogger? logger
         )
             : base( logger )
         {
@@ -39,19 +44,19 @@ namespace J4JSoftware.Logging
         public RollingInterval RollingInterval
         {
             get => _interval;
-            internal set => SetPropertyAndNotifyLogger( ref _interval, value );
+            set => SetPropertyAndNotifyLogger( ref _interval, value );
         }
 
         public string Folder
         {
             get => _folder;
-            internal set => SetPropertyAndNotifyLogger( ref _folder, value );
+            set => SetPropertyAndNotifyLogger( ref _folder, value );
         }
 
         public string FileName
         {
             get => _folder;
-            internal set => SetPropertyAndNotifyLogger( ref _fileName, value );
+            set => SetPropertyAndNotifyLogger( ref _fileName, value );
         }
 
         public string FileTemplatePath => Path.Combine( Folder, FileName );

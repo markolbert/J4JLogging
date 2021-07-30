@@ -40,47 +40,33 @@ namespace J4JLoggingTests
         static DerivedData()
         {
             var generator = new DataGenerator();
-            var data = generator.CreateData( 20 );
 
-            LoggerInfoItems = data.loggerInfo;
-            FilePaths = data.filePaths;
+            TestData = generator.CreateData( 20 );
 
-            WriteFiles( data.loggerInfo, data.filePaths );
+            WriteFiles();
         }
 
-        public static List<LoggerInfo> LoggerInfoItems { get; }
-        public static List<object[]> FilePaths { get; }
+        public static List<object[]> TestData { get; }
 
-        public static LoggerInfo? GetLoggerInfo( string filePath )
+        private static void WriteFiles()
         {
-            var idx = FilePaths.FindIndex( x =>
-                filePath.Equals( (string) x[ 0 ], StringComparison.OrdinalIgnoreCase ) );
-
-            if( idx < 0 )
-                return null;
-
-            return LoggerInfoItems[ idx ];
-        }
-
-        private static void WriteFiles( List<LoggerInfo> items, List<object[]> filePaths )
-        {
-            if( items.Count != filePaths.Count )
-                throw new ArgumentException( $"Differing number of LoggerInfo items and file paths" );
-
-            for( var idx = 0; idx < items.Count; idx++ )
+            foreach (var item in TestData)
             {
-                var filePath = (string) filePaths[ idx ][ 0 ];
+                var filePath = (string)item[0];
 
-                if( File.Exists( filePath ) )
-                    File.Delete( filePath );
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+
+                var loggerInfo = (LoggerInfo) item[ 1 ];
 
                 var toSerialize = new Derived
                 {
-                    Global = items[ idx ].Global, 
-                    ChannelSpecific = items[ idx ].ChannelSpecific
+                    Global = loggerInfo.Global,
+                    Channels = loggerInfo.Channels,
+                    ChannelSpecific = loggerInfo.ChannelSpecific
                 };
 
-                File.WriteAllText( filePath, JsonSerializer.Serialize( toSerialize, _jsonOptions ) );
+                File.WriteAllText(filePath, JsonSerializer.Serialize(toSerialize, _jsonOptions));
             }
         }
     }

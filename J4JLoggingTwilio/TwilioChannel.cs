@@ -25,11 +25,10 @@ using Serilog.Configuration;
 using Serilog.Formatting.Display;
 using Twilio;
 
-#pragma warning disable 8618
-
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of TwilioChannel
+    [ChannelID("Twilio", typeof(TwilioChannel))]
     public class TwilioChannel : Channel<TwilioParameters>
     {
         public TwilioChannel(

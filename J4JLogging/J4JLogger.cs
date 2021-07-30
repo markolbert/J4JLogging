@@ -118,8 +118,7 @@ namespace J4JSoftware.Logging
                 if( LoggedType != entry.LoggedType)
                     LoggedType = entry.LoggedType;
 
-                if( entry.OutputToSms )
-                    this.OutputNextEventToSms();
+                OutputNextToSms = entry.OutputToSms;
 
                 var contextProperties =
                     InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
@@ -145,7 +144,7 @@ namespace J4JSoftware.Logging
                 LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
             };
 
-            if( !SourcePathIncluded ) 
+            if( !IncludeSourcePath ) 
                 return retVal;
 
             if( !string.IsNullOrEmpty(SourceRootPath ) )
@@ -158,7 +157,7 @@ namespace J4JSoftware.Logging
 
         // Clear the additional LogEvent properties supported by J4JLogger. This must be done
         // after each LogEvent is processed to comply with Serilog's design.
-        private void DisposeContextProperties( List<IDisposable> contextProperties )
+        private static void DisposeContextProperties( List<IDisposable> contextProperties )
         {
             foreach( var contextProperty in contextProperties )
             {

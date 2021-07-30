@@ -18,6 +18,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 
 namespace J4JSoftware.Logging
@@ -38,15 +39,48 @@ namespace J4JSoftware.Logging
             Global = loggingSection.GetSection( globalSettingsName )
                 .Get<ChannelInfo>();
 
+            var specificSection = loggingSection.GetSection( specificSettingsName )
+                .GetChildren()
+                .ToList();
+
             ChannelSpecific = loggingSection.GetSection( specificSettingsName )
-                .Get<Dictionary<string, ChannelInfo>>();
+                .Get<Dictionary<string, ChannelInfo?>>();
         }
 
         public LoggerInfo()
         {
         }
 
+        public string LoggingSectionName { get; set; } = "Logging";
+        public string GlobalSectionName { get; set; } = nameof(Global);
+        public string ChannelsSectionName { get; set; } = nameof(Channels);
+        public string SpecificSectionName { get; set; } = nameof(ChannelSpecific);
+
+        public void Load( IConfiguration config )
+        {
+            var loggingSection = string.IsNullOrEmpty( LoggingSectionName )
+                ? config
+                : config.GetSection( LoggingSectionName );
+
+            Global = loggingSection.GetSection(GlobalSectionName)
+                .Get<ChannelInfo>();
+
+            Channels = loggingSection.GetSection( ChannelsSectionName )
+                .Get<List<string>>();
+
+            var specificSections = loggingSection.GetSection(SpecificSectionName)
+                .GetChildren()
+                .ToList();
+
+            foreach( var section in specificSections )
+            {
+                if( !Channels.Contains( section.Key ) )
+                    Channels.Add( section.Key );
+            }
+        }
+
         public ChannelInfo? Global { get; set; }
-        public Dictionary<string, ChannelInfo>? ChannelSpecific { get; set; }
+        public List<string>? Channels { get; set; }
+        public Dictionary<string, ChannelInfo?>? ChannelSpecific { get; set; }
     }
 }

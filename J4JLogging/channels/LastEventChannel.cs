@@ -24,6 +24,7 @@ namespace J4JSoftware.Logging
 {
     // defines the configuration for a channel that retains the text of the last
     // even logged
+    [ChannelID("LastEvent", typeof(LastEventChannel))]
     public class LastEventChannel : Channel<ChannelParameters>
     {
         public LastEventChannel(

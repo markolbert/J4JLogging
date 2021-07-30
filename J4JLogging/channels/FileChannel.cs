@@ -22,11 +22,10 @@ using System.IO;
 using Serilog;
 using Serilog.Configuration;
 
-#pragma warning disable 8618
-
 namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of FileChannel
+    [ChannelID("File", typeof(FileChannel))]
     public class FileChannel : Channel<FileParameters>
     {
         public FileChannel(

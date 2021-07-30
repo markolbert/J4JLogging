@@ -8,23 +8,27 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
-        public static TwilioChannel AddTwilio(
-            this J4JLogger logger,
-            string accountSID,
-            string accountToken,
-            string fromNumber,
-            LogEventLevel minLevel = LogEventLevel.Verbose )
+        public static TwilioChannel AddTwilio( this J4JLogger logger, ITwilioParameters? parameters = null)
         {
-            var retVal = new TwilioChannel(logger);
+            var retVal = new TwilioChannel( logger );
 
-            retVal.Parameters.MinimumLevel = minLevel;
-            retVal.Parameters.AccountSID = accountSID;
-            retVal.Parameters.AccountToken = accountToken;
-            retVal.Parameters.FromNumber = fromNumber;
+            if( parameters != null )
+                retVal.ApplySettings( parameters );
 
-            logger.Channels.Add(retVal);
+            logger.Channels.Add( retVal );
 
             return retVal;
+        }
+
+        public static TwilioChannel ApplySettings( this TwilioChannel channel, ITwilioParameters values )
+        {
+            channel.Parameters.MinimumLevel = values.MinimumLevel;
+            channel.Parameters.AccountSID = values.AccountSID;
+            channel.Parameters.AccountToken = values.AccountToken;
+            channel.Parameters.FromNumber = values.FromNumber;
+            channel.Parameters.Recipients = values.Recipients;
+
+            return channel;
         }
 
         public static TwilioParameters SetCredentials( this TwilioParameters container, string sid, string token )

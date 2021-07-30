@@ -26,6 +26,7 @@ namespace J4JSoftware.Logging
 {
     // defines the configuration for a channel that retains the text of the last
     // even logged
+    [ChannelID("NetEvent", typeof(NetEventChannel))]
     public class NetEventChannel : Channel<ChannelParameters>
     {
         public const string DefaultNetEventConfigOutputTemplate = "[{Level:u3}] {Message}";

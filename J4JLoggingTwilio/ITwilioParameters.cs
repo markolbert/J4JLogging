@@ -2,7 +2,7 @@
 
 // Copyright 2021 Mark A. Olbert
 // 
-// This library or program 'J4JLogging' is free software: you can redistribute it
+// This library or program 'J4JLoggingTwilio' is free software: you can redistribute it
 // and/or modify it under the terms of the GNU General Public License as
 // published by the Free Software Foundation, either version 3 of the License,
 // or (at your option) any later version.
@@ -17,30 +17,16 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using Serilog;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class TwilioParameters : ChannelParameters, ITwilioParameters
+    public interface ITwilioParameters : IChannelParameters
     {
-        public TwilioParameters()
-            : this( null )
-        {
-        }
-
-        public TwilioParameters(
-            J4JLogger? logger
-        )
-            : base( logger )
-        {
-        }
-
-        public string AccountSID { get; set; } = string.Empty;
-        public string AccountToken { get; set; } = string.Empty;
-        public string FromNumber { get; set; } = string.Empty;
-        public List<string> Recipients { get; set; } = new();
+        string AccountSID { get; set; }
+        string AccountToken { get; set; }
+        string FromNumber { get; set; }
+        List<string> Recipients { get; set; }
     }
 }

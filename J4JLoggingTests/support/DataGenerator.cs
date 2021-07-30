@@ -23,6 +23,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading;
 using J4JSoftware.Logging;
+using Serilog;
 using Serilog.Events;
 
 namespace J4JLoggingTests
@@ -40,49 +41,74 @@ namespace J4JLoggingTests
 
             _levels = Enum.GetValues<LogEventLevel>();
             _channels = new[] { "Console", "Debug", "File", "Twilio", "LastEvent" };
-
-            var data = CreateData(20);
         }
 
-        public (List<LoggerInfo> loggerInfo, List<Object[]> filePaths) CreateData(int numFiles)
+        public J4JLogger Logger { get; } = new();
+
+        public List<object[]> CreateData( int numFiles )
         {
             numFiles = numFiles <= 0 ? 5 : numFiles;
 
-            var loggerInfo = new List<LoggerInfo>();
-            var filePaths = new List<object[]>();
+            var retVal = new List<object[]>();
 
-            for (var idx = 0; idx < numFiles; idx++)
+            for( var idx = 0; idx < numFiles; idx++ )
             {
-                var newLogInfo = new LoggerInfo
+                retVal.Add( new object[]
                 {
-                    Global = GetRandomChannelInfo(),
-                    ChannelSpecific = GetRandomSpecificInfo()
-                };
+                    Path.Combine( Environment.CurrentDirectory, $"config-file-{idx + 1}.json" ),
 
-                loggerInfo.Add(newLogInfo);
-
-                var filePath = Path.Combine(Environment.CurrentDirectory, $"config-file-{idx + 1}.json");
-                filePaths.Add(new object[] { filePath });
+                    new LoggerInfo
+                    {
+                        Global = GetRandomChannelInfo( null ),
+                        ChannelSpecific = GetRandomSpecificInfo()
+                    }
+                } );
             }
 
-            return (loggerInfo, filePaths);
+            return retVal;
         }
 
-        private ChannelInfo GetRandomChannelInfo()
+        private ChannelParameters GetRandomChannelInfo( string? channelName )
         {
-            return new ChannelInfo
+            var retVal = channelName?.ToLower() switch
             {
-                IncludeSourcePath = _random.NextDouble() < 0.5,
-                MinimumLevel = _levels[_random.Next(0, _levels.Length)],
-                OutputTemplate = $"output template {_random.Next(0, 500)}",
-                RequireNewLine = _random.NextDouble() < 0.5,
-                SourceRootPath = $"root path {_random.Next(0, 500)}"
+                "file" => new FileParameters(),
+                "twilio" => new TwilioParameters(),
+                _ => new ChannelParameters()
             };
+
+            if( _random.NextDouble() < 0.5 )
+                retVal.IncludeSourcePath = true;
+
+            retVal.MinimumLevel = _levels[ _random.Next( 0, _levels.Length ) ];
+            retVal.OutputTemplate = $"output template {_random.Next( 0, 500 )}";
+            retVal.RequireNewLine = _random.NextDouble() < 0.5;
+            retVal.SourceRootPath = $"root path {_random.Next( 0, 500 )}";
+
+            switch( retVal )
+            {
+                case FileParameters fileParameters:
+                    fileParameters.SetFileNameStub( $"random-log-file-{_random.Next( 1, 100 )}.txt" );
+                    fileParameters.SetLoggingFolder( $"c:/log-folder-{_random.Next( 1, 100 )}" );
+
+                    fileParameters.SetRollingInterval( _random.NextDouble() > 0.5
+                        ? RollingInterval.Day
+                        : RollingInterval.Hour );
+                    break;
+
+                case TwilioParameters twilioParameters:
+                    twilioParameters.SetAccountToken( $"random-account-token-{_random.Next( 0, 500 )}" );
+                    twilioParameters.SetAccountSID($"random-account-SID-{_random.Next(0, 500)}");
+                    twilioParameters.SetFromNumber($"{_random.Next(100000000,999999999) * 10}");
+                    break;
+            }
+
+            return retVal;
         }
 
-        private Dictionary<string, ChannelInfo> GetRandomSpecificInfo()
+        private Dictionary<string, ChannelParameters> GetRandomSpecificInfo()
         {
-            var retVal = new Dictionary<string, ChannelInfo>();
+            var retVal = new Dictionary<string, ChannelParameters>();
 
             var limit = _random.Next(0, _channels.Length);
 
@@ -93,7 +119,8 @@ namespace J4JLoggingTests
                 if (retVal.ContainsKey(channelName))
                     continue;
 
-                retVal.Add(channelName, GetRandomChannelInfo());
+                if( _random.NextDouble() < 0.5 )
+                    retVal.Add( channelName, GetRandomChannelInfo( channelName ) );
             }
 
             return retVal;

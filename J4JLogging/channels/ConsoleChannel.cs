@@ -25,6 +25,7 @@ namespace J4JSoftware.Logging
     //extern alias SerilogConsole;
 
     // defines the configuration for a console channel
+    [ChannelID("Console", typeof(ConsoleChannel))]
     public class ConsoleChannel : Channel<ChannelParameters>
     {
         public ConsoleChannel(

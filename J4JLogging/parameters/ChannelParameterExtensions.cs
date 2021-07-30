@@ -9,26 +9,6 @@ namespace J4JSoftware.Logging
 {
     public static class ChannelParameterExtensions
     {
-        public static ChannelParameters ApplySettings(this ChannelParameters container, ChannelInfo channelInfo)
-        {
-            container.SourcePathIncluded = channelInfo.IncludeSourcePath;
-            container.MinimumLevel = channelInfo.MinimumLevel;
-            container.OutputTemplate = channelInfo.OutputTemplate;
-            container.RequireNewLine = channelInfo.RequireNewLine;
-            container.SourceRootPath = channelInfo.SourceRootPath;
-
-            if (channelInfo is not FileChannelInfo fileInfo) return container;
-
-            if (container is not FileParameters fileParameters)
-                return container;
-
-            fileInfo.FileName = fileParameters.FileName;
-            fileInfo.Folder = fileParameters.Folder;
-            fileInfo.RollingInterval = fileParameters.RollingInterval;
-
-            return container;
-        }
-
         public static ChannelParameters IncludeSourcePath(this ChannelParameters container )
         {
             container.SourcePathIncluded = true;
@@ -79,7 +59,7 @@ namespace J4JSoftware.Logging
             return container;
         }
 
-        public static ChannelParameters MinimumLevel( this ChannelParameters container, LogEventLevel minLevel)
+        public static ChannelParameters SetMinimumLevel( this ChannelParameters container, LogEventLevel minLevel)
         {
             container.MinimumLevel = minLevel;
             return container;

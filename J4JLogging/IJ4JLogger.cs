@@ -25,7 +25,7 @@ namespace J4JSoftware.Logging
 {
     public interface IJ4JLogger : IChannelParameters
     {
-        Type? LoggedType { get; }
+        Type? LoggedType { get; set; }
 
         J4JBaseLogger SetLoggedType<T>();
         J4JBaseLogger SetLoggedType( Type typeToLog );

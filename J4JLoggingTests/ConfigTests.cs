@@ -15,110 +15,136 @@ namespace J4JLoggingTests
 {
     public class ConfigTests
     {
-        [Theory ]
-        [MemberData(nameof(SimpleData.FilePaths), MemberType = typeof(SimpleData))]
-        public void Simple( string filePath )
+        [ Theory ]
+        [ MemberData( nameof(SimpleData.TestData), MemberType = typeof(SimpleData) ) ]
+        public void Simple( string filePath, LoggerInfo loggerInfo )
         {
-            var loggerInfo = SimpleData.GetLoggerInfo( filePath );
-            loggerInfo.Should().NotBeNull();
-
             var configRoot = new ConfigurationBuilder()
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = new LoggerInfo( configRoot, string.Empty );
-
+            var settings = configRoot.Get<LoggerInfo>();
             settings.Global.Should().NotBeNull();
 
-            ChannelInfoMatches(settings.Global!, loggerInfo!.Global!);
+            CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
 
-            if ( loggerInfo!.ChannelSpecific!.Count == 0 )
-                settings.ChannelSpecific.Should().BeNull();
-            else
+            settings.ChannelSpecific.Should().NotBeNull();
+
+            if( loggerInfo.ChannelSpecific!.Count <= 0 )
+                return;
+
+            foreach( var kvp in settings.ChannelSpecific! )
             {
-                settings.ChannelSpecific.Should().NotBeNull();
-
-                foreach( var kvp in settings.ChannelSpecific! )
-                {
-                    var original = loggerInfo.ChannelSpecific![ kvp.Key ];
-
-                    ChannelInfoMatches( kvp.Value!, original );
-                }
+                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
+                CheckChannelParameters( kvp.Value, original );
             }
         }
 
-        [Theory]
-        [MemberData(nameof(EmbeddedData.FilePaths), MemberType = typeof(EmbeddedData))]
-        public void Embedded(string filePath)
+        [ Theory ]
+        [ MemberData( nameof(EmbeddedData.TestData), MemberType = typeof(EmbeddedData) ) ]
+        public void Embedded( string filePath, LoggerInfo loggerInfo )
         {
-            var loggerInfo = EmbeddedData.GetLoggerInfo(filePath);
-            loggerInfo.Should().NotBeNull();
-
             var configRoot = new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, filePath))
+                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = new LoggerInfo( configRoot.GetSection( nameof(EmbeddedData.Embedded.LoggerInfo) ), string.Empty );
-
+            var settings = configRoot.GetSection( "LoggerInfo" ).Get<LoggerInfo>();
             settings.Global.Should().NotBeNull();
 
-            ChannelInfoMatches(settings.Global!, loggerInfo!.Global!);
+            CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
 
-            if (loggerInfo!.ChannelSpecific!.Count == 0)
-                settings.ChannelSpecific.Should().BeNull();
-            else
+            settings.ChannelSpecific.Should().NotBeNull();
+
+            if( loggerInfo.ChannelSpecific!.Count <= 0 )
+                return;
+
+            settings.ChannelSpecific.Should().NotBeNull();
+
+            foreach( var kvp in settings.ChannelSpecific! )
             {
-                settings.ChannelSpecific.Should().NotBeNull();
-
-                foreach (var kvp in settings.ChannelSpecific!)
-                {
-                    var original = loggerInfo.ChannelSpecific![kvp.Key];
-
-                    ChannelInfoMatches(kvp.Value!, original);
-                }
+                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
+                CheckChannelParameters( kvp.Value, original );
             }
         }
 
-        [Theory]
-        [MemberData(nameof(DerivedData.FilePaths), MemberType = typeof(DerivedData))]
-        public void Derived(string filePath)
+        [ Theory ]
+        [ MemberData( nameof(DerivedData.TestData), MemberType = typeof(DerivedData) ) ]
+        public void Derived( string filePath, LoggerInfo loggerInfo )
         {
-            var loggerInfo = DerivedData.GetLoggerInfo(filePath);
-            loggerInfo.Should().NotBeNull();
-
             var configRoot = new ConfigurationBuilder()
-                .AddJsonFile(Path.Combine(Environment.CurrentDirectory, filePath))
+                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = new LoggerInfo( configRoot, string.Empty );
-
+            var settings = configRoot.Get<LoggerInfo>();
             settings.Global.Should().NotBeNull();
 
-            ChannelInfoMatches(settings.Global!, loggerInfo!.Global!);
+            CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
 
-            if (loggerInfo!.ChannelSpecific!.Count == 0)
-                settings.ChannelSpecific.Should().BeNull();
-            else
+            settings.ChannelSpecific.Should().NotBeNull();
+
+            if( loggerInfo!.ChannelSpecific!.Count <= 0 )
+                return;
+
+            foreach( var kvp in settings.ChannelSpecific! )
             {
-                settings.ChannelSpecific.Should().NotBeNull();
-
-                foreach (var kvp in settings.ChannelSpecific!)
-                {
-                    var original = loggerInfo.ChannelSpecific![kvp.Key];
-
-                    ChannelInfoMatches(kvp.Value!, original);
-                }
+                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
+                CheckChannelParameters( kvp.Value, original );
             }
         }
 
-        private void ChannelInfoMatches( ChannelInfo parsed, ChannelInfo original )
+        private static void CheckChannelParameters( ChannelParameters parsed, ChannelParameters original )
         {
-            parsed.IncludeSourcePath.Should().Be(original.IncludeSourcePath);
-            parsed.MinimumLevel.Should().Be(original.MinimumLevel);
-            parsed.OutputTemplate.Should().Be(original.OutputTemplate);
-            parsed.RequireNewLine.Should().Be(original.RequireNewLine);
-            parsed.SourceRootPath.Should().Be(original.SourceRootPath);
+            switch( parsed )
+            {
+                case FileParameters fileParsed:
+                    if( original is not FileParameters fileOriginal )
+                        throw new ArgumentException(
+                            $"Original parameter type ({original.GetType()}) does not match parsed parameter type ({parsed.GetType()})" );
+
+                    CheckFileParameters( fileParsed, fileOriginal );
+
+                    break;
+
+                case TwilioParameters twilioParsed:
+                    if( original is not TwilioParameters twilioOriginal )
+                        throw new ArgumentException(
+                            $"Original parameter type ({original.GetType()}) does not match parsed parameter type ({parsed.GetType()})" );
+
+                    CheckTwilioParameters( twilioParsed, twilioOriginal );
+
+                    break;
+
+                default:
+                    CheckCommonParameters( parsed, original );
+                    break;
+            }
         }
 
+        private static void CheckCommonParameters( ChannelParameters parsed, ChannelParameters original )
+        {
+            parsed.IncludeSourcePath.Should().Be( original.IncludeSourcePath );
+            parsed.MinimumLevel.Should().Be( original.MinimumLevel );
+            parsed.OutputTemplate.Should().Be( original.OutputTemplate );
+            parsed.RequireNewLine.Should().Be( original.RequireNewLine );
+            parsed.SourceRootPath.Should().Be( original.SourceRootPath );
+        }
+
+        private static void CheckFileParameters( FileParameters parsed, FileParameters original )
+        {
+            CheckCommonParameters( parsed, original );
+
+            parsed.RollingInterval.Should().Be( original.RollingInterval );
+            parsed.Folder.Should().Be( original.Folder );
+            parsed.FileName.Should().Be( original.FileName );
+        }
+
+        private static void CheckTwilioParameters( TwilioParameters parsed, TwilioParameters original )
+        {
+            CheckCommonParameters( parsed, original );
+
+            parsed.AccountToken.Should().Be( original.AccountToken );
+            parsed.AccountSID.Should().Be( original.AccountSID );
+            parsed.FromNumber.Should().Be( original.FromNumber );
+        }
     }
 }

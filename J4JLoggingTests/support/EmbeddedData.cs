@@ -33,6 +33,7 @@ namespace J4JLoggingTests
         public class Embedded
         {
             public LoggerInfo? LoggerInfo { get; set; }
+            public string SomeOtherText { get; set; } = nameof(SomeOtherText);
         }
 
         private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
@@ -40,43 +41,32 @@ namespace J4JLoggingTests
         static EmbeddedData()
         {
             var generator = new DataGenerator();
-            var data = generator.CreateData( 20 );
 
-            LoggerInfoItems = data.loggerInfo;
-            FilePaths = data.filePaths;
+            TestData = generator.CreateData( 20 );
 
-            WriteFiles( data.loggerInfo, data.filePaths );
+            WriteFiles();
         }
 
-        public static List<LoggerInfo> LoggerInfoItems { get; }
-        public static List<object[]> FilePaths { get; }
+        public static List<object[]> TestData { get; }
 
-        public static LoggerInfo? GetLoggerInfo( string filePath )
+        private static void WriteFiles()
         {
-            var idx = FilePaths.FindIndex( x =>
-                filePath.Equals( (string) x[ 0 ], StringComparison.OrdinalIgnoreCase ) );
-
-            if( idx < 0 )
-                return null;
-
-            return LoggerInfoItems[ idx ];
-        }
-
-        private static void WriteFiles( List<LoggerInfo> items, List<object[]> filePaths )
-        {
-            if( items.Count != filePaths.Count )
-                throw new ArgumentException( $"Differing number of LoggerInfo items and file paths" );
-
-            for( var idx = 0; idx < items.Count; idx++ )
+            for( var idx = 0; idx < TestData.Count; idx++ )
             {
-                var filePath = (string) filePaths[ idx ][ 0 ];
+                var item = TestData[ idx ];
 
-                if( File.Exists( filePath ) )
-                    File.Delete( filePath );
+                var filePath = (string)item[0];
 
-                var toSerialize = new Embedded() { LoggerInfo = items[ idx ] };
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
 
-                File.WriteAllText( filePath, JsonSerializer.Serialize( toSerialize, _jsonOptions ) );
+                var toSerialize = new Embedded
+                {
+                    LoggerInfo = (LoggerInfo) item[ 1 ],
+                    SomeOtherText = $"Some Other Text {idx + 1}"
+                };
+
+                File.WriteAllText(filePath, JsonSerializer.Serialize(toSerialize, _jsonOptions));
             }
         }
     }

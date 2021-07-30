@@ -18,29 +18,30 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public class TwilioParameters : ChannelParameters, ITwilioParameters
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class ChannelIDAttribute : Attribute
     {
-        public TwilioParameters()
-            : this( null )
+        public ChannelIDAttribute( string name, Type channelType )
         {
+            if( string.IsNullOrEmpty( name ) )
+                throw new ArgumentException( "Supplied J4JLogger Channel name cannot be empty" );
+
+            Name = name;
+
+            if( !channelType.IsGenericType
+                || channelType.GetGenericTypeDefinition() != typeof(Channel<>) )
+                throw new ArgumentException( $"Supplied type '{channelType.Name}' is not derived from Channel<>" );
+
+            ChannelType = channelType;
+
+            ParametersType = channelType.GetGenericArguments()[ 0 ];
         }
 
-        public TwilioParameters(
-            J4JLogger? logger
-        )
-            : base( logger )
-        {
-        }
-
-        public string AccountSID { get; set; } = string.Empty;
-        public string AccountToken { get; set; } = string.Empty;
-        public string FromNumber { get; set; } = string.Empty;
-        public List<string> Recipients { get; set; } = new();
+        public string Name { get; }
+        public Type ChannelType { get; }
+        public Type ParametersType { get; }
     }
 }

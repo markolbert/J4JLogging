@@ -35,41 +35,24 @@ namespace J4JLoggingTests
         static SimpleData()
         {
             var generator = new DataGenerator();
-            var data = generator.CreateData(20);
+            
+            TestData = generator.CreateData(20);
 
-            LoggerInfoItems = data.loggerInfo;
-            FilePaths = data.filePaths;
-
-            WriteFiles( data.loggerInfo, data.filePaths );
+            WriteFiles();
         }
 
-        public static List<LoggerInfo> LoggerInfoItems { get; }
-        public static List<object[]> FilePaths { get; }
+        public static List<object[]> TestData { get; }
 
-        public static LoggerInfo? GetLoggerInfo( string filePath )
+        private static void WriteFiles()
         {
-            var idx = FilePaths.FindIndex( x =>
-                filePath.Equals( (string) x[ 0 ], StringComparison.OrdinalIgnoreCase ) );
-
-            if( idx < 0 )
-                return null;
-
-            return LoggerInfoItems[ idx ];
-        }
-
-        private static void WriteFiles( List<LoggerInfo> items, List<object[]> filePaths )
-        {
-            if( items.Count != filePaths.Count )
-                throw new ArgumentException( $"Differing number of LoggerInfo items and file paths" );
-
-            for (var idx = 0; idx < items.Count; idx++)
+            foreach( var item in TestData )
             {
-                var filePath = (string) filePaths[ idx ][ 0 ];
+                var filePath = (string) item[ 0 ];
 
                 if (File.Exists(filePath))
                     File.Delete(filePath);
 
-                File.WriteAllText( filePath, JsonSerializer.Serialize( items[ idx ], _jsonOptions ) );
+                File.WriteAllText( filePath, JsonSerializer.Serialize( item[1], _jsonOptions ) );
             }
         }
     }

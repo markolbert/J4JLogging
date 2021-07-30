@@ -17,30 +17,15 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using Serilog;
+using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public class TwilioParameters : ChannelParameters, ITwilioParameters
+    public interface IFileParameters : IChannelParameters
     {
-        public TwilioParameters()
-            : this( null )
-        {
-        }
-
-        public TwilioParameters(
-            J4JLogger? logger
-        )
-            : base( logger )
-        {
-        }
-
-        public string AccountSID { get; set; } = string.Empty;
-        public string AccountToken { get; set; } = string.Empty;
-        public string FromNumber { get; set; } = string.Empty;
-        public List<string> Recipients { get; set; } = new();
+        RollingInterval RollingInterval { get; set; }
+        string Folder { get; set; }
+        string FileName { get; set; }
     }
 }

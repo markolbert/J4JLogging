@@ -18,20 +18,40 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using FluentAssertions;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
+using Serilog.Events;
 using Xunit;
 
 namespace J4JLoggingTests
 {
     public class LoggingTests
     {
-        private string _acctSID;
-        private string _acctToken;
-        private string _fromNumber;
+        private class TwilioInfo : ITwilioParameters
+        {
+            public TwilioInfo( IConfiguration config )
+            {
+                AccountSID = config.GetValue<string>( "twilio:AccountSID" );
+                AccountToken = config.GetValue<string>( "twilio:AccountToken" );
+                FromNumber = config.GetValue<string>( "twilio:FromNumber" );
+            }
+
+            public bool IncludeSourcePath { get; set; } = true;
+            public string? SourceRootPath { get; set; } = null;
+            public string OutputTemplate { get; set; } = J4JBaseLogger.DefaultOutputTemplate;
+            public bool RequireNewLine { get; set; } = true;
+            public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
+            public string AccountSID { get; set; }
+            public string AccountToken { get; set; }
+            public string FromNumber { get; set; }
+            public List<string> Recipients { get; set; } = new();
+        }
+
+        private readonly TwilioInfo _twilioInfo;
 
         public LoggingTests()
         {
@@ -41,9 +61,7 @@ namespace J4JLoggingTests
                 .AddUserSecrets<LoggingTests>()
                 .Build();
 
-            _acctSID = config.GetValue<string>( "twilio:AccountSID" );
-            _acctToken = config.GetValue<string>( "twilio:AccountToken" );
-            _fromNumber = config.GetValue<string>( "twilio:FromNumber" );
+            _twilioInfo = new TwilioInfo( config );
         }
 
         [ Fact ]
@@ -52,8 +70,8 @@ namespace J4JLoggingTests
             var logger = new J4JLogger();
 
             logger.AddDebug();
-            
-            var twilio = logger.AddTwilio( _acctSID, _acctToken, _fromNumber );
+
+            var twilio = logger.AddTwilio( _twilioInfo );
             twilio.Parameters!.Recipients.Add( "+1 650 868 3367" );
 
             var lastEvent = (LastEventChannel) logger.AddChannel<LastEventChannel>();
@@ -88,32 +106,32 @@ namespace J4JLoggingTests
             }
         }
 
-        [Fact]
+        [ Fact ]
         public void Cached()
         {
             var cached = new J4JCachedLogger();
-            cached.SetLoggedType(GetType());
+            cached.SetLoggedType( GetType() );
 
             var template = "{0} (test message)";
 
-            cached.Verbose<string>(template, "Verbose");
-            cached.Warning<string>(template, "Warning");
-            cached.Information<string>(template, "Information");
-            cached.Debug<string>(template, "Debug");
-            cached.Error<string>(template, "Error");
-            cached.Fatal<string>(template, "Fatal");
-            cached.OutputNextEventToSms().Verbose<string>("{0} (test message)", "Verbose");
+            cached.Verbose<string>( template, "Verbose" );
+            cached.Warning<string>( template, "Warning" );
+            cached.Information<string>( template, "Information" );
+            cached.Debug<string>( template, "Debug" );
+            cached.Error<string>( template, "Error" );
+            cached.Fatal<string>( template, "Fatal" );
+            cached.OutputNextEventToSms().Verbose<string>( "{0} (test message)", "Verbose" );
 
             var logger = new J4JLogger();
 
             logger.AddDebug();
 
-            var twilio = logger.AddTwilio(_acctSID, _acctToken, _fromNumber);
-            twilio.Parameters!.Recipients.Add("+1 650 868 3367");
+            var twilio = logger.AddTwilio( _twilioInfo );
+            twilio.Parameters!.Recipients.Add( "+1 650 868 3367" );
 
-            var lastEvent = (LastEventChannel)logger.AddChannel<LastEventChannel>();
+            var lastEvent = (LastEventChannel) logger.AddChannel<LastEventChannel>();
 
-            logger.SetLoggedType(GetType());
+            logger.SetLoggedType( GetType() );
 
             foreach( var entry in cached.Entries )
             {
@@ -130,9 +148,9 @@ namespace J4JLoggingTests
                 lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
             }
 
-            string format_message(string prop1)
+            string format_message( string prop1 )
             {
-                return template.Replace("{0}", $"\"{prop1}\"");
+                return template.Replace( "{0}", $"\"{prop1}\"" );
             }
         }
     }

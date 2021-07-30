@@ -18,11 +18,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Events;
-
-#pragma warning disable 8604
 
 namespace J4JSoftware.Logging
 {
@@ -32,7 +31,11 @@ namespace J4JSoftware.Logging
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
 
         private Type? _loggedType;
-
+        private string _outputTemplate = DefaultOutputTemplate;
+        private bool _srcPathIncluded = true;
+        private bool _requireNewLine;
+        private LogEventLevel _minLevel = LogEventLevel.Verbose;
+        
         protected J4JBaseLogger()
         {
         }
@@ -41,26 +44,24 @@ namespace J4JSoftware.Logging
         {
         }
 
-        #region Global parameters
+        #region Logged Type
 
         public Type? LoggedType
         {
             get => _loggedType;
 
-            protected set
+            set
             {
                 var changed = _loggedType != value;
 
                 _loggedType = value;
 
-                if( changed )
+                if (changed)
                     OnLoggedTypeChanged();
             }
         }
 
         protected abstract void OnLoggedTypeChanged();
-
-        public abstract bool OutputCache( J4JCachedLogger cachedLogger );
 
         public J4JBaseLogger SetLoggedType<TLogged>() => SetLoggedType(typeof(TLogged));
 
@@ -76,21 +77,67 @@ namespace J4JSoftware.Logging
             return this;
         }
 
-        public bool SourcePathIncluded { get; internal set; }
-        public string? SourceRootPath { get; internal set; }
-        public string OutputTemplate { get; internal set; } = DefaultOutputTemplate;
-        public bool RequireNewLine { get; internal set; }
-        public LogEventLevel MinimumLevel { get; internal set; } = LogEventLevel.Verbose;
+        #endregion
+
+        #region Global parameters
+
+        public bool IncludeSourcePath
+        {
+            get => _srcPathIncluded;
+            set => SetPropertyAndResetBaseLogger( ref _srcPathIncluded, value );
+        }
+
+        public string? SourceRootPath { get; set; }
+
+        public string OutputTemplate
+        {
+            get => _outputTemplate;
+            set => SetPropertyAndResetBaseLogger( ref _outputTemplate, value );
+        }
+
+        public bool RequireNewLine
+        {
+            get => _requireNewLine;
+            set => SetPropertyAndResetBaseLogger( ref _requireNewLine, value );
+        }
+
+        public LogEventLevel MinimumLevel
+        {
+            get => _minLevel;
+            set => SetPropertyAndResetBaseLogger( ref _minLevel, value );
+        }
+
+        private void SetPropertyAndResetBaseLogger<TProp>(ref TProp field, TProp value)
+        {
+            var changed = !EqualityComparer<TProp>.Default.Equals(field, value);
+
+            field = value;
+
+            if (changed)
+                ResetBaseLogger();
+        }
 
         #endregion
 
-        protected internal bool OutputNextToSms { get; set; }
+        #region SMS handling 
+
+        public J4JBaseLogger OutputNextEventToSms()
+        {
+            OutputNextToSms = true;
+            return this;
+        }
+
+        protected bool OutputNextToSms { get; set; }
 
         protected void ResetSms()
         {
-            if( OutputNextToSms )
+            if (OutputNextToSms)
                 OutputNextToSms = false;
         }
+
+        #endregion
+
+        public abstract bool OutputCache(J4JCachedLogger cachedLogger);
 
         #region Write methods
 

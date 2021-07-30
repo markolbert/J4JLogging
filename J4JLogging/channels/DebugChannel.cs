@@ -23,6 +23,7 @@ using Serilog.Configuration;
 namespace J4JSoftware.Logging
 {
     // defines the configuration for a debug channel
+    [ChannelID("Debug", typeof(DebugChannel))]
     public class DebugChannel : Channel<ChannelParameters>
     {
         public DebugChannel(
