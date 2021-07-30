@@ -18,68 +18,6 @@ namespace J4JSoftware.Logging
             return () => compiled(logger);
         }
 
-        //public static J4JBaseLogger IncludeSourcePath(this J4JBaseLogger container )
-        //{
-        //    container.SourcePathIncluded = true;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger ExcludeSourcePath(this J4JBaseLogger container)
-        //{
-        //    container.SourcePathIncluded = false;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger SetSourceRootPath( this J4JBaseLogger container, string path)
-        //{
-        //    container.SourcePathIncluded = true;
-        //    container.SourceRootPath = path;
-
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger ClearSourceRootPath( this J4JBaseLogger container)
-        //{
-        //    container.SourceRootPath = null;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger SetOutputTemplate( this J4JBaseLogger container, string template)
-        //{
-        //    container.OutputTemplate = template;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger ResetOutputTemplate( this J4JBaseLogger container)
-        //{
-        //    container.OutputTemplate = J4JBaseLogger.DefaultOutputTemplate;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger UseNewLineInOutput( this J4JBaseLogger container)
-        //{
-        //    container.RequireNewLine = true;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger ClearNewLineInOutput( this J4JBaseLogger container)
-        //{
-        //    container.RequireNewLine = false;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger MinimumLevel( this J4JBaseLogger container, LogEventLevel minLevel)
-        //{
-        //    container.MinimumLevel = minLevel;
-        //    return container;
-        //}
-
-        //public static J4JBaseLogger OutputNextEventToSms( this J4JBaseLogger logger )
-        //{
-        //    logger.OutputNextToSms = true;
-        //    return logger;
-        //}
-
         public static IChannel AddChannel<T>( this J4JLogger logger )
             where T : class, IChannel
         {

@@ -24,17 +24,14 @@
 	<ItemGroup>
 		<Compile Remove="channels\file\**" />
 		<Compile Remove="configuration\**" />
-		<Compile Remove="config\**" />
 		<Compile Remove="converters\**" />
 		<Compile Remove="docs\**" />
 		<EmbeddedResource Remove="channels\file\**" />
 		<EmbeddedResource Remove="configuration\**" />
-		<EmbeddedResource Remove="config\**" />
 		<EmbeddedResource Remove="converters\**" />
 		<EmbeddedResource Remove="docs\**" />
 		<None Remove="channels\file\**" />
 		<None Remove="configuration\**" />
-		<None Remove="config\**" />
 		<None Remove="converters\**" />
 		<None Remove="docs\**" />
 		<Compile Remove="cached\CachedEntries.cs" />

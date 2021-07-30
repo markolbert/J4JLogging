@@ -22,10 +22,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="TwilioChannelInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
   </ItemGroup>
 

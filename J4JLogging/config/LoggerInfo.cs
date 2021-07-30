@@ -17,70 +17,45 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 
 namespace J4JSoftware.Logging
 {
     public class LoggerInfo
     {
-        public LoggerInfo( 
-            IConfiguration configRoot,
-            string loggingSectionName = "Logging",
-            string globalSettingsName = nameof(Global),
-            string specificSettingsName = nameof(ChannelSpecific)
-            )
+        public static LoggerInfo Create(IConfiguration config)
         {
-            var loggingSection = string.IsNullOrEmpty( loggingSectionName )
-                ? configRoot
-                : configRoot.GetSection( loggingSectionName );
+            var retVal = new LoggerInfo
+            {
+                Global = config.GetSection( nameof(Global) ).Get<ChannelParameters>() ?? new ChannelParameters( null ),
+                Channels = config.GetSection( nameof(Channels) ).Get<List<string>>() ?? new List<string>(),
+                ChannelSpecific = config.GetSection( nameof(ChannelSpecific) )
+                    .Get<Dictionary<string, ChannelParameters>>() ?? new Dictionary<string, ChannelParameters>()
+            };
 
-            Global = loggingSection.GetSection( globalSettingsName )
-                .Get<ChannelInfo>();
+            // make sure all the channels specified in ChannelSpecific also appear in Channels
+            foreach (var kvp in retVal.ChannelSpecific)
+            {
+                if (!retVal.Channels.Any(x => x.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase)))
+                    retVal.Channels.Add(kvp.Key);
+            }
 
-            var specificSection = loggingSection.GetSection( specificSettingsName )
-                .GetChildren()
-                .ToList();
-
-            ChannelSpecific = loggingSection.GetSection( specificSettingsName )
-                .Get<Dictionary<string, ChannelInfo?>>();
+            return retVal;
         }
 
         public LoggerInfo()
         {
+            Global = new ChannelParameters( null );
+            Channels = new List<string>();
+            ChannelSpecific = new Dictionary<string, ChannelParameters>();
         }
 
-        public string LoggingSectionName { get; set; } = "Logging";
-        public string GlobalSectionName { get; set; } = nameof(Global);
-        public string ChannelsSectionName { get; set; } = nameof(Channels);
-        public string SpecificSectionName { get; set; } = nameof(ChannelSpecific);
-
-        public void Load( IConfiguration config )
-        {
-            var loggingSection = string.IsNullOrEmpty( LoggingSectionName )
-                ? config
-                : config.GetSection( LoggingSectionName );
-
-            Global = loggingSection.GetSection(GlobalSectionName)
-                .Get<ChannelInfo>();
-
-            Channels = loggingSection.GetSection( ChannelsSectionName )
-                .Get<List<string>>();
-
-            var specificSections = loggingSection.GetSection(SpecificSectionName)
-                .GetChildren()
-                .ToList();
-
-            foreach( var section in specificSections )
-            {
-                if( !Channels.Contains( section.Key ) )
-                    Channels.Add( section.Key );
-            }
-        }
-
-        public ChannelInfo? Global { get; set; }
-        public List<string>? Channels { get; set; }
-        public Dictionary<string, ChannelInfo?>? ChannelSpecific { get; set; }
+        public ChannelParameters Global { get; set; }
+        public List<string> Channels { get; set; }
+        public Dictionary<string, ChannelParameters> ChannelSpecific { get; set; }
     }
 }
