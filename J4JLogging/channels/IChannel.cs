@@ -25,9 +25,16 @@ namespace J4JSoftware.Logging
 {
     public interface IChannel
     {
+        J4JLogger Logger { get; }
         LogEventLevel MinimumLevel { get; }
         string EnrichedMessageTemplate { get; }
 
         LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+    }
+
+    public interface IChannel<out TParameters> : IChannel
+        where TParameters : ChannelParameters
+    {
+        TParameters Parameters { get; }
     }
 }

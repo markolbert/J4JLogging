@@ -26,7 +26,7 @@ using Serilog.Events;
 namespace J4JSoftware.Logging
 {
     // defines the base configuration for a log channel
-    public abstract class Channel<TParameters> : IChannel
+    public abstract class Channel<TParameters> : IChannel<TParameters>
         where TParameters : ChannelParameters
     {
         protected Channel(
