@@ -25,16 +25,21 @@ namespace J4JSoftware.Logging
 {
     public interface IChannel
     {
-        J4JLogger Logger { get; }
-        LogEventLevel MinimumLevel { get; }
+        bool IncludeSourcePath { get; set; }
+        string? SourceRootPath { get; set; }
+        string OutputTemplate { get; set; }
+        bool RequireNewLine { get; set; }
+        LogEventLevel MinimumLevel { get; set; }
+        
         string EnrichedMessageTemplate { get; }
 
-        LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
-    }
+        void ResetIncludeSourcePath();
+        void ResetOutputTemplate();
+        void ResetRequireNewLine();
+        void ResetMinimumLevel();
+        void ResetToGlobal();
 
-    public interface IChannel<out TParameters> : IChannel
-        where TParameters : ChannelParameters
-    {
-        TParameters Parameters { get; }
+        void SetAssociatedLogger(J4JBaseLogger? logger);
+        LoggerConfiguration Configure(LoggerSinkConfiguration sinkConfig);
     }
 }

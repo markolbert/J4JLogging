@@ -24,15 +24,8 @@ namespace J4JSoftware.Logging
 {
     // defines the configuration for a debug channel
     [ChannelID("Debug", typeof(DebugChannel))]
-    public class DebugChannel : Channel<ChannelParameters>
+    public class DebugChannel : Channel
     {
-        public DebugChannel(
-            J4JLogger logger
-        )
-            : base(logger)
-        {
-        }
-
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
             return sinkConfig.Debug( MinimumLevel, EnrichedMessageTemplate );

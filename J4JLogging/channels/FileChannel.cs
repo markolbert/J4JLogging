@@ -26,21 +26,38 @@ namespace J4JSoftware.Logging
 {
     // Base class for containing the information needed to configure an instance of FileChannel
     [ChannelID("File", typeof(FileChannel))]
-    public class FileChannel : Channel<FileParameters>
+    public class FileChannel : Channel
     {
-        public FileChannel(
-            J4JLogger logger
-        )
-            : base(logger)
+        private RollingInterval _interval = RollingInterval.Day;
+        private string _folder = Environment.CurrentDirectory;
+        private string _fileName = "log.txt";
+
+        public RollingInterval RollingInterval
         {
+            get => _interval;
+            set => SetPropertyAndNotifyLogger(ref _interval, value);
         }
+
+        public string Folder
+        {
+            get => _folder;
+            set => SetPropertyAndNotifyLogger(ref _folder, value);
+        }
+
+        public string FileName
+        {
+            get => _folder;
+            set => SetPropertyAndNotifyLogger(ref _fileName, value);
+        }
+
+        public string FileTemplatePath => Path.Combine(Folder, FileName);
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
         {
-            return sinkConfig.File( Parameters!.FileTemplatePath,
+            return sinkConfig.File( FileTemplatePath,
                 MinimumLevel,
                 EnrichedMessageTemplate,
-                rollingInterval: Parameters?.RollingInterval ?? RollingInterval.Day);
+                rollingInterval: RollingInterval);
         }
     }
 }

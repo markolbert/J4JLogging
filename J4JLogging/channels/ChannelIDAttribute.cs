@@ -32,39 +32,20 @@ namespace J4JSoftware.Logging
 
             Name = name;
 
-            if( channelType.IsGenericType )
-                throw new ArgumentException($"Supplied type '{channelType.Name}' is a generic type");
+            if( !typeof(IChannel).IsAssignableFrom(channelType))
+                throw new ArgumentException($"Supplied type '{channelType.Name}' does not implement {nameof(IChannel)}");
 
             if (channelType.IsAbstract)
                 throw new ArgumentException($"Supplied type '{channelType.Name}' is an abstract type");
 
-            if( !channelType.GetConstructors().Any( c =>
-            {
-                var parameters = c.GetParameters();
-
-                return parameters.Length == 1
-                       && typeof(J4JLogger).IsAssignableFrom( parameters[ 0 ].ParameterType );
-            } ) )
+            if( channelType.GetConstructors().All( c => c.GetParameters().Length != 0 ) )
                 throw new ArgumentException(
-                    $"Supplied type '{channelType.Name}' does not have a public constructor taking a single {nameof(J4JLogger)} parameter" );
-
-            var channelInterface = channelType.GetInterfaces()
-                .FirstOrDefault( i => i.IsGenericType
-                                      && typeof(IChannel<>) == i.GetGenericTypeDefinition()
-                                      && i.GenericTypeArguments.Length == 1
-                                      && typeof(ChannelParameters).IsAssignableFrom( i.GenericTypeArguments[ 0 ] ) );
-
-            if( channelInterface == null )
-                throw new ArgumentException(
-                    $"Supplied type '{channelType.Name}' does not implement {typeof(IChannel<>)}" );
+                    $"Supplied type '{channelType.Name}' does not have a public parameterless constructor" );
 
             ChannelType = channelType;
-
-            ParametersType = channelInterface.GenericTypeArguments[ 0 ];
         }
 
         public string Name { get; }
         public Type ChannelType { get; }
-        public Type ParametersType { get; }
     }
 }

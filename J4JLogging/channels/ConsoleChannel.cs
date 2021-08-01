@@ -26,13 +26,12 @@ namespace J4JSoftware.Logging
 
     // defines the configuration for a console channel
     [ChannelID("Console", typeof(ConsoleChannel))]
-    public class ConsoleChannel : Channel<ChannelParameters>
+    public class ConsoleChannel : Channel
     {
-        public ConsoleChannel(
-            J4JLogger logger
-        )
-            : base( logger )
+        public ConsoleChannel()
         {
+            // consoles generally need this, so override the default
+            RequireNewLine = true;
         }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )

@@ -25,15 +25,8 @@ namespace J4JSoftware.Logging
     // defines the configuration for a channel that retains the text of the last
     // even logged
     [ChannelID("LastEvent", typeof(LastEventChannel))]
-    public class LastEventChannel : Channel<ChannelParameters>
+    public class LastEventChannel : Channel
     {
-        public LastEventChannel(
-            J4JLogger logger
-        )
-            : base(logger)
-        {
-        }
-
         public string? LastLogMessage { get; private set; }
 
         public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
