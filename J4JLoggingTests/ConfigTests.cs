@@ -23,21 +23,9 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = LoggerInfo.Create( configRoot );
-            settings.Global.Should().NotBeNull();
+            var settings = configRoot.Get<LoggerInfo>();
 
-            CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
-
-            settings.ChannelSpecific.Should().NotBeNull();
-
-            if( loggerInfo.ChannelSpecific!.Count <= 0 )
-                return;
-
-            foreach( var kvp in settings.ChannelSpecific! )
-            {
-                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
-                CheckChannelParameters( kvp.Value, original );
-            }
+            CheckSourceVersusStored( loggerInfo, settings );
         }
 
         [ Theory ]
@@ -48,23 +36,9 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = LoggerInfo.Create(configRoot.GetSection("LoggerInfo"));
-            settings.Global.Should().NotBeNull();
+            var settings = configRoot.GetSection( "LoggerInfo" ).Get<LoggerInfo>();
 
-            CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
-
-            settings.ChannelSpecific.Should().NotBeNull();
-
-            if( loggerInfo.ChannelSpecific!.Count <= 0 )
-                return;
-
-            settings.ChannelSpecific.Should().NotBeNull();
-
-            foreach( var kvp in settings.ChannelSpecific! )
-            {
-                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
-                CheckChannelParameters( kvp.Value, original );
-            }
+            CheckSourceVersusStored( loggerInfo, settings );
         }
 
         [ Theory ]
@@ -75,29 +49,39 @@ namespace J4JLoggingTests
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, filePath ) )
                 .Build();
 
-            var settings = LoggerInfo.Create(configRoot);
+            var settings = configRoot.Get<LoggerInfo>();
+
+            CheckSourceVersusStored( loggerInfo, settings );
+        }
+
+        private void CheckSourceVersusStored( LoggerInfo loggerInfo, LoggerInfo settings )
+        {
             settings.Global.Should().NotBeNull();
 
             CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
 
-            settings.ChannelSpecific.Should().NotBeNull();
-
-            if( loggerInfo!.ChannelSpecific!.Count <= 0 )
-                return;
-
-            foreach( var kvp in settings.ChannelSpecific! )
+            if( loggerInfo.ChannelSpecific == null || loggerInfo.ChannelSpecific.Count == 0 )
+                settings.ChannelSpecific.Should().BeNull();
+            else
             {
-                var original = loggerInfo.ChannelSpecific![ kvp.Key ];
-                CheckChannelParameters( kvp.Value, original );
+                settings.ChannelSpecific.Should().NotBeNull();
+
+                foreach( var kvp in settings.ChannelSpecific! )
+                {
+                    var original = loggerInfo.ChannelSpecific![ kvp.Key ];
+                    CheckChannelParameters( kvp.Value, original );
+                }
             }
         }
 
-        private static void CheckChannelParameters( ChannelParameters parsed, ChannelParameters original )
+        private static void CheckChannelParameters(
+            ChannelConfiguration parsed,
+            ChannelConfiguration original )
         {
             switch( parsed )
             {
-                case FileParameters fileParsed:
-                    if( original is not FileParameters fileOriginal )
+                case FileConfiguration fileParsed:
+                    if( original is not FileConfiguration fileOriginal )
                         throw new ArgumentException(
                             $"Original parameter type ({original.GetType()}) does not match parsed parameter type ({parsed.GetType()})" );
 
@@ -105,8 +89,8 @@ namespace J4JLoggingTests
 
                     break;
 
-                case TwilioParameters twilioParsed:
-                    if( original is not TwilioParameters twilioOriginal )
+                case TwilioConfiguration twilioParsed:
+                    if( original is not TwilioConfiguration twilioOriginal )
                         throw new ArgumentException(
                             $"Original parameter type ({original.GetType()}) does not match parsed parameter type ({parsed.GetType()})" );
 
@@ -120,7 +104,9 @@ namespace J4JLoggingTests
             }
         }
 
-        private static void CheckCommonParameters( ChannelParameters parsed, ChannelParameters original )
+        private static void CheckCommonParameters(
+            ChannelConfiguration parsed,
+            ChannelConfiguration original )
         {
             parsed.IncludeSourcePath.Should().Be( original.IncludeSourcePath );
             parsed.MinimumLevel.Should().Be( original.MinimumLevel );
@@ -129,7 +115,9 @@ namespace J4JLoggingTests
             parsed.SourceRootPath.Should().Be( original.SourceRootPath );
         }
 
-        private static void CheckFileParameters( FileParameters parsed, FileParameters original )
+        private static void CheckFileParameters(
+            FileConfiguration parsed,
+            FileConfiguration original )
         {
             CheckCommonParameters( parsed, original );
 
@@ -138,7 +126,9 @@ namespace J4JLoggingTests
             parsed.FileName.Should().Be( original.FileName );
         }
 
-        private static void CheckTwilioParameters( TwilioParameters parsed, TwilioParameters original )
+        private static void CheckTwilioParameters(
+            TwilioConfiguration parsed,
+            TwilioConfiguration original )
         {
             CheckCommonParameters( parsed, original );
 

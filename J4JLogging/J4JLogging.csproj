@@ -26,14 +26,17 @@
 		<Compile Remove="configuration\**" />
 		<Compile Remove="converters\**" />
 		<Compile Remove="docs\**" />
+		<Compile Remove="parameters\**" />
 		<EmbeddedResource Remove="channels\file\**" />
 		<EmbeddedResource Remove="configuration\**" />
 		<EmbeddedResource Remove="converters\**" />
 		<EmbeddedResource Remove="docs\**" />
+		<EmbeddedResource Remove="parameters\**" />
 		<None Remove="channels\file\**" />
 		<None Remove="configuration\**" />
 		<None Remove="converters\**" />
 		<None Remove="docs\**" />
+		<None Remove="parameters\**" />
 		<Compile Remove="cached\CachedEntries.cs" />
 		<Compile Remove="cached\J4JCachedLoggerInternal.cs" />
 		<Compile Remove="cached\J4JLoggerCache.cs" />
@@ -42,10 +45,11 @@
 		<Compile Remove="channels\IChannelConfigOld.cs" />
 		<Compile Remove="channels\J4JChannelExtensions.cs" />
 		<Compile Remove="channels\TwilioConfig.cs" />
+		<Compile Remove="config\ConfigurationExtensions.cs" />
 		<Compile Remove="EnumExtensions.cs" />
 		<Compile Remove="EventElements.cs" />
+		<Compile Remove="FileParameterExtensions.cs" />
 		<Compile Remove="J4JLoggingExtensions.cs" />
-		<Compile Remove="parameters\ChannelParameterExtensions.cs" />
 		<Compile Remove="sinks\TwilioSink.cs" />
 	</ItemGroup>
 

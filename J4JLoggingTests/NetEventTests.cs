@@ -41,10 +41,11 @@ namespace J4JLoggingTests
         {
             var logger = new J4JLogger();
 
-            var netEventConfig = new NetEventChannel( logger );
+            var netEventConfig = new NetEventChannel();
+            netEventConfig.SetAssociatedLogger( logger );
             netEventConfig.LogEvent += NetEventConfigOnLogEvent;
 
-            logger.AddChannels( netEventConfig );
+            logger.Channels.Add( netEventConfig );
 
             LogMessage( logger, level );
         }

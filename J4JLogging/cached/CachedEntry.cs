@@ -25,7 +25,7 @@ namespace J4JSoftware.Logging
     public record CachedEntry(
         Type? LoggedType,
         LogEventLevel LogEventLevel,
-        string Template,
+        string MessageTemplate,
         string MemberName,
         string SourcePath,
         int SourceLine,

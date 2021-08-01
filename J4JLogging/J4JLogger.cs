@@ -35,7 +35,10 @@ namespace J4JSoftware.Logging
     {
         private ILogger? _baseLogger;
 
-        protected internal override void ResetBaseLogger() => _baseLogger = null;
+        protected internal override void ResetBaseLogger()
+        {
+            _baseLogger = null;
+        }
 
         /// <summary>
         ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
@@ -123,7 +126,7 @@ namespace J4JSoftware.Logging
                 var contextProperties =
                     InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
 
-                BaseLogger.Write( entry.LogEventLevel, OutputTemplate, entry.PropertyValues );
+                BaseLogger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues );
 
                 DisposeContextProperties( contextProperties );
             }

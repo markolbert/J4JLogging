@@ -23,7 +23,7 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public interface IJ4JLogger : IChannelParameters
+    public interface IJ4JLogger
     {
         Type? LoggedType { get; set; }
 

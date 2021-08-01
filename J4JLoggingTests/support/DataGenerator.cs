@@ -68,13 +68,13 @@ namespace J4JLoggingTests
             return retVal;
         }
 
-        private ChannelParameters GetRandomChannelInfo( string? channelName )
+        private ChannelConfiguration GetRandomChannelInfo( string? channelName )
         {
             var retVal = channelName?.ToLower() switch
             {
-                "file" => new FileParameters(),
-                "twilio" => new TwilioParameters(),
-                _ => new ChannelParameters()
+                "file" => new FileConfiguration(),
+                "twilio" => new TwilioConfiguration(),
+                _ => new ChannelConfiguration()
             };
 
             if( _random.NextDouble() < 0.5 )
@@ -87,36 +87,36 @@ namespace J4JLoggingTests
 
             switch( retVal )
             {
-                case FileParameters fileParameters:
-                    fileParameters.SetFileNameStub( $"random-log-file-{_random.Next( 1, 100 )}.txt" );
-                    fileParameters.SetLoggingFolder( $"c:/log-folder-{_random.Next( 1, 100 )}" );
+                case FileConfiguration fileParameters:
+                    fileParameters.FileName = $"random-log-file-{_random.Next( 1, 100 )}.txt";
+                    fileParameters.Folder = $"c:/log-folder-{_random.Next( 1, 100 )}";
 
-                    fileParameters.SetRollingInterval( _random.NextDouble() > 0.5
+                    fileParameters.RollingInterval = _random.NextDouble() > 0.5
                         ? RollingInterval.Day
-                        : RollingInterval.Hour );
+                        : RollingInterval.Hour;
                     break;
 
-                case TwilioParameters twilioParameters:
-                    twilioParameters.SetAccountToken( $"random-account-token-{_random.Next( 0, 500 )}" );
-                    twilioParameters.SetAccountSID($"random-account-SID-{_random.Next(0, 500)}");
-                    twilioParameters.SetFromNumber($"{_random.Next(100000000,999999999) * 10}");
+                case TwilioConfiguration twilioParameters:
+                    twilioParameters.AccountToken = $"random-account-token-{_random.Next( 0, 500 )}";
+                    twilioParameters.AccountSID = $"random-account-SID-{_random.Next( 0, 500 )}";
+                    twilioParameters.FromNumber = $"{_random.Next( 100000000, 999999999 ) * 10}";
                     break;
             }
 
             return retVal;
         }
 
-        private Dictionary<string, ChannelParameters> GetRandomSpecificInfo()
+        private Dictionary<string, ChannelConfiguration> GetRandomSpecificInfo()
         {
-            var retVal = new Dictionary<string, ChannelParameters>();
+            var retVal = new Dictionary<string, ChannelConfiguration>();
 
-            var limit = _random.Next(0, _channels.Length);
+            var limit = _random.Next( 0, _channels.Length );
 
-            while (retVal.Count < limit)
+            while( retVal.Count < limit )
             {
-                var channelName = _channels[_random.Next(1, _channels.Length)];
+                var channelName = _channels[ _random.Next( 1, _channels.Length ) ];
 
-                if (retVal.ContainsKey(channelName))
+                if( retVal.ContainsKey( channelName ) )
                     continue;
 
                 if( _random.NextDouble() < 0.5 )

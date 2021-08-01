@@ -31,27 +31,7 @@ namespace J4JLoggingTests
 {
     public class LoggingTests
     {
-        private class TwilioInfo : ITwilioParameters
-        {
-            public TwilioInfo( IConfiguration config )
-            {
-                AccountSID = config.GetValue<string>( "twilio:AccountSID" );
-                AccountToken = config.GetValue<string>( "twilio:AccountToken" );
-                FromNumber = config.GetValue<string>( "twilio:FromNumber" );
-            }
-
-            public bool IncludeSourcePath { get; set; } = true;
-            public string? SourceRootPath { get; set; } = null;
-            public string OutputTemplate { get; set; } = J4JBaseLogger.DefaultOutputTemplate;
-            public bool RequireNewLine { get; set; } = true;
-            public LogEventLevel MinimumLevel { get; set; } = LogEventLevel.Verbose;
-            public string AccountSID { get; set; }
-            public string AccountToken { get; set; }
-            public string FromNumber { get; set; }
-            public List<string> Recipients { get; set; } = new();
-        }
-
-        private readonly TwilioInfo _twilioInfo;
+        private readonly TwilioConfiguration _twilioConfig;
 
         public LoggingTests()
         {
@@ -61,22 +41,30 @@ namespace J4JLoggingTests
                 .AddUserSecrets<LoggingTests>()
                 .Build();
 
-            _twilioInfo = new TwilioInfo( config );
+            _twilioConfig = new TwilioConfiguration
+            {
+                IncludeSourcePath = true,
+                SourceRootPath = null,
+                OutputTemplate = J4JBaseLogger.DefaultOutputTemplate,
+                RequireNewLine = true,
+                MinimumLevel = LogEventLevel.Verbose,
+                AccountSID = config.GetValue<string>( "twilio:AccountSID" ),
+                AccountToken = config.GetValue<string>( "twilio:AccountToken" ),
+                FromNumber = config.GetValue<string>( "twilio:FromNumber" ),
+                Recipients = new List<string> { "+1 650 868 3367" }
+            };
         }
 
         [ Fact ]
         public void Uncached()
         {
             var logger = new J4JLogger();
+            logger.SetLoggedType(GetType());
 
             logger.AddDebug();
+            logger.AddTwilio( _twilioConfig );
 
-            var twilio = logger.AddTwilio( _twilioInfo );
-            twilio.Parameters!.Recipients.Add( "+1 650 868 3367" );
-
-            var lastEvent = (LastEventChannel) logger.AddChannel<LastEventChannel>();
-
-            logger.SetLoggedType( GetType() );
+            var lastEvent = logger.AddLastEvent();
 
             var template = "{0} (test message)";
 
@@ -125,11 +113,9 @@ namespace J4JLoggingTests
             var logger = new J4JLogger();
 
             logger.AddDebug();
+            logger.AddTwilio( _twilioConfig );
 
-            var twilio = logger.AddTwilio( _twilioInfo );
-            twilio.Parameters!.Recipients.Add( "+1 650 868 3367" );
-
-            var lastEvent = (LastEventChannel) logger.AddChannel<LastEventChannel>();
+            var lastEvent = logger.AddLastEvent();
 
             logger.SetLoggedType( GetType() );
 
@@ -142,7 +128,7 @@ namespace J4JLoggingTests
                     logger.ClearLoggedType();
                 else logger.SetLoggedType( cached.LoggedType );
 
-                logger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues, entry.MemberName,
+                logger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues, entry.MemberName,
                     entry.SourcePath, entry.SourceLine );
 
                 lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );

@@ -44,8 +44,7 @@ namespace J4JSoftware.Logging
                 memberName,
                 srcPath,
                 srcLine,
-                OutputNextToSms,
-                new object[0] )
+                OutputNextToSms )
             );
 
             ResetSms();
