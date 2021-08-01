@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
@@ -30,122 +31,141 @@ namespace J4JSoftware.Logging
     ///     Wrapper for <see cref="Serilog.ILogger" /> which simplifies including calling member
     ///     (e.g., method name) and source code information.
     /// </summary>
-    public class J4JLogger : IJ4JLogger
+    public class J4JLogger : J4JBaseLogger
     {
-        private readonly IJ4JLoggerConfiguration _config;
-        private readonly bool _includingTypeInfo;
-        private Type? _loggedType;
+        private ILogger? _baseLogger;
 
-        private bool _sendToSms;
-
-        public J4JLogger( IJ4JLoggerConfiguration config, ILogger baseLogger )
+        protected internal override void ResetBaseLogger()
         {
-            _config = config;
-            BaseLogger = baseLogger;
-
-            _includingTypeInfo = ( _config.EventElements & EventElements.Type ) == EventElements.Type;
+            _baseLogger = null;
         }
 
         /// <summary>
         ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
         /// </summary>
-        protected ILogger BaseLogger { get; private set; }
+        private ILogger BaseLogger => _baseLogger ??= CreateBaseLogger();
 
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType<TLogged>()
+        private ILogger CreateBaseLogger()
         {
-            if( ( _config.EventElements & EventElements.Type ) != EventElements.Type )
-                return;
+            var loggerConfig = new LoggerConfiguration()
+                .Enrich.FromLogContext();
 
-            BaseLogger = BaseLogger.ForContext<TLogged>();
-            _loggedType = typeof(TLogged);
-        }
+            var minLevel = LogEventLevel.Fatal;
 
-        // Sets the type being logged. This is not required to use IJ4JLogger but
-        // it enriches the logging information
-        public void SetLoggedType( Type? toLog )
-        {
-            if( toLog == null )
+            foreach( var channel in Channels )
             {
-                if( _includingTypeInfo )
-                    _config.EventElements &= ~EventElements.Type;
-            }
-            else
-            {
-                if( !_includingTypeInfo )
-                    return;
+                if( channel.MinimumLevel < minLevel )
+                    minLevel = channel.MinimumLevel;
 
-                _config.EventElements |= EventElements.Type;
-
-                if( toLog != null )
-                    BaseLogger = BaseLogger.ForContext( toLog );
-            }
-        }
-
-        public bool OutputCache( J4JLoggerCache cache )
-        {
-            var curLoggedType = _loggedType;
-
-            foreach( var entry in cache )
-            {
-                if( entry.LoggedType != _loggedType )
-                    SetLoggedType( entry.LoggedType );
-
-                _sendToSms = entry.IncludeSms;
-
-                var contextProperties =
-                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
-
-                BaseLogger.Write( entry.LogEventLevel, entry.Template, entry.PropertyValues );
-
-                DisposeContextProperties( contextProperties );
+                channel.Configure( loggerConfig.WriteTo );
             }
 
-            cache.Clear();
+            SetMinimumLevel(loggerConfig, minLevel);
 
-            SetLoggedType( curLoggedType );
+            var retVal = loggerConfig.CreateLogger();
 
-            return true;
-        }
-
-        // Force the next LogEvent to be processed by any IPostProcess-implementing channels
-        public IJ4JLogger IncludeSms()
-        {
-            _sendToSms = true;
-            return this;
-        }
-
-        // Initialize the additional LogEvent properties supported by IJ4JLogger
-        protected List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
-        {
-            var retVal = new List<IDisposable>
-            {
-                LogContext.PushProperty( "SendToSms", _sendToSms ),
-                LogContext.PushProperty(
-                    "MemberName",
-                    ( _config.EventElements & EventElements.Type ) == EventElements.Type ? $"::{memberName}" : ""
-                )
-            };
-
-            if( ( _config.EventElements & EventElements.SourceCode ) == EventElements.SourceCode )
-            {
-                if( !string.IsNullOrEmpty( _config.SourceRootPath ) )
-                    srcPath = srcPath.Replace( _config.SourceRootPath, "" );
-
-                retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
-            }
+            if( LoggedType != null )
+                retVal.ForContext( LoggedType );
 
             return retVal;
         }
 
-        // Clear the additional LogEvent properties supported by IJ4JLogger. This must be done
-        // after each LogEvent is processed to comply with Serilog's design.
-        protected void DisposeContextProperties( List<IDisposable> contextProperties )
+        protected override void OnLoggedTypeChanged()
         {
-            foreach( var contextProperty in contextProperties ) contextProperty.Dispose();
+            if( LoggedType == null )
+                ResetBaseLogger();
+            else _baseLogger?.ForContext( LoggedType );
+        }
 
-            _sendToSms = false;
+        private static void SetMinimumLevel( LoggerConfiguration config, LogEventLevel minLevel)
+        {
+            switch (minLevel)
+            {
+                case LogEventLevel.Debug:
+                    config.MinimumLevel.Debug();
+                    break;
+
+                case LogEventLevel.Error:
+                    config.MinimumLevel.Error();
+                    break;
+
+                case LogEventLevel.Fatal:
+                    config.MinimumLevel.Fatal();
+                    break;
+
+                case LogEventLevel.Information:
+                    config.MinimumLevel.Information();
+                    break;
+
+                case LogEventLevel.Verbose:
+                    config.MinimumLevel.Verbose();
+                    break;
+
+                case LogEventLevel.Warning:
+                    config.MinimumLevel.Warning();
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(minLevel), minLevel, null);
+            }
+        }
+
+        public List<IChannel> Channels { get; } = new();
+
+        public override bool OutputCache( J4JCachedLogger cachedLogger )
+        {
+            var curLoggedType = LoggedType;
+
+            foreach( var entry in cachedLogger.Entries )
+            {
+                if( LoggedType != entry.LoggedType)
+                    LoggedType = entry.LoggedType;
+
+                OutputNextToSms = entry.OutputToSms;
+
+                var contextProperties =
+                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
+
+                BaseLogger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues );
+
+                DisposeContextProperties( contextProperties );
+            }
+
+            cachedLogger.Entries.Clear();
+
+            LoggedType = curLoggedType;
+
+            return true;
+        }
+
+        // Initialize the additional LogEvent properties supported by J4JLogger
+        private List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
+        {
+            var retVal = new List<IDisposable>
+            {
+                LogContext.PushProperty( "SendToSms", OutputNextToSms ),
+                LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
+            };
+
+            if( !IncludeSourcePath ) 
+                return retVal;
+
+            if( !string.IsNullOrEmpty(SourceRootPath ) )
+                srcPath = srcPath.Replace(SourceRootPath, "" );
+
+            retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
+
+            return retVal;
+        }
+
+        // Clear the additional LogEvent properties supported by J4JLogger. This must be done
+        // after each LogEvent is processed to comply with Serilog's design.
+        private static void DisposeContextProperties( List<IDisposable> contextProperties )
+        {
+            foreach( var contextProperty in contextProperties )
+            {
+                contextProperty.Dispose();
+            }
         }
 
         #region Write() methods
@@ -172,7 +192,7 @@ namespace J4JSoftware.Logging
         ///     the line number within the source code file at which the method calling the
         ///     Write method is defined (supplied automatically by the compiler)
         /// </param>
-        public virtual void Write(
+        public override void Write(
             LogEventLevel level,
             string template,
             [ CallerMemberName ] string memberName = "",
@@ -218,7 +238,7 @@ namespace J4JSoftware.Logging
         ///     the line number within the source code file at which the method calling the
         ///     Write method is defined (supplied automatically by the compiler)
         /// </param>
-        public virtual void Write<T0>(
+        public override void Write<T0>(
             LogEventLevel level,
             string template,
             T0 propertyValue,
@@ -271,7 +291,7 @@ namespace J4JSoftware.Logging
         ///     the line number within the source code file at which the method calling the
         ///     Write method is defined (supplied automatically by the compiler)
         /// </param>
-        public virtual void Write<T0, T1>(
+        public override void Write<T0, T1>(
             LogEventLevel level,
             string template,
             T0 propertyValue0,
@@ -288,7 +308,7 @@ namespace J4JSoftware.Logging
             DisposeContextProperties( contextProperties );
         }
 
-        public virtual void Write<T0, T1, T2>(
+        public override void Write<T0, T1, T2>(
             LogEventLevel level,
             string template,
             T0 propertyValue0,
@@ -306,7 +326,7 @@ namespace J4JSoftware.Logging
             DisposeContextProperties( contextProperties );
         }
 
-        public virtual void Write(
+        public override void Write(
             LogEventLevel level,
             string template,
             object[] propertyValues,
@@ -320,386 +340,6 @@ namespace J4JSoftware.Logging
             BaseLogger.Write( level, template, propertyValues );
 
             DisposeContextProperties( contextProperties );
-        }
-
-        #endregion
-
-        #region Debug methods
-
-        public void Debug(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Debug, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Debug<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Debug, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Debug<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Debug, messageTemplate, propertyValue0, propertyValue1, memberName, srcPath,
-                srcLine );
-        }
-
-        public void Debug<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Debug, messageTemplate, propertyValue0, propertyValue1, propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Debug(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Debug, messageTemplate, propertyValues, memberName, srcPath, srcLine );
-        }
-
-        #endregion
-
-        #region Error() methods
-
-        public void Error(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Error, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Error<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Error, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Error<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Error, messageTemplate, propertyValue0, propertyValue1, memberName, srcPath,
-                srcLine );
-        }
-
-        public void Error<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Error, messageTemplate, propertyValue0, propertyValue1, propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Error(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Error, messageTemplate, propertyValues, memberName, srcPath, srcLine );
-        }
-
-        #endregion
-
-        #region Fatal() methods
-
-        public void Fatal(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Fatal, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Fatal<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Fatal, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Fatal<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Fatal, messageTemplate, propertyValue0, propertyValue1, memberName, srcPath,
-                srcLine );
-        }
-
-        public void Fatal<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Fatal, messageTemplate, propertyValue0, propertyValue1, propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Fatal(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Fatal, messageTemplate, propertyValues, memberName, srcPath, srcLine );
-        }
-
-        #endregion
-
-        #region Information() methods
-
-        public void Information(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Information, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Information<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Information, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Information<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Information, messageTemplate, propertyValue0, propertyValue1, memberName,
-                srcPath,
-                srcLine );
-        }
-
-        public void Information<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Information, messageTemplate, propertyValue0, propertyValue1,
-                propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Information(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Information, messageTemplate, propertyValues, memberName, srcPath, srcLine );
-        }
-
-        #endregion
-
-        #region Verbose() methods
-
-        public void Verbose(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Verbose, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Verbose<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Verbose, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Verbose<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Verbose, messageTemplate, propertyValue0, propertyValue1, memberName, srcPath,
-                srcLine );
-        }
-
-        public void Verbose<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Verbose, messageTemplate, propertyValue0, propertyValue1, propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Verbose(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Verbose, messageTemplate, propertyValues, memberName, srcPath, srcLine );
-        }
-
-        #endregion
-
-        #region Warning() methods
-
-        public void Warning(
-            string messageTemplate,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Warning, messageTemplate, memberName, srcPath, srcLine );
-        }
-
-        public void Warning<T0>(
-            string messageTemplate,
-            T0 propertyValue,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Warning, messageTemplate, propertyValue, memberName, srcPath, srcLine );
-        }
-
-        public void Warning<T0, T1>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Warning, messageTemplate, propertyValue0, propertyValue1, memberName, srcPath,
-                srcLine );
-        }
-
-        public void Warning<T0, T1, T2>(
-            string messageTemplate,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Warning, messageTemplate, propertyValue0, propertyValue1, propertyValue2,
-                memberName, srcPath, srcLine );
-        }
-
-        public void Warning(
-            string messageTemplate,
-            object[] propertyValues,
-            [ CallerMemberName ] string memberName = "",
-            [ CallerFilePath ] string srcPath = "",
-            [ CallerLineNumber ] int srcLine = 0
-        )
-        {
-            Write( LogEventLevel.Warning, messageTemplate, propertyValues, memberName, srcPath, srcLine );
         }
 
         #endregion

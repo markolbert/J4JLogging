@@ -17,19 +17,18 @@
 
 #endregion
 
-using System;
-using Serilog.Events;
+using Serilog;
+using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    // defines the configuration for a debug channel
+    [ChannelID("Debug", typeof(DebugChannel))]
+    public class DebugChannel : Channel
+    {
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        {
+            return sinkConfig.Debug( MinimumLevel, EnrichedMessageTemplate );
+        }
+    }
 }

@@ -17,41 +17,25 @@
 
 #endregion
 
-using System.IO;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Serilog;
+using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Formatting;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace J4JSoftware.Logging
 {
-    public class NetEventSink : ILogEventSink
+    public class ChannelConfiguration
     {
-        private readonly NetEventChannel _channel;
-        private readonly StringBuilder _sb;
-
-        private readonly StringWriter _stringWriter;
-
-        public NetEventSink( NetEventChannel channel )
-        {
-            _channel = channel;
-
-            _sb = new StringBuilder();
-            _stringWriter = new StringWriter( _sb );
-        }
-
-        public ITextFormatter? TextFormatter { get; internal set; }
-
-        public void Emit( LogEvent logEvent )
-        {
-            if( TextFormatter == null )
-                return;
-
-            _sb.Clear();
-            TextFormatter.Format( logEvent, _stringWriter );
-            _stringWriter.Flush();
-
-            _channel.OnLogEvent( new NetEventArgs( logEvent.Level, _sb.ToString() ) );
-        }
+        public bool? IncludeSourcePath { get; set; }
+        public string? SourceRootPath { get; set; }
+        public string? OutputTemplate { get; set; }
+        public bool? RequireNewLine { get; set; }
+        public LogEventLevel? MinimumLevel { get; set; }
     }
 }

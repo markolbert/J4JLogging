@@ -17,19 +17,29 @@
 
 #endregion
 
-using System;
+using Serilog;
+using Serilog.Configuration;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    public interface IChannel
+    {
+        bool IncludeSourcePath { get; set; }
+        string? SourceRootPath { get; set; }
+        string OutputTemplate { get; set; }
+        bool RequireNewLine { get; set; }
+        LogEventLevel MinimumLevel { get; set; }
+        
+        string EnrichedMessageTemplate { get; }
+
+        void ResetIncludeSourcePath();
+        void ResetOutputTemplate();
+        void ResetRequireNewLine();
+        void ResetMinimumLevel();
+        void ResetToGlobal();
+
+        void SetAssociatedLogger(J4JBaseLogger? logger);
+        LoggerConfiguration Configure(LoggerSinkConfiguration sinkConfig);
+    }
 }

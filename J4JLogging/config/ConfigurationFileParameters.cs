@@ -18,18 +18,15 @@
 #endregion
 
 using System;
-using Serilog.Events;
+using System.IO;
+using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    public class FileConfiguration : ChannelConfiguration
+    {
+        public RollingInterval RollingInterval { get; set; } = RollingInterval.Day;
+        public string Folder { get; set; } = Environment.CurrentDirectory;
+        public string FileName { get; set; } = "log.txt";
+    }
 }

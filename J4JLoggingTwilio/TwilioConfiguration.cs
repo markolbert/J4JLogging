@@ -18,18 +18,17 @@
 #endregion
 
 using System;
-using Serilog.Events;
+using System.Collections.Generic;
+using System.IO;
+using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    public class TwilioConfiguration : ChannelConfiguration
+    {
+        public string? AccountSID { get; set; }
+        public string? AccountToken { get; set; }
+        public string? FromNumber { get; set; }
+        public List<string>? Recipients { get; set; }
+    }
 }

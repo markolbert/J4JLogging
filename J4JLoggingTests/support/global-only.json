@@ -1,0 +1,8 @@
+{
+  "Global": {
+    "SourceRootPath": "C:/Programming/J4JLogging/",
+    "IncludeSourcePath": true,
+    "RequireNewLine": true,
+    "MinimumLevel":  "Verbose" 
+  }
+}

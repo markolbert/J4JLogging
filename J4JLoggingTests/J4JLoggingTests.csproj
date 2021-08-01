@@ -15,6 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="CompositionRoot.cs" />
+    <Compile Remove="CompositionRootType.cs" />
+    <Compile Remove="DerivedConfiguration.cs" />
+    <Compile Remove="EmbeddedConfiguration.cs" />
+    <Compile Remove="ICompositionRoot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
@@ -41,20 +49,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AutoFacJ4JLogging\AutofacJ4JLogging.csproj" />
     <ProjectReference Include="..\J4JLoggingTwilio\J4JLoggingTwilio.csproj" />
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="config-files\Simple.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="config-files\Derived.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="config-files\Embedded.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Update="support\global-only.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

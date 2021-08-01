@@ -22,6 +22,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ITwilioParameters.cs" />
+    <Compile Remove="TwilioParameters.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\J4JLogging\J4JLogging.csproj" />
   </ItemGroup>
 

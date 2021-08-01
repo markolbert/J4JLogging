@@ -17,19 +17,26 @@
 
 #endregion
 
-using System;
-using Serilog.Events;
+using Serilog;
+using Serilog.Configuration;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    // defines the configuration for a channel that retains the text of the last
+    // even logged
+    [ChannelID("LastEvent", typeof(LastEventChannel))]
+    public class LastEventChannel : Channel
+    {
+        public string? LastLogMessage { get; private set; }
+
+        public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+        {
+            return sinkConfig.LastEvent( LastEventHandler! );
+        }
+
+        private void LastEventHandler( object sender, string lastLogMessage )
+        {
+            LastLogMessage = lastLogMessage;
+        }
+    }
 }

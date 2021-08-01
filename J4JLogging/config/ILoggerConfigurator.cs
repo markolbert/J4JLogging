@@ -17,19 +17,11 @@
 
 #endregion
 
-using System;
-using Serilog.Events;
-
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        bool OutputToSms,
-        params object[] PropertyValues
-    );
+    public interface ILoggerConfigurator
+    {
+        J4JLogger Configure( J4JLogger logger, object? loggerInfo, params string[] channels );
+        J4JLogger Configure( J4JLogger logger, LoggerInfo? loggerInfo, params string[] channels);
+    }
 }
