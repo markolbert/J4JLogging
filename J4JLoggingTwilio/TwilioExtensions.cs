@@ -8,53 +8,36 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
-        public static TwilioChannel AddTwilio( this J4JLogger logger, ITwilioParameters? parameters = null)
+        public static TwilioChannel AddTwilio( this J4JLogger logger, TwilioConfiguration? configValues = null )
         {
-            var retVal = new TwilioChannel( logger );
-
-            if( parameters != null )
-                retVal.ApplySettings( parameters );
+            var retVal = new TwilioChannel();
+            retVal.SetAssociatedLogger( logger );
 
             logger.Channels.Add( retVal );
 
+            if( configValues == null )
+                return retVal;
+
+            if( configValues.RequireNewLine.HasValue )
+                retVal.RequireNewLine = configValues.RequireNewLine.Value;
+
+            if( configValues.MinimumLevel.HasValue )
+                retVal.MinimumLevel = configValues.MinimumLevel.Value;
+
+            if( configValues.IncludeSourcePath.HasValue )
+                retVal.IncludeSourcePath = configValues.IncludeSourcePath.Value;
+
+            if( configValues.OutputTemplate != null )
+                retVal.OutputTemplate = configValues.OutputTemplate;
+
+            retVal.SourceRootPath = configValues.SourceRootPath;
+
+            retVal.AccountToken = configValues.AccountToken;
+            retVal.AccountSID = configValues.AccountSID;
+            retVal.FromNumber = configValues.FromNumber;
+            retVal.Recipients = configValues.Recipients;
+
             return retVal;
-        }
-
-        public static TwilioChannel ApplySettings( this TwilioChannel channel, ITwilioParameters values )
-        {
-            channel.Parameters.MinimumLevel = values.MinimumLevel;
-            channel.Parameters.AccountSID = values.AccountSID;
-            channel.Parameters.AccountToken = values.AccountToken;
-            channel.Parameters.FromNumber = values.FromNumber;
-            channel.Parameters.Recipients = values.Recipients;
-
-            return channel;
-        }
-
-        public static TwilioParameters SetCredentials( this TwilioParameters container, string sid, string token )
-        {
-            container.AccountSID = sid;
-            container.AccountToken = token;
-
-            return container;
-        }
-
-        public static TwilioParameters SetAccountSID( this TwilioParameters container, string acctSID )
-        {
-            container.AccountSID = acctSID;
-            return container;
-        }
-
-        public static TwilioParameters SetAccountToken(this TwilioParameters container, string acctToken)
-        {
-            container.AccountToken = acctToken;
-            return container;
-        }
-
-        public static TwilioParameters SetFromNumber(this TwilioParameters container, string fromNumber)
-        {
-            container.FromNumber = fromNumber;
-            return container;
         }
     }
 }

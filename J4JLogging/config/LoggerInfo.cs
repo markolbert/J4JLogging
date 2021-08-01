@@ -27,35 +27,29 @@ namespace J4JSoftware.Logging
 {
     public class LoggerInfo
     {
-        public static LoggerInfo Create(IConfiguration config)
-        {
-            var retVal = new LoggerInfo
-            {
-                Global = config.GetSection( nameof(Global) ).Get<ChannelParameters>() ?? new ChannelParameters( null ),
-                Channels = config.GetSection( nameof(Channels) ).Get<List<string>>() ?? new List<string>(),
-                ChannelSpecific = config.GetSection( nameof(ChannelSpecific) )
-                    .Get<Dictionary<string, ChannelParameters>>() ?? new Dictionary<string, ChannelParameters>()
-            };
+        public ChannelConfiguration? Global { get; set; }
+        public List<string>? Channels { get; set; }
+        public Dictionary<string, ChannelConfiguration>? ChannelSpecific { get; set; }
 
-            // make sure all the channels specified in ChannelSpecific also appear in Channels
-            foreach (var kvp in retVal.ChannelSpecific)
+        public IEnumerable<string> AllChannels( params string[] channels )
+        {
+            if( Channels == null && ChannelSpecific == null && channels.Length == 0 )
+                yield break;
+
+            var allChannels = new List<string>();
+
+            if( Channels != null )
+                allChannels.AddRange( Channels );
+
+            allChannels.AddRange( channels );
+
+            if( ChannelSpecific != null )
+                allChannels.AddRange( ChannelSpecific.Select( kvp => kvp.Key ) );
+
+            foreach( var channel in allChannels.Distinct( StringComparer.OrdinalIgnoreCase ) )
             {
-                if (!retVal.Channels.Any(x => x.Equals(kvp.Key, StringComparison.OrdinalIgnoreCase)))
-                    retVal.Channels.Add(kvp.Key);
+                yield return channel.ToLower();
             }
-
-            return retVal;
         }
-
-        public LoggerInfo()
-        {
-            Global = new ChannelParameters( null );
-            Channels = new List<string>();
-            ChannelSpecific = new Dictionary<string, ChannelParameters>();
-        }
-
-        public ChannelParameters Global { get; set; }
-        public List<string> Channels { get; set; }
-        public Dictionary<string, ChannelParameters> ChannelSpecific { get; set; }
     }
 }
