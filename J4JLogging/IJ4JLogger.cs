@@ -31,6 +31,8 @@ namespace J4JSoftware.Logging
         J4JBaseLogger SetLoggedType( Type typeToLog );
         J4JBaseLogger ClearLoggedType();
 
+        J4JBaseLogger OutputNextEventToSms();
+
         bool OutputCache( J4JCachedLogger cachedLogger );
 
         #region Write methods

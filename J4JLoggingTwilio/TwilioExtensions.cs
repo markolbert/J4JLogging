@@ -8,6 +8,23 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
+        public static TwilioChannel ConfigureFileChannel(
+            this TwilioChannel channel,
+            TwilioConfiguration? configValues = null)
+        {
+            if (configValues == null)
+                return channel;
+
+            channel.ConfigureChannel( configValues );
+
+            channel.AccountToken = configValues.AccountToken;
+            channel.AccountSID = configValues.AccountSID;
+            channel.FromNumber = configValues.FromNumber;
+            channel.Recipients = configValues.Recipients;
+
+            return channel;
+        }
+
         public static TwilioChannel AddTwilio( this J4JLogger logger, TwilioConfiguration? configValues = null )
         {
             var retVal = new TwilioChannel();

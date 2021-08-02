@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Serilog;
+using Serilog.Configuration;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -99,6 +100,8 @@ namespace J4JSoftware.Logging
             if (configValues == null)
                 return channel;
 
+            channel = ConfigureChannel( channel, configValues );
+
             channel.FileName = configValues.FileName;
             channel.Folder = configValues.Folder;
             channel.RollingInterval = configValues.RollingInterval;
@@ -108,6 +111,8 @@ namespace J4JSoftware.Logging
 
         public static FileChannel AddFile( this J4JLogger logger, FileConfiguration? configValues = null )
         {
+            configValues ??= new FileConfiguration();
+
             var retVal = logger.AddChannel<FileChannel>( configValues );
 
             retVal.ConfigureFileChannel( configValues );

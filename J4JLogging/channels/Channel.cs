@@ -137,15 +137,14 @@ namespace J4JSoftware.Logging
 
             field = value;
 
-            if (changed)
+            if (!changed) return;
+
+            if (_logger == null)
+                _loggerMustBeUpdated = true;
+            else
             {
-                if (_logger == null)
-                    _loggerMustBeUpdated = true;
-                else
-                {
-                    _logger.ResetBaseLogger();
-                    _loggerMustBeUpdated = false;
-                }
+                _logger.ResetBaseLogger();
+                _loggerMustBeUpdated = false;
             }
         }
 

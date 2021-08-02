@@ -32,6 +32,11 @@ namespace J4JSoftware.Logging
         private string _folder = Environment.CurrentDirectory;
         private string _fileName = "log.txt";
 
+        public FileChannel()
+        {
+            RequireNewLine = true;
+        }
+
         public RollingInterval RollingInterval
         {
             get => _interval;
@@ -46,7 +51,7 @@ namespace J4JSoftware.Logging
 
         public string FileName
         {
-            get => _folder;
+            get => _fileName;
             set => SetPropertyAndNotifyLogger(ref _fileName, value);
         }
 

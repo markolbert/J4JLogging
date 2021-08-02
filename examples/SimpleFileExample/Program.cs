@@ -2,8 +2,7 @@
 
 namespace J4JLogger.Examples
 {
-    // shows how to use the J4JLogger with a simple configuration file containing
-    // nothing but logger configuration information.
+    // shows how to use J4JLogger without a configuration file
     class Program
     {
         static void Main(string[] args)
