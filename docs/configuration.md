@@ -1,76 +1,117 @@
 ### Configuration
 
-Configuring `IJ4JLogger` is a matter of creating an instance of 
-`J4JLoggerConfiguration`. How you do that is up to you, but if you use the 
-Net5 `IConfiguration` system the `ChannelConfigProvider` class
-simplifies things a lot:
+Configuring `J4JLogger` is a matter of adding channels to it, configuring the channels, and
+setting global defaults for shared configurtation properties (e.g., like `MinimumLevel`). Global
+defaults, set on instances of `J4JLogger`, define the values used by each channel unless you
+override them on a channel-by-channel basis.
+
+This can be extremely simple if the defaults are acceptable:
 ```csharp
-var builder = new ContainerBuilder();
-
-var config = new ConfigurationBuilder()
-    .AddJsonFile(Path.Combine(Environment.CurrentDirectory, "logConfig.json"))
-    .Build();
-
-var provider = new ChannelConfigProvider( "Logger" )
-    {
-        Source = config
-    }
-    .AddChannel<ConsoleConfig>( "channels:console" )
-    .AddChannel<DebugConfig>( "channels:debug" )
-    .AddChannel<FileConfig>( "channels:file" );
-
-builder.RegisterJ4JLogging<J4JLoggerConfiguration>( provider );
-
-_svcProvider = new AutofacServiceProvider(builder.Build());
+var logger = new J4JSoftware.Logging.J4JLogger();
+logger.AddDebug();
+logger.AddConsole();
+logger.AddFile();
 ```
-All you do is create an instance of `ChannelConfigProvider` and 
-tell it how to locate each of the configuration sections which define the 
-channels you want to use. 
+That code will log events to the debug output window, the console window and to a log file stored
+in `Environment.CurrentDirectory` that rolls over once a day. All log events will be output (i.e.,
+the minimum threshold is set to *Verbose*).
 
-The configuration paths are those used in the Net5 configuration system: 
-class or property names separated by colons, all relative to the section
-specified in the `ChannelConfigProvider` constructor (in this 
-example "Logger"). The paths are case-insensitive.
+But you can do much more configuration if you want to (and you'll generally want to :)). 
+#### Configuring by Applying Configuration Values
+The next easiest way of setting up J4JLogger is to apply configuration values to either the J4JLogger
+instance or one or more channels. Here's an example of the former:
+```csharp
+var globalConfig = new ChannelConfiguration
+    {
+        IncludeSourcePath = true,
+        SourceRootPath = "c:/the root/of some/vs project",
+        RequireNewLine = true,
+        MinimumLevel = LogEventLevel.Debug
+    };
 
-The above example is based on a JSON configuration file which looks like this:
-```json
+logger.ConfigureLogger( globalConfig );
+```
+This sets certain global parameters for J4JLogger. Recall that these global parameters apply to 
+every logging channel except for when the logging channel has a value set for the same
+parameter. Any property who value you don't set when creating an instance of `ChannelConfiguration`
+is null, and ignored by the `ConfigureLogger()` extension method.
+
+There's a corresponding method for channels as well, `ConfigureChannel()`. It also takes an instance of
+`ChannelConfiguration`.
+
+The more specialized channels `FileChannel` and `TwilioChannel` have corresponding extension methods
+(`ConfigureFileChannel()` and `ConfigureTwilioChannel()`, respectively).
+
+#### Configuring based on an IConfiguration Source
+It's common to want the logging service to be configured on an application-wide basis. This makes
+it a natural for being associated with dependency injection and defining a composition root for
+an application. While you can certainly extract the information you need to create instances of 
+the configuration objects discussed above from configuration files in lots of different ways, 
+there's a great fit between this goal and Microsoft's `IHost` API.
+
+So I added some cool (IMHO) features to J4JLogger in the code for `J4JCompositionRoot`, which you
+can [read about in detail at it's GitHub page](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/dependency.md).
+But here's a brief overview.
+
+You define your own composition root class by deriving from a base class (currently
+either `J4JCompositionRoot` or `XAMLCompositionRoot`; the former is targeted at console applications
+while the latter is targeted at WPF applications). For a console app that might look like this:
+```csharp
+public class CompositionRoot : J4JCompositionRoot
 {
-  "SomeOtherProperty": true,
-  "SomeOtherArray": [
-    "a",
-    "b",
-    "c"
-  ],
-  "SomeOtherObject": {
-    "Property1": 15,
-    "Property2": "abc"
-  },
-  "Logger": {
-    "SourceRootPath": "C:/Programming/J4JLogging/",
-    "EventElements": "SourceCode, Type",
-    "Channels": {
-      "Console": {
-        "MinimumLevel": "Information"
-      },
+    public CompositionRoot()
+        : base(
+            "J4JSoftware",
+            Program.AppName,
+            "J4JSoftware.GeoProcessor.DataProtection",
+            typeof(AppConfig)
+        )
+    {
+        UseConsoleLifetime = true;
+    }
+
+    protected override void ConfigureLogger( J4JLogger logger )
+    {
+        if( LoggerConfiguration is not AppConfig appConfig )
+            return;
+
+        LoggerConfigurator.Configure( logger, appConfig.Logging );
+    }
+}
+```
+The `typeof(AppConfig)` parameter in the `base()` call defines an application object 
+which holds configuration information for the logging system. It can be whatever you want it to
+be. But if you define it to include a `LoggerInfo` property (`LoggerInfo` is defined in the J4JLogger
+library) then when the `IConfiguration` system does its stuff you'll end up with a single
+parameter you can pass to `LoggerConfigurator.Configure()` to take care of configuring `J4JLogger`.
+
+`LoggerConfigurator` is defined in the `J4JLogger` library. It handles all of the basic channels 
+defined in the library (i.e., console, debug, file, last event, net event). There's a derived class,
+`TwilioLoggerConfigurator`, defined in the Twilio extension library, which adds handling for a Twilio
+channel. You change logger configurators by passing an instance of whichever one you want into the
+`J4JCompositionRoot` constructor call (if you don't pass anything you get a `LoggerConfigurator`).
+
+The configuration file syntax for logging information looks like this:
+```
+  "Logging": {
+    "Global": {
+      "SourceRootPath": "C:\\Programming\\GeoProcessor\\",
+      "IncludeSourcePath":  true 
+    },
+    "Channels":[
+      "Console"
+    ],
+    "ChannelSpecific": {
       "Debug": {
-        "MinimumLevel": "Debug"
-      },
-      "File": {
-        "Location": "AppData",
-        "RollingInterval": "Day",
-        "FileName": "log.text",
-        "MinimumLevel": "Verbose"
+        "MinimumLevel": "Information"
       }
     }
   }
-}
+```
+There's a global section holding the default parameters and a channel-specific section holding
+parameters for individual channels. The *Channels* section is for including channels where the default
+channel values are all you want (empty entries in the channel-specific area are ignored by the 
+`IComposition` API so you can't just add a blank entry there). 
 
-`ChannelConfigProvider` lets you to incorporate the `LastEventConfig` 
-channel by setting the property `LastEvent` to an instance of 
-`LastEventConfig`. If you do the provider will automatically make it 
-available to the startup routines.
-
-The `LastEventConfig` channel is a special one which holds the most 
-recent log event sent through the logging system. I use it mostly in 
-automated tests, to ensure what comes out is what should be coming 
-out from a given log event.
+You can also add to the `LoggingInfo` data by adding a list of channel names to the 
+`LoggerConfigurator.Configure()` call. The corresponding channels will be set up with default values.

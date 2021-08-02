@@ -7,97 +7,55 @@ Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
 
 [![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
 
-
 ### TL;DR
+There are many breaking changes from the last release. *Please re-review the documentation**.
 
 ```csharp
-using System;
-using System.IO;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using J4JSoftware.Logging;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-#pragma warning disable 8618
 
 namespace J4JLogger.Examples
 {
-    // shows how to use the J4JLogger with a simple configuration file containing
-    // nothing but logger configuration information.
+    // shows how to use J4JLogger witout a configuration file
     class Program
     {
-        private static IServiceProvider _svcProvider;
-
         static void Main(string[] args)
         {
-            InitializeServiceProvider();
+            var logger = new J4JSoftware.Logging.J4JLogger();
+            logger.AddDebug();
+            logger.AddConsole();
+            logger.AddFile();
 
-            var logger = _svcProvider.GetRequiredService<IJ4JLogger>();
             logger.SetLoggedType<Program>();
 
             logger.Information("This is an Informational logging message");
             logger.Fatal("This is a Fatal logging message");
         }
-
-        private static void InitializeServiceProvider()
-        {
-            var config = new ConfigurationBuilder()
-                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "logConfig.json" ) )
-                .Build();
-
-            var builder = new ContainerBuilder();
-
-            var provider = new ChannelConfigProvider
-                {
-                    Source = config
-                }
-                .AddChannel<ConsoleConfig>("channels:console")
-                .AddChannel<DebugConfig>("channels:debug")
-                .AddChannel<FileConfig>("channels:file");
-
-            builder.RegisterJ4JLogging<J4JLoggerConfiguration>( provider );
-
-            _svcProvider = new AutofacServiceProvider(builder.Build());
-        }
     }
 }
 ```
-Contents of logConfig.json:
-```json
-{
-  "DefaultElements": "SourceCode",
-  "SourceRootPath": "C:/Programming/J4JLogging/",
-  "Channels": {
-    "Console": {
-      "MinimumLevel": "Information"
-    },
-    "Debug": {
-      "MinimumLevel": "Debug"
-    },
-    "File": {
-      "Location": "AppData",
-      "RollingInterval": "Day",
-      "FileName": "log.text",
-      "MinimumLevel": "Verbose"
-    }
-  }
-}
-```
+The console output looks like this:
+![simple console output](docs/assets/simple-console.png)
 
-See the [change log](docs/changes.md) for information on changes.
+The log file, log20210801.txt, looks like this:
+```
+2021-08-01 13:23:12.460 -07:00 [INF] This is an Informational logging message ::Main C:\Programming\J4JLogging\examples\SimpleFileExample\Program.cs : 18
+2021-08-01 13:23:12.535 -07:00 [FTL] This is a Fatal logging message ::Main C:\Programming\J4JLogging\examples\SimpleFileExample\Program.cs : 19
+```
+Your log file's name will be different because, by default, the log file rolls daily and the last day logging
+took place will be embedded in the file name.
 
 ### Important Note
 **There is one important difference in how you call the logging methods
 from the Serilog standard.** 
 
-If you pass a simple string (i.e., a value for the template argument) to the methods you **must** specify the types of 
+If you pass nothing but simple strings to the methods as property values you **must** specify the types of 
 the propertyValue arguments explicitly in the method call. 
 
 An example:
 
 ```csharp
 string someStringValue = "abcd";
-_logger.Debug<string>("The value of that argument is {someIntValue}", someStringValue);
+_logger.Debug<string>("The value of that argument is {0}", someStringValue);
 ```
 This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
 arguments are automagically set for you by the compiler. The fact the 
@@ -112,8 +70,6 @@ specifications for the arguments necessary when strings are referenced by the me
 - [Terminology](docs/terminology.md)
 - [Usage](docs/usage.md)
 - [Configuration](docs/configuration.md)
-- [Specifying Event Elements to Include](docs/elements.md)
-- [Autofac Dependency Injection Support](docs/autofac.md)
 - [The Twilio channel](docs/twilio.md)
 - [Adding a channel](docs/channel.md)
 

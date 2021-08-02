@@ -2,28 +2,16 @@
 
 The **Twilio channel** works by texting specially-tagged log events
 to the SMS network. The tagging is done by preceding the log event you want to 
-text with a call to `IJ4JLogger.IncludeSms()`. 
+text with a call to `IJ4JLogger.OutputNextEventToSms()`. 
 
-There is no standard API for SMS services so the details on how an SMS channel is
-implemented varies from provider to provider. But the Twilio setup included in this 
-package illustrates how things are done. Here's the method called to configure a
-Twilio channel:
-```csharp
-public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
-{
-    TwilioClient.Init(AccountSID, AccountToken);
+Of course, if you haven't included a supported SMS channel to the logger nothing 
+will be transmitted. Since there is no industry-standard interface for SMS libraries
+each texting service requires its own channel. The **J4JLoggingTwilio** library
+defines one for the [Twilio service](https://www.twilio.com/). You can use it as
+a guide to create your own SMS channel.
 
-    return sinkConfig.Logger( lc => lc.Filter
-            .ByIncludingOnly( "SendToSms" )
-            .WriteTo
-            .Sms<TwilioSink>( 
-                new MessageTemplateTextFormatter( EnrichedMessageTemplate ), 
-                FromNumber,
-                Recipients ) );
-}
-```
-The setup involves configuring what Serilog calls a *sub-logger* utilizing a
-`TwilioSink`, which is itself a descendant of a generalized `SmsSink`:
+The key is to create a Serilog *sink* and a custom **J4JLogger** channel. You can use
+the provided `SmsSink` as a basis for your own:
 ```csharp
 public abstract class SmsSink : ILogEventSink
 {
@@ -55,28 +43,73 @@ public abstract class SmsSink : ILogEventSink
     protected abstract void SendMessage( string logMessage );
 }
 ```
-All `SmsSink` does is format a log event using Serilog's built-in formatters and
-send the resulting text to the abstract method `SendMessage()`.
+The layout mirrors Twilio's API for sending a simple SMS message but it should be generally
+applicable. The key part lies in the `Emit()` method, which is called by the Serilog API to
+format messages destined for your SMS sink.
 
-`SendMessage()` is implemented in `TwilioSink` so that the message can be sent
-using the C# API provided by Twilio:
+To work specifically with Twilio `SmsSink` needs to be extended. That's done in `TwilioSink`:
 ```csharp
 public class TwilioSink : SmsSink
 {
     protected override void SendMessage( string logMessage )
     {
         foreach( var rn in RecipientNumbers )
-        {
             try
             {
-                MessageResource.Create( body : logMessage, to : rn, @from : FromNumber );
+                MessageResource.Create( body: logMessage, to: rn, @from: FromNumber );
             }
             catch( Exception e )
             {
                 throw new InvalidOperationException(
                     $"Could not create Twilio message. Exception message was '{e.Message}'" );
             }
-        }
     }
 }
+```
+`MessageResource.Create()` is part of the Twilio API.
+
+You also have to create a `J4JLogger` channel for your SMS system. The provided one for Twilio
+looks like this:
+```csharp
+[ChannelID("Twilio", typeof(TwilioChannel))]
+public class TwilioChannel : Channel
+{
+    public string? AccountSID { get; set; }
+    public string? AccountToken { get; set; }
+    public string? FromNumber { get; set; }
+    public List<string>? Recipients { get; set; }
+
+    public bool IsValid
+    {
+        get
+        {
+            if( string.IsNullOrEmpty( AccountSID ) ) return false;
+            if( string.IsNullOrEmpty( AccountToken ) ) return false;
+            if( string.IsNullOrEmpty( FromNumber ) ) return false;
+
+            return Recipients?.Count != 0;
+        }
+    }
+
+    public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+    {
+        if( !IsValid )
+            throw new ArgumentException(
+                "Could not configure the Twilio channel because one or more required parameters required by Twilio were not defined locally" );
+
+        TwilioClient.Init( AccountSID, AccountToken );
+
+        return sinkConfig.Logger( lc => lc.Filter
+            .ByIncludingOnly( "SendToSms" )
+            .WriteTo
+            .Sms<TwilioSink>(
+                new MessageTemplateTextFormatter( EnrichedMessageTemplate ),
+                FromNumber!,
+                Recipients! ) );
+    }
+}
+```
+The call to `Configure()` takes advantage of Serilog's *sublogger* functionality to add the 
+Twilio sink to the Serilog pipeline. It does that by calling the `Sms()` extension method defined
+in the **J4JLogger** library.
 ```

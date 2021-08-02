@@ -12,44 +12,86 @@ wanted a more generalized way of configuring sinks because I typically use sever
 simultaneously in my projects. 
 
 I use the term *channel* to refer to a sink that is configured to work with
-IJ4JLogger. Out of the box only certain sinks have channels associated with
+IJ4JLogger. Out of the box only certain Serilog sinks have channels associated with
 them:
 - Console
 - Debug
 - File
 - Twilio
 
-But it's not hard to [create your own](channel.md) and add it to the mix.
+But it's not hard to [create your own](channel.md) and add it to the mix. In fact, the
+library comes with two additional sinks and their corresponding channels:
+- LastEvent (makes the last Serilog event that came through the pipeline available; I often
+use it in unit test)
+- NetEvent (raises a standard C# event for every Serilog event; I often use it in WPF
+projects to display "in process" logging messages and errors)
 
-A channel must implement `IChannelConfig`:
+A channel must implement `IChannel` and be able to notify the J4JLogger it's associated
+with when any of its parameters change in a way that requires the underlying Serilog
+logger to be regenerated.
+
+To simplify creating channels it's best to derive from `Channel`:
 ```csharp
-public interface IChannelConfig
+// Base class for containing the information needed to configure an instance of FileChannel
+[ChannelID("File", typeof(FileChannel))]
+public class FileChannel : Channel
 {
-    LogEventLevel MinimumLevel { get; set; }
-    string? OutputTemplate { get; set; }
-    bool IsValid { get; }
-        
-    // Gets the Serilog message template in use, augmented/enriched by optional fields
-    // supported by the J4JLogger system (e.g., SourceContext, which represents the 
-    // source code file's path).
-    string EnrichedMessageTemplate { get; }
+    private RollingInterval _interval = RollingInterval.Day;
+    private string _folder = Environment.CurrentDirectory;
+    private string _fileName = "log.txt";
 
-    LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig );
+    public FileChannel()
+    {
+        RequireNewLine = true;
+    }
+
+    public RollingInterval RollingInterval
+    {
+        get => _interval;
+        set => SetPropertyAndNotifyLogger(ref _interval, value);
+    }
+
+    public string Folder
+    {
+        get => _folder;
+        set => SetPropertyAndNotifyLogger(ref _folder, value);
+    }
+
+    public string FileName
+    {
+        get => _fileName;
+        set => SetPropertyAndNotifyLogger(ref _fileName, value);
+    }
+
+    public string FileTemplatePath => Path.Combine(Folder, FileName);
+
+    public override LoggerConfiguration Configure( LoggerSinkConfiguration sinkConfig )
+    {
+        return sinkConfig.File( FileTemplatePath,
+            MinimumLevel,
+            EnrichedMessageTemplate,
+            rollingInterval: RollingInterval);
+    }
 }
 ```
+The `ChannelIDAttribute` decorating the new channel is important if you want my
+dependency injection framework to be able to recognize the channel. Doing so significantly
+simplifies using channels. The name you assign the new channel should be unique among
+all channels (the ones I've written are simply named after their sink, e.g., Console, Debug,
+etc.).
 
 #### SMS Channels
 
-`TwilioConfig` is an example of an SMS channel which sends log events as text messages.
+`TwilioChannel` is an example of an SMS channel which sends log events as text messages.
 SMS channels don't process every log event because to do so would flood the recipients.
 Instead, they are intended for urgent events that demand immediate attention. 
 
 To send a log event through the SMS channels (in addition to whatever other "normal"
-channels you've defined) you call the `IncludeSms()` method on an instance 
+channels you've defined) you call the `OutputNextEventToSms()` method on an instance 
 of `IJ4JLogger`. That will send the next log event, and only the next log event, to 
 the SMS channels. 
 
-`IncludeSms()` returns the instance of `IJ4JLogger` so you can chain it:
+`OutputNextEventToSms()` returns the instance of `IJ4JLogger` so you can chain it:
 ```csharp
 logger.IncludeSms().Verbose<string, string>( "{0} ({1})", "Verbose", "configPath" );
 ```

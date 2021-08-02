@@ -6,7 +6,7 @@ about the type of object generating logging information. As that's one of
 the main points of using `IJ4JLogger` you'll almost always be calling 
 `SetLoggedType()`, usually in the constructor of whatever types you're logging.
 
-Using **IJ4JLogger* is very similar to using Serilog since it's essentially 
+Using **IJ4JLogger** is very similar to using Serilog since it's essentially 
 just a wrapper around an `ILogger` instance. You can use any of Serilog's 
 basic logging method calls, `Write()`, `Debug()`, `Error()`, `Information()`, 
 `Verbose()` and `Warning()`.
