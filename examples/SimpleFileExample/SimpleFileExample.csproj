@@ -6,7 +6,7 @@
 		<TargetFramework>net5.0</TargetFramework>
 		<AssemblyName>J4JLogger.ConfigFileExample</AssemblyName>
 		<RootNamespace>J4JLogger.Examples</RootNamespace>
-		<Version>2.5.0.0</Version>
+		<Version>4.0.0.0</Version>
 		<Authors>Mark A. Olbert</Authors>
 		<Company>Jump for Joy Software</Company>
 		<Product>J4JSoftware Serilog wrapper</Product>
