@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,33 +8,13 @@ namespace J4JSoftware.Logging
 {
     public class LoggerConfigurator : ILoggerConfigurator
     {
-        private readonly Func<J4JLogger, Type, IChannel?> _channelFactory;
-        private readonly Dictionary<string, Type> _nameTypeMap = new(StringComparer.OrdinalIgnoreCase);
+        private readonly IChannelFactory _channelFactory;
 
         public LoggerConfigurator(
-            Func<J4JLogger, Type, IChannel?> channelFactory
+            IChannelFactory channelFactory
         )
         {
             _channelFactory = channelFactory;
-
-            ScanAssemblyForChannels();
-        }
-
-        protected void ScanAssemblyForChannels()
-        {
-            foreach( var type in this.GetType().Assembly.DefinedTypes.Where(t => !t.IsAbstract
-                && typeof(IChannel).IsAssignableFrom(t)
-                && t.GetConstructors().Any(c => c.GetParameters().Length == 0 )))
-            {
-                var channelAttr = type.GetCustomAttribute<ChannelIDAttribute>(false);
-                if( channelAttr == null )
-                    continue;
-
-                if( _nameTypeMap.ContainsKey( channelAttr.Name ) )
-                    continue;
-
-                _nameTypeMap.Add( channelAttr.Name, channelAttr.ChannelType );
-            }
         }
 
         public J4JLogger Configure( J4JLogger logger, object? loggerInfo, params string[] channels ) =>
@@ -50,12 +29,7 @@ namespace J4JSoftware.Logging
 
             foreach (var channelName in loggerInfo.AllChannels(channels))
             {
-                if( !_nameTypeMap.ContainsKey( channelName ) )
-                    continue;
-
-                var channelType = _nameTypeMap[ channelName ];
-
-                var newChannel = _channelFactory(logger, channelType);
+                var newChannel = _channelFactory.GetLoggerChannel(logger, channelName);
 
                 if (newChannel == null)
                     continue;
@@ -64,33 +38,26 @@ namespace J4JSoftware.Logging
                     ? loggerInfo.ChannelSpecific[channelName]
                     : null;
 
-                switch (newChannel)
-                {
-                    case FileChannel fileChannel:
-                        fileChannel.ConfigureFileChannel((FileConfiguration?)configValues);
-                        break;
-
-                    case ConsoleChannel consoleChannel:
-                        consoleChannel.ConfigureChannel(configValues);
-                        break;
-
-                    case DebugChannel debugChannel:
-                        debugChannel.ConfigureChannel(configValues);
-                        break;
-
-                    case NetEventChannel netEventChannel:
-                        netEventChannel.ConfigureChannel(configValues);
-                        break;
-
-                    case LastEventChannel lastEventChannel:
-                        lastEventChannel.ConfigureChannel(configValues);
-                        break;
-                }
-
-                logger.Channels.Add(newChannel);
+                if( ConfigureChannel( newChannel, configValues, out var configuredChannel ) )
+                    logger.Channels.Add( configuredChannel! );
             }
 
             return logger;
+        }
+
+        protected virtual bool ConfigureChannel( IChannel channel, ChannelConfiguration? config, out IChannel? result )
+        {
+            result = channel switch
+            {
+                FileChannel fileChannel => fileChannel.ConfigureFileChannel( (FileConfiguration?) config ),
+                ConsoleChannel consoleChannel => consoleChannel.ConfigureChannel( config ),
+                DebugChannel debugChannel => debugChannel.ConfigureChannel( config ),
+                NetEventChannel netEventChannel => netEventChannel.ConfigureChannel( config ),
+                LastEventChannel lastEventChannel => lastEventChannel.ConfigureChannel( config ),
+                _ => null
+            };
+
+            return result != null;
         }
     }
 }

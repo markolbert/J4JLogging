@@ -5,19 +5,6 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "J4JLogging\J4JLogging.csproj", "{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "gitdoc", "gitdoc", "{33976A4C-64BD-4142-BF64-DA4714E000AA}"
-	ProjectSection(SolutionItems) = preProject
-		docs\changes.md = docs\changes.md
-		docs\channel.md = docs\channel.md
-		docs\configuration.md = docs\configuration.md
-		docs\goal-concept.md = docs\goal-concept.md
-		LICENSE.md = LICENSE.md
-		README.md = README.md
-		docs\terminology.md = docs\terminology.md
-		docs\twilio.md = docs\twilio.md
-		docs\usage.md = docs\usage.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleFileExample", "examples\SimpleFileExample\SimpleFileExample.csproj", "{AEF43022-2DBC-4888-94D0-7C4A345CD147}"
@@ -25,11 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggingTests\J4JLoggingTests.csproj", "{E724D950-8108-4B98-8063-1C30CEEDE432}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{0EE28666-4113-4E7E-9460-7412B152FD81}"
-	ProjectSection(SolutionItems) = preProject
-		docs\assets\simple-console.png = docs\assets\simple-console.png
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,7 +41,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
-		{0EE28666-4113-4E7E-9460-7412B152FD81} = {33976A4C-64BD-4142-BF64-DA4714E000AA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}

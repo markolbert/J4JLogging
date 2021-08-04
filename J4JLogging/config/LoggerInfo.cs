@@ -27,24 +27,19 @@ namespace J4JSoftware.Logging
 {
     public class LoggerInfo
     {
-        public ChannelConfiguration? Global { get; set; }
-        public List<string>? Channels { get; set; }
-        public Dictionary<string, ChannelConfiguration>? ChannelSpecific { get; set; }
+        public ChannelConfiguration Global { get; set; } = new();
+        public List<string> Channels { get; set; } = new();
 
-        public IEnumerable<string> AllChannels( params string[] channels )
+        public Dictionary<string, ChannelConfiguration> ChannelSpecific { get; set; } =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        public IEnumerable<string> AllChannels( params string[] specialChannels )
         {
-            if( Channels == null && ChannelSpecific == null && channels.Length == 0 )
-                yield break;
-
             var allChannels = new List<string>();
 
-            if( Channels != null )
-                allChannels.AddRange( Channels );
-
-            allChannels.AddRange( channels );
-
-            if( ChannelSpecific != null )
-                allChannels.AddRange( ChannelSpecific.Select( kvp => kvp.Key ) );
+            allChannels.AddRange( Channels );
+            allChannels.AddRange( specialChannels );
+            allChannels.AddRange( ChannelSpecific.Select( kvp => kvp.Key ) );
 
             foreach( var channel in allChannels.Distinct( StringComparer.OrdinalIgnoreCase ) )
             {
