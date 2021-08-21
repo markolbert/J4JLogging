@@ -60,8 +60,8 @@ namespace J4JLoggingTests
 
             CheckCommonParameters( settings.Global!, loggerInfo!.Global! );
 
-            if( loggerInfo.ChannelSpecific == null || loggerInfo.ChannelSpecific.Count == 0 )
-                settings.ChannelSpecific.Should().BeNull();
+            if( loggerInfo.ChannelSpecific.Count == 0 )
+                settings.ChannelSpecific.Should().BeEmpty();
             else
             {
                 settings.ChannelSpecific.Should().NotBeNull();

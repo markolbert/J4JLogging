@@ -30,26 +30,6 @@ namespace J4JSoftware.Logging
 {
     public class J4JCachedLogger : J4JBaseLogger
     {
-        public override void Write( 
-            LogEventLevel level, 
-            string template,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0)
-        {
-            Entries.Add( new CachedEntry(
-                LoggedType,
-                level,
-                template,
-                memberName,
-                srcPath,
-                srcLine,
-                OutputNextToSms )
-            );
-
-            ResetSms();
-        }
-
         protected override void OnLoggedTypeChanged()
         {
             // no op
@@ -59,78 +39,6 @@ namespace J4JSoftware.Logging
         public override bool OutputCache( J4JCachedLogger cachedLogger ) => false;
 
         public List<CachedEntry> Entries { get; } = new();
-
-        public override void Write<T0>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0)
-        {
-            Entries.Add(new CachedEntry(
-                LoggedType,
-                level,
-                template,
-                memberName,
-                srcPath,
-                srcLine,
-                OutputNextToSms,
-                propertyValue)
-            );
-
-            ResetSms();
-        }
-
-        public override void Write<T0, T1>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue0, 
-            T1 propertyValue1,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0)
-        {
-            Entries.Add(new CachedEntry(
-                LoggedType,
-                level,
-                template,
-                memberName,
-                srcPath,
-                srcLine,
-                OutputNextToSms,
-                propertyValue0,
-                propertyValue1 )
-            );
-
-            ResetSms();
-        }
-
-        public override void Write<T0, T1, T2>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue0, 
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0)
-        {
-            Entries.Add( new CachedEntry(
-                LoggedType,
-                level,
-                template,
-                memberName,
-                srcPath,
-                srcLine,
-                OutputNextToSms,
-                propertyValue0,
-                propertyValue1,
-                propertyValue2 )
-            );
-
-            ResetSms();
-        }
 
         public override void Write( 
             LogEventLevel level, 
