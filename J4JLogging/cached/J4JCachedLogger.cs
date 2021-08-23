@@ -55,11 +55,12 @@ namespace J4JSoftware.Logging
                 memberName,
                 srcPath,
                 srcLine,
-                OutputNextToSms,
+                SmsHandling,
                 propertyValues)
             );
 
-            ResetSms();
+            if( SmsHandling == SmsHandling.SendNextMessage )
+                SmsHandling = SmsHandling.DoNotSend;
         }
     }
 }

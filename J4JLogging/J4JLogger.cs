@@ -20,9 +20,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -33,140 +36,114 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : J4JBaseLogger
     {
-        private ILogger? _baseLogger;
-
-        protected internal override void ResetBaseLogger()
+        public J4JLogger( 
+            LoggerConfiguration loggerConfig
+            )
         {
-            _baseLogger = null;
+            LoggerConfiguration = loggerConfig;
         }
 
-        /// <summary>
-        ///     The <see cref="Serilog.ILogger" />  instance that handles the actual logging. Read only.
-        /// </summary>
-        private ILogger BaseLogger => _baseLogger ??= CreateBaseLogger();
-
-        private ILogger CreateBaseLogger()
+        public J4JLogger( 
+            LogEventLevel minimumLevel = LogEventLevel.Verbose
+            )
         {
-            var loggerConfig = new LoggerConfiguration()
-                .Enrich.FromLogContext();
+            LoggerConfiguration = new LoggerConfiguration();
 
-            var minLevel = LogEventLevel.Fatal;
-
-            foreach( var channel in Channels )
+            switch( minimumLevel )
             {
-                if( channel.MinimumLevel < minLevel )
-                    minLevel = channel.MinimumLevel;
+                case LogEventLevel.Debug:
+                    LoggerConfiguration.MinimumLevel.Debug();
+                    break;
 
-                channel.Configure( loggerConfig.WriteTo );
+                case LogEventLevel.Error:
+                    LoggerConfiguration.MinimumLevel.Error();
+                    break;
+
+                case LogEventLevel.Fatal:
+                    LoggerConfiguration.MinimumLevel.Fatal();
+                    break;
+
+                case LogEventLevel.Information:
+                    LoggerConfiguration.MinimumLevel.Information();
+                    break;
+
+                case LogEventLevel.Verbose:
+                    LoggerConfiguration.MinimumLevel.Verbose();
+                    break;
+
+                case LogEventLevel.Warning:
+                    LoggerConfiguration.MinimumLevel.Warning();
+                    break;
+
+                default:
+                    throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{minimumLevel}'" );
             }
+        }
 
-            SetMinimumLevel(loggerConfig, minLevel);
-
-            var retVal = loggerConfig.CreateLogger();
-
-            if( LoggedType != null )
-                retVal.ForContext( LoggedType );
-
-            return retVal;
+        public LoggerConfiguration LoggerConfiguration { get; }
+        public ILogger? Serilogger { get; private set; }
+        public bool Built => Serilogger != null;
+        public List<BaseEnricher> J4JEnrichers { get; } = new();
+        public void Create()
+        {
+            Serilogger = LoggerConfiguration.CreateLogger();
         }
 
         protected override void OnLoggedTypeChanged()
         {
-            if( LoggedType == null )
-                ResetBaseLogger();
-            else _baseLogger?.ForContext( LoggedType );
+            if( J4JEnrichers.FirstOrDefault( x => x is LoggedTypeEnricher ) is LoggedTypeEnricher enricher )
+                enricher.LoggedTypeName = LoggedType?.Name;
         }
-
-        private static void SetMinimumLevel( LoggerConfiguration config, LogEventLevel minLevel)
-        {
-            switch (minLevel)
-            {
-                case LogEventLevel.Debug:
-                    config.MinimumLevel.Debug();
-                    break;
-
-                case LogEventLevel.Error:
-                    config.MinimumLevel.Error();
-                    break;
-
-                case LogEventLevel.Fatal:
-                    config.MinimumLevel.Fatal();
-                    break;
-
-                case LogEventLevel.Information:
-                    config.MinimumLevel.Information();
-                    break;
-
-                case LogEventLevel.Verbose:
-                    config.MinimumLevel.Verbose();
-                    break;
-
-                case LogEventLevel.Warning:
-                    config.MinimumLevel.Warning();
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(minLevel), minLevel, null);
-            }
-        }
-
-        public List<IChannel> Channels { get; } = new();
 
         public override bool OutputCache( J4JCachedLogger cachedLogger )
         {
-            var curLoggedType = LoggedType;
+            if( !Built )
+                return false;
 
             foreach( var entry in cachedLogger.Entries )
             {
                 if( LoggedType != entry.LoggedType)
                     LoggedType = entry.LoggedType;
 
-                OutputNextToSms = entry.OutputToSms;
+                SmsHandling = entry.SmsHandling;
 
-                var contextProperties =
-                    InitializeContextProperties( entry.MemberName, entry.SourcePath, entry.SourceLine );
-
-                BaseLogger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues );
-
-                DisposeContextProperties( contextProperties );
+                Serilogger!.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues );
             }
 
             cachedLogger.Entries.Clear();
 
-            LoggedType = curLoggedType;
-
             return true;
         }
 
-        // Initialize the additional LogEvent properties supported by J4JLogger
-        private List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
-        {
-            var retVal = new List<IDisposable>
-            {
-                LogContext.PushProperty( "SendToSms", OutputNextToSms ),
-                LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
-            };
+        //// Initialize the additional LogEvent properties supported by J4JLogger
+        //private List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
+        //{
+        //    var retVal = new List<IDisposable>
+        //    {
+        //        LogContext.PushProperty( "SendToSms", OutputNextToSms ),
+        //        LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
+        //    };
 
-            if( !IncludeSourcePath ) 
-                return retVal;
+        //    if( !IncludeSourcePath ) 
+        //        return retVal;
 
-            if( !string.IsNullOrEmpty(SourceRootPath ) )
-                srcPath = srcPath.Replace(SourceRootPath, "" );
+        //    if( !string.IsNullOrEmpty(SourceRootPath ) )
+        //        srcPath = srcPath.Replace(SourceRootPath, "" );
 
-            retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
+        //    retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
 
-            return retVal;
-        }
+        //    return retVal;
+        //}
 
-        // Clear the additional LogEvent properties supported by J4JLogger. This must be done
-        // after each LogEvent is processed to comply with Serilog's design.
-        private static void DisposeContextProperties( List<IDisposable> contextProperties )
-        {
-            foreach( var contextProperty in contextProperties )
-            {
-                contextProperty.Dispose();
-            }
-        }
+        //// Clear the additional LogEvent properties supported by J4JLogger. This must be done
+        //// after each LogEvent is processed to comply with Serilog's design.
+        //private static void DisposeContextProperties( List<IDisposable> contextProperties )
+        //{
+        //    foreach( var contextProperty in contextProperties )
+        //    {
+        //        contextProperty.Dispose();
+        //    }
+        //}
 
         public override void Write(
             LogEventLevel level,
@@ -177,11 +154,34 @@ namespace J4JSoftware.Logging
             [ CallerLineNumber ] int srcLine = 0
         )
         {
-            var contextProperties = InitializeContextProperties( memberName, srcPath, srcLine );
+            if( !Built )
+                return;
 
-            BaseLogger.Write( level, template, propertyValues );
+            if( J4JEnrichers.FirstOrDefault( x => x is CallingMemberEnricher ) 
+                is CallingMemberEnricher callingMemberEnricher )
+                callingMemberEnricher.CallingMemberName = memberName;
 
-            DisposeContextProperties( contextProperties );
+            if( J4JEnrichers.FirstOrDefault( x => x is SourceFileEnricher )
+                is SourceFileEnricher sourceEnricher )
+                sourceEnricher.SourceFilePath = srcPath;
+
+            if( J4JEnrichers.FirstOrDefault( x => x is LineNumberEnricher )
+                is LineNumberEnricher lineNumEnricher )
+                lineNumEnricher.LineNumber = srcLine;
+
+            var smsEnricher = J4JEnrichers.FirstOrDefault( x => x is SmsEnricher) as SmsEnricher;
+
+            if( smsEnricher != null )
+                smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
+
+            //var contextProperties = InitializeContextProperties( memberName, srcPath, srcLine );
+
+            Serilogger!.Write( level, template, propertyValues );
+
+            if( smsEnricher != null )
+                smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
+
+            //DisposeContextProperties( contextProperties );
         }
     }
 }

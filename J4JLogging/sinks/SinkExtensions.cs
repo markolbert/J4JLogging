@@ -22,43 +22,47 @@ using System.Collections.Generic;
 using System.Linq;
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Events;
 using Serilog.Formatting;
 
 namespace J4JSoftware.Logging
 {
     public static class SinkExtensions
     {
-        public static LoggerConfiguration Sms<TSmsSink>(
-            this LoggerSinkConfiguration sinkConfig,
-            ITextFormatter formatter,
-            string fromNumber,
-            IEnumerable<string> recipientNumbers )
-            where TSmsSink : SmsSink, new()
-        {
-            return sinkConfig.Sink( new TSmsSink
+        public static TSmsSink CreateSmsSink<TSmsSink>(
+            string? fromNumber,
+            IEnumerable<string>? recipientNumbers,
+            ITextFormatter? formatter = null
+            )
+            where TSmsSink : SmsSink, new() =>
+            new TSmsSink
             {
                 FromNumber = fromNumber,
-                RecipientNumbers = recipientNumbers.ToList(),
+                RecipientNumbers = recipientNumbers?.ToList(),
                 TextFormatter = formatter
-            } );
-        }
+            };
 
-        public static LoggerConfiguration LastEvent( this LoggerSinkConfiguration sinkConfig,
-            EventHandler<string> handler )
+        public static LoggerConfiguration LastEvent(
+            this LoggerSinkConfiguration loggerConfig,
+            out LastEventSink sink,
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
+            )
         {
-            var sink = new LastEventSink();
-            sink.LogEvent += handler;
+            sink = new LastEventSink();
 
-            return sinkConfig.Sink( sink );
+            return loggerConfig.Sink( sink, restrictedToMinimumLevel );
         }
 
         public static LoggerConfiguration NetEvent(
-            this LoggerSinkConfiguration sinkConfig,
-            ITextFormatter formatter,
-            NetEventChannel channel )
+            this LoggerSinkConfiguration loggerConfig,
+            out NetEventSink sink,
+            ITextFormatter? formatter = null,
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
+            )
         {
-            var sink = new NetEventSink( channel ) { TextFormatter = formatter };
-            return sinkConfig.Sink( sink );
+            sink = new NetEventSink { TextFormatter = formatter };
+
+            return loggerConfig.Sink( sink, restrictedToMinimumLevel );
         }
     }
 }

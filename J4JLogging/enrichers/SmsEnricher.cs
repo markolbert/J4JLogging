@@ -17,39 +17,18 @@
 
 #endregion
 
-using System;
-using System.IO;
-using System.Text;
-using Serilog.Core;
-using Serilog.Events;
-using Serilog.Formatting;
-
 namespace J4JSoftware.Logging
 {
-    public class NetEventSink : ILogEventSink
+    public class SmsEnricher : BaseEnricher
     {
-        public EventHandler<NetEventArgs>? LogEvent;
-
-        private readonly StringBuilder _sb = new();
-        private readonly StringWriter _stringWriter;
-
-        public NetEventSink()
+        public SmsEnricher()
+            : base("SendToSms")
         {
-            _stringWriter = new StringWriter( _sb );
         }
 
-        public ITextFormatter? TextFormatter { get; internal set; }
+        protected override bool EnrichContext => SendNextToSms;
+        protected override object GetValue() => "SendToSms";
 
-        public void Emit( LogEvent logEvent )
-        {
-            if( TextFormatter == null )
-                return;
-
-            _sb.Clear();
-            TextFormatter.Format( logEvent, _stringWriter );
-            _stringWriter.Flush();
-
-            LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
-        }
+        public bool SendNextToSms { get; set; }
     }
 }

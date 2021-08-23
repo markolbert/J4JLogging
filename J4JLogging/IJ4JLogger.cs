@@ -26,12 +26,7 @@ namespace J4JSoftware.Logging
     public interface IJ4JLogger
     {
         Type? LoggedType { get; set; }
-
-        J4JBaseLogger SetLoggedType<T>();
-        J4JBaseLogger SetLoggedType( Type typeToLog );
-        J4JBaseLogger ClearLoggedType();
-
-        J4JBaseLogger OutputNextEventToSms();
+        SmsHandling SmsHandling { get; set; }
 
         bool OutputCache( J4JCachedLogger cachedLogger );
 

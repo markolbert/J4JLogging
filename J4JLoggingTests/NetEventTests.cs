@@ -25,7 +25,7 @@ using Xunit;
 
 namespace J4JLoggingTests
 {
-    public class NetEventTests
+    public class NetEventTests : TestBase
     {
         private LogEventLevel _curLevel = LogEventLevel.Verbose;
         private string _curTemplate = string.Empty;
@@ -39,18 +39,10 @@ namespace J4JLoggingTests
         [ InlineData( LogEventLevel.Verbose ) ]
         public void TestEvent( LogEventLevel level )
         {
-            var logger = new J4JLogger();
-
-            var netEventConfig = new NetEventChannel();
-            netEventConfig.SetAssociatedLogger( logger );
-            netEventConfig.LogEvent += NetEventConfigOnLogEvent;
-
-            logger.Channels.Add( netEventConfig );
-
-            LogMessage( logger, level );
+            LogMessage( level );
         }
 
-        private void LogMessage( J4JLogger logger, LogEventLevel level )
+        private void LogMessage( LogEventLevel level )
         {
             _curLevel = level;
 
@@ -67,11 +59,13 @@ namespace J4JLoggingTests
 
             _curTemplate = $"[{abbr}] This is a(n) \"{level}\" event\r\n";
 
-            logger!.Write( level, "This is a(n) {0} event", level );
+            Logger.Write( level, "This is a(n) {0} event", level );
         }
 
-        private void NetEventConfigOnLogEvent( object? sender, NetEventArgs e )
+        protected override void OnNetEvent( NetEventArgs e )
         {
+            base.OnNetEvent( e );
+
             e.Level.Should().Be( _curLevel );
             e.LogMessage.Should().Be( _curTemplate );
         }

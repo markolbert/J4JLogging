@@ -32,17 +32,6 @@ namespace J4JSoftware.Logging
         public void Emit( LogEvent logEvent )
         {
             LastLogMessage = logEvent.RenderMessage();
-
-            RaiseLogEvent( LastLogMessage );
-        }
-
-        public event EventHandler<string> LogEvent;
-
-        private void RaiseLogEvent( string logMessage )
-        {
-            var handler = LogEvent;
-
-            handler?.Invoke( this, logMessage );
         }
     }
 }

@@ -18,15 +18,21 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
 namespace J4JSoftware.Logging
 {
     public class TwilioSink : SmsSink
     {
+        public bool ClientConfigured { get; internal set; }
+        public override bool IsValid => base.IsValid && ClientConfigured;
+
         protected override void SendMessage( string logMessage )
         {
-            foreach( var rn in RecipientNumbers )
+            foreach( var rn in RecipientNumbers! )
+            {
                 try
                 {
                     MessageResource.Create( body: logMessage, to: rn, @from: FromNumber );
@@ -36,6 +42,7 @@ namespace J4JSoftware.Logging
                     throw new InvalidOperationException(
                         $"Could not create Twilio message. Exception message was '{e.Message}'" );
                 }
+            }
         }
     }
 }

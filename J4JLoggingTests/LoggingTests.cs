@@ -18,75 +18,42 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using FluentAssertions;
 using J4JSoftware.Logging;
-using Microsoft.Extensions.Configuration;
 using Serilog.Events;
 using Xunit;
 
 namespace J4JLoggingTests
 {
-    public class LoggingTests
+    public class LoggingTests : TestBase
     {
-        private readonly TwilioConfiguration _twilioConfig;
-
-        public LoggingTests()
-        {
-            var configBuilder = new ConfigurationBuilder();
-
-            var config = configBuilder
-                .AddUserSecrets<LoggingTests>()
-                .Build();
-
-            _twilioConfig = new TwilioConfiguration
-            {
-                IncludeSourcePath = true,
-                SourceRootPath = null,
-                OutputTemplate = J4JBaseLogger.DefaultOutputTemplate,
-                RequireNewLine = true,
-                MinimumLevel = LogEventLevel.Verbose,
-                AccountSID = config.GetValue<string>( "twilio:AccountSID" ),
-                AccountToken = config.GetValue<string>( "twilio:AccountToken" ),
-                FromNumber = config.GetValue<string>( "twilio:FromNumber" ),
-                Recipients = new List<string> { "+1 650 868 3367" }
-            };
-        }
-
         [ Fact ]
         public void Uncached()
         {
-            var logger = new J4JLogger();
-            logger.SetLoggedType(GetType());
-
-            logger.AddDebug();
-            logger.AddTwilio( _twilioConfig );
-
-            var lastEvent = logger.AddLastEvent();
-
             var template = "{0} (test message)";
 
-            logger.Verbose<string>( template, "Verbose" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Verbose" ) );
+            Logger.Verbose<string>( template, "Verbose" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Verbose" ) );
 
-            logger.Warning<string>( template, "Warning" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Warning" ) );
+            Logger.Warning<string>( template, "Warning" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Warning" ) );
 
-            logger.Information<string>( template, "Information" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Information" ) );
+            Logger.Information<string>( template, "Information" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Information" ) );
 
-            logger.Debug<string>( template, "Debug" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Debug" ) );
+            Logger.Debug<string>( template, "Debug" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Debug" ) );
 
-            logger.Error<string>( template, "Error" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Error" ) );
+            Logger.Error<string>( template, "Error" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Error" ) );
 
-            logger.Fatal<string>( template, "Fatal" );
-            lastEvent.LastLogMessage.Should().Be( format_message( "Fatal" ) );
+            Logger.Fatal<string>( template, "Fatal" );
+            LastEvent.LastLogMessage.Should().Be( format_message( "Fatal" ) );
 
-            logger.OutputNextEventToSms().Verbose<string>( "{0}", "Verbose" );
+            Logger.SmsHandling = SmsHandling.SendNextMessage;
+            Logger.Verbose<string>( "{0}", "Verbose" );
 
             string format_message( string prop1 )
             {
@@ -108,30 +75,22 @@ namespace J4JLoggingTests
             cached.Debug<string>( template, "Debug" );
             cached.Error<string>( template, "Error" );
             cached.Fatal<string>( template, "Fatal" );
-            cached.OutputNextEventToSms().Verbose<string>( "{0} (test message)", "Verbose" );
 
-            var logger = new J4JLogger();
-
-            logger.AddDebug();
-            logger.AddTwilio( _twilioConfig );
-
-            var lastEvent = logger.AddLastEvent();
-
-            logger.SetLoggedType( GetType() );
+            cached.SmsHandling = SmsHandling.SendNextMessage;
+            cached.Verbose<string>( "{0} (test message)", "Verbose" );
 
             foreach( var entry in cached.Entries )
             {
-                if( entry.OutputToSms )
-                    logger.OutputNextEventToSms();
+                Logger.SmsHandling = entry.SmsHandling;
 
                 if( cached.LoggedType == null )
-                    logger.ClearLoggedType();
-                else logger.SetLoggedType( cached.LoggedType );
+                    Logger.ClearLoggedType();
+                else Logger.SetLoggedType( cached.LoggedType );
 
-                logger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues, entry.MemberName,
+                Logger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues, entry.MemberName,
                     entry.SourcePath, entry.SourceLine );
 
-                lastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
+                LastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
             }
 
             string format_message( string prop1 )

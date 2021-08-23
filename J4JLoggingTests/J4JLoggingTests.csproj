@@ -15,6 +15,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="ConfigTests.cs" />
+    <Compile Remove="support\DataGenerator.cs" />
+    <Compile Remove="support\DerivedData.cs" />
+    <Compile Remove="support\EmbeddedData.cs" />
+    <Compile Remove="support\SimpleData.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />

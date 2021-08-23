@@ -29,7 +29,7 @@ namespace J4JSoftware.Logging
         string MemberName,
         string SourcePath,
         int SourceLine,
-        bool OutputToSms,
+        SmsHandling SmsHandling,
         params object[] PropertyValues
     );
 }

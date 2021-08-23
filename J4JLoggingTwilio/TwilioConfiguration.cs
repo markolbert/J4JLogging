@@ -24,7 +24,7 @@ using Serilog;
 
 namespace J4JSoftware.Logging
 {
-    public class TwilioConfiguration : ChannelConfiguration
+    public class TwilioConfiguration
     {
         public string? AccountSID { get; set; }
         public string? AccountToken { get; set; }

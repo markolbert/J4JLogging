@@ -15,6 +15,11 @@ namespace J4JLoggingTests
 {
     public class ConfigTests
     {
+        public ConfigTests()
+        {
+
+        }
+
         [ Theory ]
         [ MemberData( nameof(SimpleData.TestData), MemberType = typeof(SimpleData) ) ]
         public void Simple( string filePath, LoggerInfo loggerInfo )

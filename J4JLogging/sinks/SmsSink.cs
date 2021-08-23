@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Serilog.Core;
 using Serilog.Events;
@@ -31,14 +32,16 @@ namespace J4JSoftware.Logging
         private readonly StringBuilder _sb;
         private readonly StringWriter _stringWriter;
 
-        protected SmsSink()
+        protected SmsSink( )
         {
             _sb = new StringBuilder();
             _stringWriter = new StringWriter( _sb );
         }
 
-        public string FromNumber { get; internal set; } = string.Empty;
-        public List<string> RecipientNumbers { get; internal set; } = new();
+        public virtual bool IsValid => !string.IsNullOrEmpty( FromNumber ) && ( RecipientNumbers?.Any() ?? false );
+
+        public string? FromNumber { get; internal set; }
+        public List<string>? RecipientNumbers { get; internal set; }
         public ITextFormatter? TextFormatter { get; internal set; }
 
         public void Emit( LogEvent logEvent )
