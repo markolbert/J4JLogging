@@ -36,6 +36,8 @@ namespace J4JSoftware.Logging
                         .WriteTo.Sink(sink, restrictedToMinimumLevel)
                 );
 
+            loggerConfig.AddEnricher<SmsEnricher>();
+
             return loggerConfig;
         }
     }

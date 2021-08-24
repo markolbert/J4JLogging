@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Serilog;
 using Serilog.Context;
@@ -32,26 +33,38 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : J4JBaseLogger
     {
-        private readonly SmsEnricher _smsEnricher = new();
-        private readonly SourceFileEnricher _srcFileEnricher = new();
-        private readonly CallingMemberEnricher _callingMemberEnricher = new();
-        private readonly LineNumberEnricher _lineNumEnricher = new();
-        private readonly LoggedTypeEnricher _loggedTypeEnricher = new();
-
+        private readonly List<BaseEnricher> _enrichers;
         private readonly List<IDisposable> _pushedProperties = new();
+
+        public J4JLogger(
+            ILogger seriLogger,
+            params BaseEnricher[] enrichers
+        )
+        {
+            Serilogger = seriLogger;
+            _enrichers = enrichers.ToList();
+        }
 
         public J4JLogger(
             ILogger seriLogger
         )
+            : this(seriLogger,
+                new BaseEnricher[]
+                {
+                    new CallingContextEnricher(),
+                    new SmsEnricher()
+                })
         {
-            Serilogger = seriLogger;
         }
 
         internal J4JLogger(
             J4JLoggerConfiguration loggerConfig
         )
-            : this( loggerConfig.SerilogConfiguration.CreateLogger() )
+            : this( loggerConfig.SerilogConfiguration.CreateLogger(), loggerConfig.Enrichers.ToArray() )
         {
+            if( _enrichers.FirstOrDefault( x => x is CallingContextEnricher )
+                is CallingContextEnricher callingEnricher )
+                callingEnricher.ConvertToText = loggerConfig.CallingContextToText;
         }
 
         public ILogger? Serilogger { get; }
@@ -93,11 +106,18 @@ namespace J4JSoftware.Logging
             [ CallerLineNumber ] int srcLine = 0
         )
         {
-            _callingMemberEnricher.CallingMemberName = memberName;
-            _srcFileEnricher.SourceFilePath = srcPath;
-            _lineNumEnricher.LineNumber = srcLine;
-            _smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
-            _loggedTypeEnricher.LoggedType = LoggedType;
+            if( _enrichers.FirstOrDefault( x => x is CallingContextEnricher )
+                is CallingContextEnricher callingEnricher )
+            {
+                callingEnricher.LoggedType = LoggedType;
+                callingEnricher.CallingMemberName = memberName;
+                callingEnricher.LineNumber = srcLine;
+                callingEnricher.SourceFilePath = srcPath;
+            }
+
+            var smsEnricher = _enrichers.FirstOrDefault(x => x is SmsEnricher) as SmsEnricher;
+            if( smsEnricher != null )
+                smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
 
             PushToLogContext();
 
@@ -105,15 +125,15 @@ namespace J4JSoftware.Logging
 
             DisposeFromLogContext();
 
-            _smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
+            if( smsEnricher != null )
+                smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
         }
 
         private void PushToLogContext()
         {
             _pushedProperties.Clear();
 
-            foreach( var enricher in new BaseEnricher[]
-                { _srcFileEnricher, _callingMemberEnricher, _lineNumEnricher, _smsEnricher, _loggedTypeEnricher } )
+            foreach( var enricher in _enrichers )
             {
                 if( !enricher.EnrichContext )
                     continue;

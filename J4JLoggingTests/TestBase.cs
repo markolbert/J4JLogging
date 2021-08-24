@@ -17,7 +17,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -26,6 +30,33 @@ namespace J4JLoggingTests
 {
     public class TestBase
     {
+        private static string ConvertCallingContextToText(
+            Type? loggedType,
+            string callerName,
+            int lineNum,
+            string srcFilePath)
+        {
+            return CallingContextEnricher.DefaultConvertToText(loggedType,
+                callerName,
+                lineNum,
+                CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
+        }
+
+        private static string GetProjectPath([CallerFilePath] string filePath = "")
+        {
+            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(filePath)!);
+
+            while (dirInfo.Parent != null)
+            {
+                if (dirInfo.EnumerateFiles("*.csproj").Any())
+                    break;
+
+                dirInfo = dirInfo.Parent;
+            }
+
+            return dirInfo.FullName;
+        }
+
         protected TestBase()
         {
             var configBuilder = new ConfigurationBuilder();
@@ -42,14 +73,14 @@ namespace J4JLoggingTests
                 Recipients = new List<string> { "+1 650 868 3367" }
             };
 
-            var loggerConfig = new J4JLoggerConfiguration();
-            loggerConfig.IncludeSendToTwilio( twilioConfig );
+            var loggerConfig = new J4JLoggerConfiguration( callingContextToText: ConvertCallingContextToText )
+                .AddEnricher<CallingContextEnricher>()
+                .IncludeSendToTwilio( twilioConfig );
 
             loggerConfig.SerilogConfiguration
-                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate(true) )
+                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
                 .WriteTo.LastEvent( out var temp )
-                .WriteTo.NetEvent( out var temp2 )
-                .MinimumLevel.Verbose();
+                .WriteTo.NetEvent( out var temp2 );
 
             LastEvent = temp!;
 

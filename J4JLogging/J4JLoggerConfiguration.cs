@@ -18,7 +18,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Serilog;
@@ -35,10 +38,7 @@ namespace J4JSoftware.Logging
         {
             var sb = new StringBuilder(coreTemplate);
 
-            AppendEnricher<LoggedTypeEnricher>(sb);
-            AppendEnricher<CallingMemberEnricher>(sb);
-            AppendEnricher<SourceFileEnricher>(sb);
-            AppendEnricher<LineNumberEnricher>(sb);
+            AppendEnricher<CallingContextEnricher>(sb);
             AppendEnricher<SmsEnricher>(sb);
 
             if (requiresNewline)
@@ -62,10 +62,16 @@ namespace J4JSoftware.Logging
             sb.Append("}");
         }
 
+        private readonly List<BaseEnricher> _enrichers = new();
+
         public J4JLoggerConfiguration( 
-            LogEventLevel minimumLevel = LogEventLevel.Verbose
-            )
+            LogEventLevel minimumLevel = LogEventLevel.Verbose,
+            Func<Type?, string, int, string, string>? callingContextToText = null
+        )
         {
+            callingContextToText ??= ( t, m, p, n ) => t == null ? $"::{m} ({p}#{n})" : $"{t.Name}::{m} ({p}#{n})";
+            CallingContextToText = callingContextToText;
+
             SerilogConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext();
 
@@ -101,6 +107,17 @@ namespace J4JSoftware.Logging
         }
 
         public LoggerConfiguration SerilogConfiguration { get; }
+        public ReadOnlyCollection<BaseEnricher> Enrichers => _enrichers.AsReadOnly();
+        public Func<Type?, string, int, string, string> CallingContextToText { get; set; }
+
+        public J4JLoggerConfiguration AddEnricher<T>()
+            where T: BaseEnricher, new()
+        {
+            if( !_enrichers.Any( x => x is T ) )
+                _enrichers.Add(new T());
+
+            return this;
+        }
 
         public J4JLogger CreateLogger() => new( this );
     }
