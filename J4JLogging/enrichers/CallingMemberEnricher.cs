@@ -19,13 +19,9 @@
 
 namespace J4JSoftware.Logging
 {
+    [J4JEnricher("CallingMember")]
     public class CallingMemberEnricher : BaseEnricher
     {
-        public CallingMemberEnricher()
-            : base("CallingMember")
-        {
-        }
-
         public override bool EnrichContext => !string.IsNullOrEmpty(CallingMemberName);
         public override object GetValue() => $"{CallingMemberName!}=>";
 

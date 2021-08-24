@@ -17,21 +17,18 @@
 
 #endregion
 
-using System.Collections.ObjectModel;
+using System;
 
 namespace J4JSoftware.Logging
 {
-    public interface IMessageTemplateManager
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+    public class J4JEnricherAttribute : Attribute
     {
-        ReadOnlyCollection<BaseEnricher> Enrichers { get; }
+        public J4JEnricherAttribute( string propertyName )
+        {
+            PropertyName = propertyName;
+        }
 
-        T? GetEnricher<T>()
-            where T : BaseEnricher;
-
-        MessageTemplateManager AddEnricher<T>()
-            where T : BaseEnricher, new();
-
-        void PushToLogContext();
-        void DisposeFromLogContext();
+        public string PropertyName { get; }
     }
 }

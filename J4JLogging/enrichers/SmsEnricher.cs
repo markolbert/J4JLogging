@@ -19,13 +19,9 @@
 
 namespace J4JSoftware.Logging
 {
+    [J4JEnricher("SendToSms")]
     public class SmsEnricher : BaseEnricher
     {
-        public SmsEnricher()
-            : base("SendToSms")
-        {
-        }
-
         public override bool EnrichContext => SendNextToSms;
         public override object GetValue() => true;
 

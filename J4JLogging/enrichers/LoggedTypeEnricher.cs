@@ -17,18 +17,16 @@
 
 #endregion
 
+using System;
+
 namespace J4JSoftware.Logging
 {
+    [J4JEnricher("LoggedType")]
     public class LoggedTypeEnricher : BaseEnricher
     {
-        public LoggedTypeEnricher()
-            : base( "LoggedTypeName" )
-        {
-        }
+        public override bool EnrichContext => LoggedType != null;
+        public override object GetValue() => $"{LoggedType!.Name}";
 
-        public override bool EnrichContext => !string.IsNullOrEmpty( LoggedTypeName );
-        public override object GetValue() => LoggedTypeName!;
-
-        public string? LoggedTypeName { get; set; }
+        public Type? LoggedType { get; set; }
     }
 }

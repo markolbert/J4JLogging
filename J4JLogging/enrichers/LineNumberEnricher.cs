@@ -1,12 +1,8 @@
 ﻿namespace J4JSoftware.Logging
 {
+    [J4JEnricher("SourceLineNumber")]
     public class LineNumberEnricher : BaseEnricher
     {
-        public LineNumberEnricher()
-            : base("SourceLineNumber")
-        {
-        }
-
         public override bool EnrichContext => LineNumber > 0;
         public override object GetValue() => $"#{LineNumber}";
 

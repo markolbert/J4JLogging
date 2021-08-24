@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace J4JSoftware.Logging
 {
@@ -49,9 +50,14 @@ namespace J4JSoftware.Logging
 
         public static IEqualityComparer<BaseEnricher> BaseEnricherComparer { get; } = new BaseEnricherEqualityComparer();
 
-        protected BaseEnricher( string propertyName )
+        protected BaseEnricher()
         {
-            PropertyName = propertyName;
+            var attr = GetType().GetCustomAttribute<J4JEnricherAttribute>( false );
+            if( attr == null )
+                throw new NullReferenceException(
+                    $"BaseEnricher type '{GetType()}' is not decorated with a J4JEnricherAttribute" );
+
+            PropertyName = attr.PropertyName;
         }
 
         public string PropertyName { get; }

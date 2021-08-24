@@ -19,13 +19,9 @@
 
 namespace J4JSoftware.Logging
 {
+    [J4JEnricher("SourceFilePath")]
     public class SourceFileEnricher : BaseEnricher
     {
-        public SourceFileEnricher()
-            : base("SourceFilePath")
-        {
-        }
-
         public override bool EnrichContext => !string.IsNullOrEmpty(SourceFilePath);
         public override object GetValue() => SourceFilePath!;
 
