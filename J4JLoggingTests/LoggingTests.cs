@@ -79,9 +79,8 @@ namespace J4JLoggingTests
             {
                 Logger.SmsHandling = entry.SmsHandling;
 
-                if( cached.LoggedType == null )
-                    Logger.ClearLoggedType();
-                else Logger.SetLoggedType( cached.LoggedType );
+                if( cached.LoggedType != null )
+                    Logger.SetLoggedType( cached.LoggedType );
 
                 Logger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues, entry.MemberName,
                     entry.SourcePath, entry.SourceLine );

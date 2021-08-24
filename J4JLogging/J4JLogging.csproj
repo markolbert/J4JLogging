@@ -31,7 +31,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="enrichers\IMessageTemplateManager.cs" />
+	  <Compile Remove="enrichers\MessageTemplateManager.cs" />
 	  <Compile Remove="IJ4JLoggerFactory.cs" />
+	  <Compile Remove="J4JLoggerExtensions.cs" />
 	  <Compile Remove="J4JLoggerFactory.cs" />
 	</ItemGroup>
 

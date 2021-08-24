@@ -6,15 +6,18 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
-        public static J4JLogger IncludeSendToTwilio(
-            this J4JLogger logger,
+        public static J4JLoggerConfiguration IncludeSendToTwilio(
+            this J4JLoggerConfiguration loggerConfig,
             TwilioConfiguration configValues,
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+            string? outputTemplate = null )
         {
             if( !configValues.IsValid )
-                return logger;
+                return loggerConfig;
 
-            var sink = new TwilioSink( configValues.FromNumber!, configValues.Recipients!, logger.GetOutputTemplate() );
+            outputTemplate ??= J4JLoggerConfiguration.GetOutputTemplate();
+
+            var sink = new TwilioSink( configValues.FromNumber!, configValues.Recipients!, outputTemplate );
 
             try
             {
@@ -26,16 +29,14 @@ namespace J4JSoftware.Logging
                 sink.ClientConfigured = false;
             }
 
-            logger.LoggerConfiguration.WriteTo
+            loggerConfig.SerilogConfiguration.WriteTo
                 .Logger(lc =>
                     lc.Filter
                         .ByIncludingOnly("SendToSms")
                         .WriteTo.Sink(sink, restrictedToMinimumLevel)
                 );
 
-            logger.AddEnricher<SmsEnricher>();
-
-            return logger;
+            return loggerConfig;
         }
     }
 }

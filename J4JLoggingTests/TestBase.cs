@@ -18,7 +18,6 @@
 #endregion
 
 using System.Collections.Generic;
-using FluentAssertions;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Serilog;
@@ -43,16 +42,11 @@ namespace J4JLoggingTests
                 Recipients = new List<string> { "+1 650 868 3367" }
             };
 
-            Logger = new J4JLogger();
+            var loggerConfig = new J4JLoggerConfiguration();
+            loggerConfig.IncludeSendToTwilio( twilioConfig );
 
-            Logger.ReportLoggedType()
-                .ReportCallingMember()
-                .ReportLineNumber()
-                .ReportSourceCodeFile()
-                .IncludeSendToTwilio( twilioConfig );
-
-            Logger.LoggerConfiguration
-                .WriteTo.Debug( outputTemplate: Logger.GetOutputTemplate(true) )
+            loggerConfig.SerilogConfiguration
+                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate(true) )
                 .WriteTo.LastEvent( out var temp )
                 .WriteTo.NetEvent( out var temp2 )
                 .MinimumLevel.Verbose();
@@ -62,8 +56,8 @@ namespace J4JLoggingTests
             NetEvent = temp2;
             NetEvent.LogEvent += LogEvent;
 
-            Logger.Create();
-            Logger.Built.Should().BeTrue();
+            Logger = loggerConfig.CreateLogger();
+            Logger.SetLoggedType( GetType() );
         }
 
         private void LogEvent( object? sender, NetEventArgs e ) => OnNetEvent( e );
@@ -72,7 +66,7 @@ namespace J4JLoggingTests
         {
         }
 
-        protected J4JLogger Logger { get; }
+        protected IJ4JLogger Logger { get; }
         protected LastEventSink LastEvent { get; }
         protected NetEventSink NetEvent { get; }
 

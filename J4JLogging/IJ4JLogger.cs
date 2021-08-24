@@ -25,7 +25,10 @@ namespace J4JSoftware.Logging
 {
     public interface IJ4JLogger
     {
-        Type? LoggedType { get; set; }
+        Type? LoggedType { get; }
+        void SetLoggedType<TLogged>();
+        void SetLoggedType( Type typeToLog );
+
         SmsHandling SmsHandling { get; set; }
 
         bool OutputCache( J4JCachedLogger cachedLogger );

@@ -31,43 +31,22 @@ namespace J4JSoftware.Logging
         public const string DefaultCoreTemplate =
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
 
-        private Type? _loggedType;
-
         protected J4JBaseLogger()
         {
         }
 
         #region Logged Type
 
-        public Type? LoggedType
-        {
-            get => _loggedType;
-
-            set
-            {
-                var changed = _loggedType != value;
-
-                _loggedType = value;
-
-                if( changed )
-                    OnLoggedTypeChanged();
-            }
-        }
+        public Type? LoggedType { get; private set; }
 
         protected abstract void OnLoggedTypeChanged();
 
-        public J4JBaseLogger SetLoggedType<TLogged>() => SetLoggedType( typeof( TLogged ) );
+        public void SetLoggedType<TLogged>() => SetLoggedType( typeof( TLogged ) );
 
-        public J4JBaseLogger SetLoggedType( Type typeToLog )
+        public void SetLoggedType( Type typeToLog )
         {
             LoggedType = typeToLog;
-            return this;
-        }
-
-        public J4JBaseLogger ClearLoggedType()
-        {
-            LoggedType = null;
-            return this;
+            OnLoggedTypeChanged();
         }
 
         #endregion

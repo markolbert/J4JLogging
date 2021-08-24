@@ -10,20 +10,19 @@ namespace J4JLogger.Examples
     {
         static void Main(string[] args)
         {
-            var logger = new J4JSoftware.Logging.J4JLogger();
-
-            logger.LoggerConfiguration
-                .WriteTo.Debug()
-                .WriteTo.Console()
-                .WriteTo.File( 
+            var seriLogger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
+                .WriteTo.Console( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
+                .WriteTo.File(
                     path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
-                    rollingInterval: RollingInterval.Day );
+                    outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ),
+                    rollingInterval: RollingInterval.Day )
+                .CreateLogger();
 
-            logger.ReportCallingMember()
-                .ReportLineNumber()
-                .ReportLoggedType()
-                .ReportSourceCodeFile()
-                .Create();
+            var logger = new J4JSoftware.Logging.J4JLogger( seriLogger );
+            logger.SetLoggedType( typeof(Program) );
 
             logger.Information("This is an Informational logging message");
             logger.Fatal("This is a Fatal logging message");

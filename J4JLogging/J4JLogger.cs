@@ -17,12 +17,11 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Serilog;
+using Serilog.Context;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -33,121 +32,52 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : J4JBaseLogger
     {
-        private record MessageTemplate( bool RequiresNewline, string Template );
+        private readonly SmsEnricher _smsEnricher = new();
+        private readonly SourceFileEnricher _srcFileEnricher = new();
+        private readonly CallingMemberEnricher _callingMemberEnricher = new();
+        private readonly LineNumberEnricher _lineNumEnricher = new();
+        private readonly LoggedTypeEnricher _loggedTypeEnricher = new();
 
-        private readonly string _coreTemplate;
-        private readonly List<MessageTemplate> _msgTemplates = new();
+        private readonly List<IDisposable> _pushedProperties = new();
 
-        public J4JLogger( 
-            string coreTemplate = DefaultCoreTemplate,
-            LogEventLevel minimumLevel = LogEventLevel.Verbose
-            )
+        public J4JLogger(
+            ILogger seriLogger
+        )
         {
-            _coreTemplate = coreTemplate;
-            MessageTemplateManager = new MessageTemplateManager();
-
-            LoggerConfiguration = new LoggerConfiguration()
-                .Enrich.FromLogContext();
-
-            switch( minimumLevel )
-            {
-                case LogEventLevel.Debug:
-                    LoggerConfiguration.MinimumLevel.Debug();
-                    break;
-
-                case LogEventLevel.Error:
-                    LoggerConfiguration.MinimumLevel.Error();
-                    break;
-
-                case LogEventLevel.Fatal:
-                    LoggerConfiguration.MinimumLevel.Fatal();
-                    break;
-
-                case LogEventLevel.Information:
-                    LoggerConfiguration.MinimumLevel.Information();
-                    break;
-
-                case LogEventLevel.Verbose:
-                    LoggerConfiguration.MinimumLevel.Verbose();
-                    break;
-
-                case LogEventLevel.Warning:
-                    LoggerConfiguration.MinimumLevel.Warning();
-                    break;
-
-                default:
-                    throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{minimumLevel}'" );
-            }
+            Serilogger = seriLogger;
         }
 
-        public LoggerConfiguration LoggerConfiguration { get; }
+        internal J4JLogger(
+            J4JLoggerConfiguration loggerConfig
+        )
+            : this( loggerConfig.SerilogConfiguration.CreateLogger() )
+        {
+        }
 
-        public bool Built => Serilogger != null;
-        public ILogger? Serilogger { get; private set; }
+        public ILogger? Serilogger { get; }
         
-        public void Create()
-        {
-            Serilogger = LoggerConfiguration.CreateLogger();
-        }
-
-        public IMessageTemplateManager MessageTemplateManager { get; }
-
-        public string GetOutputTemplate(bool requiresNewline = false)
-        {
-            var retVal = _msgTemplates.FirstOrDefault( x => x.RequiresNewline == requiresNewline );
-            if( retVal != null )
-                return retVal.Template;
-
-            var sb = new StringBuilder( _coreTemplate );
-
-            AppendEnricher<LoggedTypeEnricher>( sb );
-            AppendEnricher<CallingMemberEnricher>(sb);
-            AppendEnricher<SourceFileEnricher>(sb);
-            AppendEnricher<LineNumberEnricher>(sb);
-            AppendEnricher<SmsEnricher>(sb);
-
-            if( requiresNewline )
-                sb.Append( "{NewLine}" );
-
-            sb.Append( "{Exception}" );
-
-            retVal = new MessageTemplate( requiresNewline, sb.ToString() );
-            _msgTemplates.Add( retVal );
-
-            return retVal.Template;
-        }
-
-        private void AppendEnricher<T>( StringBuilder sb )
-            where T: BaseEnricher, new()
-        {
-            if( MessageTemplateManager.GetEnricher<T>() is not { } enricher )
-                return;
-
-            sb.Append( " {" );
-            sb.Append( enricher.PropertyName );
-            sb.Append( "}" );
-        }
-
         protected override void OnLoggedTypeChanged()
         {
-            if( MessageTemplateManager.GetEnricher<LoggedTypeEnricher>() is { } enricher )
-                enricher.LoggedTypeName = LoggedType?.Name;
+            if( LoggedType != null )
+                Serilogger!.ForContext( LoggedType );
         }
 
         public override bool OutputCache( J4JCachedLogger cachedLogger )
         {
-            if( !Built )
-                return false;
+            var initialLoggedType = LoggedType;
 
             foreach( var entry in cachedLogger.Entries )
             {
-                if( LoggedType != entry.LoggedType)
-                    LoggedType = entry.LoggedType;
+                if( entry.LoggedType != null && LoggedType != entry.LoggedType )
+                    SetLoggedType( entry.LoggedType );
 
                 SmsHandling = entry.SmsHandling;
 
                 Serilogger!.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues );
             }
+
+            if( initialLoggedType != null )
+                SetLoggedType( initialLoggedType );
 
             cachedLogger.Entries.Clear();
 
@@ -163,31 +93,43 @@ namespace J4JSoftware.Logging
             [ CallerLineNumber ] int srcLine = 0
         )
         {
-            if( !Built )
-                return;
+            _callingMemberEnricher.CallingMemberName = memberName;
+            _srcFileEnricher.SourceFilePath = srcPath;
+            _lineNumEnricher.LineNumber = srcLine;
+            _smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
+            _loggedTypeEnricher.LoggedType = LoggedType;
 
-            if( MessageTemplateManager.GetEnricher<CallingMemberEnricher>() is { } callingMemberEnricher )
-                callingMemberEnricher.CallingMemberName = memberName;
-
-            if (MessageTemplateManager.GetEnricher<SourceFileEnricher>() is { } sourceEnricher)
-                sourceEnricher.SourceFilePath = srcPath;
-
-            if (MessageTemplateManager.GetEnricher<LineNumberEnricher>() is { } lineNumEnricher)
-                lineNumEnricher.LineNumber = srcLine;
-
-            var smsEnricher = MessageTemplateManager.GetEnricher<SmsEnricher>();
-
-            if( smsEnricher != null )
-                smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
-
-            MessageTemplateManager.PushToLogContext();
+            PushToLogContext();
 
             Serilogger!.Write( level, template, propertyValues );
 
-            MessageTemplateManager.DisposeFromLogContext();
+            DisposeFromLogContext();
 
-            if( smsEnricher != null )
-                smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
+            _smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
+        }
+
+        private void PushToLogContext()
+        {
+            _pushedProperties.Clear();
+
+            foreach( var enricher in new BaseEnricher[]
+                { _srcFileEnricher, _callingMemberEnricher, _lineNumEnricher, _smsEnricher, _loggedTypeEnricher } )
+            {
+                if( !enricher.EnrichContext )
+                    continue;
+
+                _pushedProperties.Add( LogContext.PushProperty( enricher.PropertyName, enricher.GetValue() ) );
+            }
+        }
+
+        private void DisposeFromLogContext()
+        {
+            foreach (var disposable in _pushedProperties)
+            {
+                disposable.Dispose();
+            }
+
+            _pushedProperties.Clear();
         }
     }
 }
