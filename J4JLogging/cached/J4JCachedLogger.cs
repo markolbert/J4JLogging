@@ -17,11 +17,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
-using Serilog;
 using Serilog.Events;
 
 #pragma warning disable 8604

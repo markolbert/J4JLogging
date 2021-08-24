@@ -17,15 +17,12 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Serilog;
-using Serilog.Context;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
@@ -36,18 +33,21 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : J4JBaseLogger
     {
-        public J4JLogger( 
-            LoggerConfiguration loggerConfig
-            )
-        {
-            LoggerConfiguration = loggerConfig;
-        }
+        private record MessageTemplate( bool RequiresNewline, string Template );
+
+        private readonly string _coreTemplate;
+        private readonly List<MessageTemplate> _msgTemplates = new();
 
         public J4JLogger( 
+            string coreTemplate = DefaultCoreTemplate,
             LogEventLevel minimumLevel = LogEventLevel.Verbose
             )
         {
-            LoggerConfiguration = new LoggerConfiguration();
+            _coreTemplate = coreTemplate;
+            MessageTemplateManager = new MessageTemplateManager();
+
+            LoggerConfiguration = new LoggerConfiguration()
+                .Enrich.FromLogContext();
 
             switch( minimumLevel )
             {
@@ -81,17 +81,56 @@ namespace J4JSoftware.Logging
         }
 
         public LoggerConfiguration LoggerConfiguration { get; }
-        public ILogger? Serilogger { get; private set; }
+
         public bool Built => Serilogger != null;
-        public List<BaseEnricher> J4JEnrichers { get; } = new();
+        public ILogger? Serilogger { get; private set; }
+        
         public void Create()
         {
             Serilogger = LoggerConfiguration.CreateLogger();
         }
 
+        public IMessageTemplateManager MessageTemplateManager { get; }
+
+        public string GetOutputTemplate(bool requiresNewline = false)
+        {
+            var retVal = _msgTemplates.FirstOrDefault( x => x.RequiresNewline == requiresNewline );
+            if( retVal != null )
+                return retVal.Template;
+
+            var sb = new StringBuilder( _coreTemplate );
+
+            AppendEnricher<LoggedTypeEnricher>( sb );
+            AppendEnricher<CallingMemberEnricher>(sb);
+            AppendEnricher<SourceFileEnricher>(sb);
+            AppendEnricher<LineNumberEnricher>(sb);
+            AppendEnricher<SmsEnricher>(sb);
+
+            if( requiresNewline )
+                sb.Append( "{NewLine}" );
+
+            sb.Append( "{Exception}" );
+
+            retVal = new MessageTemplate( requiresNewline, sb.ToString() );
+            _msgTemplates.Add( retVal );
+
+            return retVal.Template;
+        }
+
+        private void AppendEnricher<T>( StringBuilder sb )
+            where T: BaseEnricher, new()
+        {
+            if( MessageTemplateManager.GetEnricher<T>() is not { } enricher )
+                return;
+
+            sb.Append( " {" );
+            sb.Append( enricher.PropertyName );
+            sb.Append( "}" );
+        }
+
         protected override void OnLoggedTypeChanged()
         {
-            if( J4JEnrichers.FirstOrDefault( x => x is LoggedTypeEnricher ) is LoggedTypeEnricher enricher )
+            if( MessageTemplateManager.GetEnricher<LoggedTypeEnricher>() is { } enricher )
                 enricher.LoggedTypeName = LoggedType?.Name;
         }
 
@@ -115,36 +154,6 @@ namespace J4JSoftware.Logging
             return true;
         }
 
-        //// Initialize the additional LogEvent properties supported by J4JLogger
-        //private List<IDisposable> InitializeContextProperties( string memberName, string srcPath, int srcLine )
-        //{
-        //    var retVal = new List<IDisposable>
-        //    {
-        //        LogContext.PushProperty( "SendToSms", OutputNextToSms ),
-        //        LogContext.PushProperty( "MemberName", LoggedType != null ? $"::{memberName}" : "" )
-        //    };
-
-        //    if( !IncludeSourcePath ) 
-        //        return retVal;
-
-        //    if( !string.IsNullOrEmpty(SourceRootPath ) )
-        //        srcPath = srcPath.Replace(SourceRootPath, "" );
-
-        //    retVal.Add( LogContext.PushProperty( "SourceCodeInformation", $"{srcPath} : {srcLine}" ) );
-
-        //    return retVal;
-        //}
-
-        //// Clear the additional LogEvent properties supported by J4JLogger. This must be done
-        //// after each LogEvent is processed to comply with Serilog's design.
-        //private static void DisposeContextProperties( List<IDisposable> contextProperties )
-        //{
-        //    foreach( var contextProperty in contextProperties )
-        //    {
-        //        contextProperty.Dispose();
-        //    }
-        //}
-
         public override void Write(
             LogEventLevel level,
             string template,
@@ -157,31 +166,28 @@ namespace J4JSoftware.Logging
             if( !Built )
                 return;
 
-            if( J4JEnrichers.FirstOrDefault( x => x is CallingMemberEnricher ) 
-                is CallingMemberEnricher callingMemberEnricher )
+            if( MessageTemplateManager.GetEnricher<CallingMemberEnricher>() is { } callingMemberEnricher )
                 callingMemberEnricher.CallingMemberName = memberName;
 
-            if( J4JEnrichers.FirstOrDefault( x => x is SourceFileEnricher )
-                is SourceFileEnricher sourceEnricher )
+            if (MessageTemplateManager.GetEnricher<SourceFileEnricher>() is { } sourceEnricher)
                 sourceEnricher.SourceFilePath = srcPath;
 
-            if( J4JEnrichers.FirstOrDefault( x => x is LineNumberEnricher )
-                is LineNumberEnricher lineNumEnricher )
+            if (MessageTemplateManager.GetEnricher<LineNumberEnricher>() is { } lineNumEnricher)
                 lineNumEnricher.LineNumber = srcLine;
 
-            var smsEnricher = J4JEnrichers.FirstOrDefault( x => x is SmsEnricher) as SmsEnricher;
+            var smsEnricher = MessageTemplateManager.GetEnricher<SmsEnricher>();
 
             if( smsEnricher != null )
                 smsEnricher.SendNextToSms = SmsHandling != SmsHandling.DoNotSend;
 
-            //var contextProperties = InitializeContextProperties( memberName, srcPath, srcLine );
+            MessageTemplateManager.PushToLogContext();
 
             Serilogger!.Write( level, template, propertyValues );
 
+            MessageTemplateManager.DisposeFromLogContext();
+
             if( smsEnricher != null )
                 smsEnricher.SendNextToSms = SmsHandling == SmsHandling.SendUntilReset;
-
-            //DisposeContextProperties( contextProperties );
         }
     }
 }

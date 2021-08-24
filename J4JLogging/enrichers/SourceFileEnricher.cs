@@ -26,8 +26,8 @@ namespace J4JSoftware.Logging
         {
         }
 
-        protected override bool EnrichContext => !string.IsNullOrEmpty(SourceFilePath);
-        protected override object GetValue() => SourceFilePath!;
+        public override bool EnrichContext => !string.IsNullOrEmpty(SourceFilePath);
+        public override object GetValue() => SourceFilePath!;
 
         public string? SourceFilePath { get; set; }
     }

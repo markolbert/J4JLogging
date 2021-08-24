@@ -17,10 +17,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
-using Serilog;
+using System.Linq;
 
 namespace J4JSoftware.Logging
 {
@@ -30,5 +28,10 @@ namespace J4JSoftware.Logging
         public string? AccountToken { get; set; }
         public string? FromNumber { get; set; }
         public List<string>? Recipients { get; set; }
+
+        public bool IsValid => !string.IsNullOrEmpty( AccountSID )
+                               && !string.IsNullOrEmpty( AccountToken )
+                               && !string.IsNullOrEmpty( FromNumber )
+                               && ( Recipients?.Any() ?? false );
     }
 }

@@ -26,8 +26,8 @@ namespace J4JSoftware.Logging
         {
         }
 
-        protected override bool EnrichContext => SendNextToSms;
-        protected override object GetValue() => "SendToSms";
+        public override bool EnrichContext => SendNextToSms;
+        public override object GetValue() => true;
 
         public bool SendNextToSms { get; set; }
     }

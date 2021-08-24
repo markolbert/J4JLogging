@@ -17,20 +17,21 @@
 
 #endregion
 
-using Serilog.Core;
-using Serilog.Events;
-
-#pragma warning disable 8618
+using System.Collections.ObjectModel;
 
 namespace J4JSoftware.Logging
 {
-    public class LastEventSink : ILogEventSink
+    public interface IMessageTemplateManager
     {
-        public string? LastLogMessage { get; private set; }
+        ReadOnlyCollection<BaseEnricher> Enrichers { get; }
 
-        public void Emit( LogEvent logEvent )
-        {
-            LastLogMessage = logEvent.RenderMessage();
-        }
+        T? GetEnricher<T>()
+            where T : BaseEnricher;
+
+        MessageTemplateManager AddEnricher<T>()
+            where T : BaseEnricher, new();
+
+        void PushToLogContext();
+        void DisposeFromLogContext();
     }
 }

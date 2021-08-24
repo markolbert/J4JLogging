@@ -19,13 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Serilog.Core;
-using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public abstract class BaseEnricher : ILogEventEnricher
+    public abstract class BaseEnricher
     {
         private sealed class BaseEnricherEqualityComparer : IEqualityComparer<BaseEnricher>
         {
@@ -44,42 +41,22 @@ namespace J4JSoftware.Logging
             {
                 var hashCode = new HashCode();
                 hashCode.Add( obj.PropertyName, StringComparer.OrdinalIgnoreCase );
-                hashCode.Add( obj.CachedProperty );
                 hashCode.Add( obj.EnrichContext );
+
                 return hashCode.ToHashCode();
             }
         }
 
         public static IEqualityComparer<BaseEnricher> BaseEnricherComparer { get; } = new BaseEnricherEqualityComparer();
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static LogEventProperty CreateProperty(
-            ILogEventPropertyFactory propertyFactory,
-            string propertyName,
-            object value) =>
-            propertyFactory.CreateProperty(propertyName, value);
-
         protected BaseEnricher( string propertyName )
         {
             PropertyName = propertyName;
         }
 
-        protected string PropertyName { get; }
-        protected LogEventProperty? CachedProperty { get; private set; }
-        protected virtual bool EnrichContext { get; }
-        protected abstract object GetValue();
-
-        public void Enrich( LogEvent logEvent, ILogEventPropertyFactory propertyFactory )
-        {
-            if( EnrichContext )
-                logEvent.AddPropertyIfAbsent( GetLogEventProperty( propertyFactory ) );
-            else logEvent.RemovePropertyIfPresent( PropertyName );
-        }
-
-        private LogEventProperty GetLogEventProperty( ILogEventPropertyFactory propertyFactory )
-        {
-            CachedProperty ??= CreateProperty( propertyFactory, PropertyName, GetValue() );
-            return CachedProperty;
-        }
+        public string PropertyName { get; }
+        public virtual bool EnrichContext { get; }
+        
+        public abstract object GetValue();
     }
 }

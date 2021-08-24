@@ -19,13 +19,21 @@
 
 using System;
 using System.Collections.Generic;
-using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
 namespace J4JSoftware.Logging
 {
     public class TwilioSink : SmsSink
     {
+        public TwilioSink(
+            string fromNumber,
+            IEnumerable<string> recipientNumbers,
+            string outputTemplate
+        )
+            : base( fromNumber, recipientNumbers, outputTemplate )
+        {
+        }
+
         public bool ClientConfigured { get; internal set; }
         public override bool IsValid => base.IsValid && ClientConfigured;
 

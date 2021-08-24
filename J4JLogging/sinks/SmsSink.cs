@@ -24,6 +24,7 @@ using System.Text;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
+using Serilog.Formatting.Display;
 
 namespace J4JSoftware.Logging
 {
@@ -32,23 +33,28 @@ namespace J4JSoftware.Logging
         private readonly StringBuilder _sb;
         private readonly StringWriter _stringWriter;
 
-        protected SmsSink( )
+        protected SmsSink(
+            string fromNumber,
+            IEnumerable<string> recipientNumbers,
+            string template
+            )
         {
+            FromNumber = fromNumber;
+            RecipientNumbers = recipientNumbers.ToList();
+            TextFormatter = new MessageTemplateTextFormatter( template );
+            
             _sb = new StringBuilder();
             _stringWriter = new StringWriter( _sb );
         }
 
-        public virtual bool IsValid => !string.IsNullOrEmpty( FromNumber ) && ( RecipientNumbers?.Any() ?? false );
+        public virtual bool IsValid => RecipientNumbers.Any();
 
-        public string? FromNumber { get; internal set; }
-        public List<string>? RecipientNumbers { get; internal set; }
-        public ITextFormatter? TextFormatter { get; internal set; }
+        public string FromNumber { get; }
+        public List<string> RecipientNumbers { get; }
+        public ITextFormatter TextFormatter { get; }
 
         public void Emit( LogEvent logEvent )
         {
-            if( TextFormatter == null )
-                return;
-
             _sb.Clear();
             TextFormatter.Format( logEvent, _stringWriter );
             _stringWriter.Flush();

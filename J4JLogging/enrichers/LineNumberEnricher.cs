@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace J4JSoftware.Logging
+﻿namespace J4JSoftware.Logging
 {
     public class LineNumberEnricher : BaseEnricher
     {
@@ -13,8 +7,8 @@ namespace J4JSoftware.Logging
         {
         }
 
-        protected override bool EnrichContext => LineNumber > 0;
-        protected override object GetValue() => LineNumber;
+        public override bool EnrichContext => LineNumber > 0;
+        public override object GetValue() => $"#{LineNumber}";
 
         public int LineNumber { get; set; }
     }

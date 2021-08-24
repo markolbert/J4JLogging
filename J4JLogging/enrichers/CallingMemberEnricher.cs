@@ -26,8 +26,8 @@ namespace J4JSoftware.Logging
         {
         }
 
-        protected override bool EnrichContext => !string.IsNullOrEmpty(CallingMemberName);
-        protected override object GetValue() => CallingMemberName!;
+        public override bool EnrichContext => !string.IsNullOrEmpty(CallingMemberName);
+        public override object GetValue() => $"{CallingMemberName!}=>";
 
         public string? CallingMemberName { get; set; }
     }

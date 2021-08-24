@@ -18,21 +18,19 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Serilog.Events;
+// ReSharper disable ExplicitCallerInfoArgument
+#pragma warning disable 8777
 
 namespace J4JSoftware.Logging
 {
-    public enum SmsHandling
-    {
-        DoNotSend,
-        SendNextMessage,
-        SendUntilReset
-    }
-
     public abstract class J4JBaseLogger : IJ4JLogger
     {
+        public const string DefaultCoreTemplate =
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+
         private Type? _loggedType;
 
         protected J4JBaseLogger()
@@ -74,46 +72,6 @@ namespace J4JSoftware.Logging
 
         #endregion
 
-        //#region Global parameters
-
-        //public bool IncludeSourcePath
-        //{
-        //    get => _srcPathIncluded;
-        //    set => SetPropertyAndResetBaseLogger( ref _srcPathIncluded, value );
-        //}
-
-        //public string? SourceRootPath { get; set; }
-
-        //public string OutputTemplate
-        //{
-        //    get => _outputTemplate;
-        //    set => SetPropertyAndResetBaseLogger( ref _outputTemplate, value );
-        //}
-
-        //public bool RequireNewLine
-        //{
-        //    get => _requireNewLine;
-        //    set => SetPropertyAndResetBaseLogger( ref _requireNewLine, value );
-        //}
-
-        //public LogEventLevel MinimumLevel
-        //{
-        //    get => _minLevel;
-        //    set => SetPropertyAndResetBaseLogger( ref _minLevel, value );
-        //}
-
-        //private void SetPropertyAndResetBaseLogger<TProp>( ref TProp field, TProp value )
-        //{
-        //    var changed = !EqualityComparer<TProp>.Default.Equals( field, value );
-
-        //    field = value;
-
-        //    if( changed )
-        //        ResetBaseLogger();
-        //}
-
-        //#endregion
-
         public SmsHandling SmsHandling { get; set; }
 
         public abstract bool OutputCache( J4JCachedLogger cachedLogger );
@@ -126,40 +84,40 @@ namespace J4JSoftware.Logging
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( level, template, new object[0], memberName,
+            => Write( level, template, Array.Empty<object>(), memberName,
                 srcPath, srcLine );
 
         public void Write<T0>(
             LogEventLevel level,
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( level, template, new object[] { propertyValue }, memberName,
+            => Write( level, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine );
 
         public void Write<T0, T1>(
             LogEventLevel level,
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( level, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            => Write( level, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine );
 
         public void Write<T0, T1, T2>(
             LogEventLevel level,
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( level, template, new object[] { propertyValue0, propertyValue1, propertyValue2 }, memberName,
+            => Write( level, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! }, memberName,
                 srcPath, srcLine );
 
         public abstract void Write(
@@ -179,38 +137,38 @@ namespace J4JSoftware.Logging
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( LogEventLevel.Debug, template, new object[ 0 ], memberName,
+            => Write( LogEventLevel.Debug, template, Array.Empty<object>(), memberName,
                 srcPath, srcLine );
 
         public void Debug<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 )
-            => Write( LogEventLevel.Debug, template, new object[] { propertyValue }, memberName,
+            => Write( LogEventLevel.Debug, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine );
 
         public void Debug<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 ) =>
-            Write( LogEventLevel.Debug, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write( LogEventLevel.Debug, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine );
 
 
         public void Debug<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [ CallerMemberName ] string memberName = "",
             [ CallerFilePath ] string srcPath = "",
             [ CallerLineNumber ] int srcLine = 0 ) =>
-            Write( LogEventLevel.Debug, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write( LogEventLevel.Debug, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine );
 
@@ -237,33 +195,33 @@ namespace J4JSoftware.Logging
 
         public void Error<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0)
-            => Write(LogEventLevel.Error, template, new object[] { propertyValue }, memberName,
+            => Write(LogEventLevel.Error, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine);
 
         public void Error<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Error, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write(LogEventLevel.Error, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine);
 
 
         public void Error<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Error, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write(LogEventLevel.Error, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine);
 
@@ -290,33 +248,33 @@ namespace J4JSoftware.Logging
 
         public void Fatal<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0)
-            => Write(LogEventLevel.Fatal, template, new object[] { propertyValue }, memberName,
+            => Write(LogEventLevel.Fatal, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine);
 
         public void Fatal<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Fatal, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write(LogEventLevel.Fatal, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine);
 
 
         public void Fatal<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Fatal, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write(LogEventLevel.Fatal, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine);
 
@@ -343,33 +301,33 @@ namespace J4JSoftware.Logging
 
         public void Information<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0)
-            => Write(LogEventLevel.Information, template, new object[] { propertyValue }, memberName,
+            => Write(LogEventLevel.Information, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine);
 
         public void Information<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Information, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write(LogEventLevel.Information, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine);
 
 
         public void Information<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Information, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write(LogEventLevel.Information, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine);
 
@@ -396,33 +354,33 @@ namespace J4JSoftware.Logging
 
         public void Verbose<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0)
-            => Write(LogEventLevel.Verbose, template, new object[] { propertyValue }, memberName,
+            => Write(LogEventLevel.Verbose, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine);
 
         public void Verbose<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Verbose, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write(LogEventLevel.Verbose, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine);
 
 
         public void Verbose<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Verbose, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write(LogEventLevel.Verbose, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine);
 
@@ -449,33 +407,33 @@ namespace J4JSoftware.Logging
 
         public void Warning<T0>(
             string template,
-            T0 propertyValue,
+            [NotNull] T0 propertyValue,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0)
-            => Write(LogEventLevel.Warning, template, new object[] { propertyValue }, memberName,
+            => Write(LogEventLevel.Warning, template, new object[] { propertyValue! }, memberName,
                 srcPath, srcLine);
 
         public void Warning<T0, T1>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Warning, template, new object[] { propertyValue0, propertyValue1 }, memberName,
+            Write(LogEventLevel.Warning, template, new object[] { propertyValue0!, propertyValue1! }, memberName,
                 srcPath, srcLine);
 
 
         public void Warning<T0, T1, T2>(
             string template,
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
+            [NotNull] T0 propertyValue0,
+            [NotNull] T1 propertyValue1,
+            [NotNull] T2 propertyValue2,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string srcPath = "",
             [CallerLineNumber] int srcLine = 0) =>
-            Write(LogEventLevel.Warning, template, new object[] { propertyValue0, propertyValue1, propertyValue2 },
+            Write(LogEventLevel.Warning, template, new object[] { propertyValue0!, propertyValue1!, propertyValue2! },
                 memberName,
                 srcPath, srcLine);
 
