@@ -22,7 +22,6 @@ using FluentAssertions;
 using J4JSoftware.Logging;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Serilog.Events;
 
 namespace J4JLoggingTests
 {
@@ -30,19 +29,6 @@ namespace J4JLoggingTests
     {
         protected TestBase()
         {
-            var loggerConfig = new LoggerConfiguration()
-                .WriteTo.Debug()
-                .WriteTo.LastEvent( out var temp )
-                .WriteTo.NetEvent( out var temp2 )
-                .MinimumLevel.Verbose();
-
-            Logger = new J4JLogger( loggerConfig );
-
-            LastEvent = temp!;
-
-            NetEvent = temp2;
-            NetEvent.LogEvent += LogEvent;
-
             var configBuilder = new ConfigurationBuilder();
 
             var config = configBuilder
@@ -57,13 +43,26 @@ namespace J4JLoggingTests
                 Recipients = new List<string> { "+1 650 868 3367" }
             };
 
+            Logger = new J4JLogger();
+
             Logger.ReportLoggedType()
                 .ReportCallingMember()
                 .ReportLineNumber()
                 .ReportSourceCodeFile()
-                .IncludeSendToTwilio( twilioConfig )
-                .Create();
+                .IncludeSendToTwilio( twilioConfig );
 
+            Logger.LoggerConfiguration
+                .WriteTo.Debug( outputTemplate: Logger.GetOutputTemplate(true) )
+                .WriteTo.LastEvent( out var temp )
+                .WriteTo.NetEvent( out var temp2 )
+                .MinimumLevel.Verbose();
+
+            LastEvent = temp!;
+
+            NetEvent = temp2;
+            NetEvent.LogEvent += LogEvent;
+
+            Logger.Create();
             Logger.Built.Should().BeTrue();
         }
 

@@ -17,12 +17,8 @@
 
 #endregion
 
-using System;
-using System.ComponentModel;
-using System.IO;
 using FluentAssertions;
 using J4JSoftware.Logging;
-using Serilog.Events;
 using Xunit;
 
 namespace J4JLoggingTests
