@@ -28,9 +28,6 @@ namespace J4JSoftware.Logging
 {
     public abstract class J4JBaseLogger : IJ4JLogger
     {
-        public const string DefaultCoreTemplate =
-            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
-
         protected J4JBaseLogger()
         {
         }

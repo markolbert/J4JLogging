@@ -64,51 +64,61 @@ namespace J4JSoftware.Logging
 
         private readonly List<BaseEnricher> _enrichers = new();
 
-        public J4JLoggerConfiguration( 
-            LogEventLevel minimumLevel = LogEventLevel.Verbose,
-            Func<Type?, string, int, string, string>? callingContextToText = null
-        )
-        {
-            callingContextToText ??= ( t, m, p, n ) => t == null ? $"::{m} ({p}#{n})" : $"{t.Name}::{m} ({p}#{n})";
-            CallingContextToText = callingContextToText;
+        private LogEventLevel _minLevel;
 
+        public J4JLoggerConfiguration()
+        {
             SerilogConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext();
 
-            switch( minimumLevel )
-            {
-                case LogEventLevel.Debug:
-                    SerilogConfiguration.MinimumLevel.Debug();
-                    break;
-
-                case LogEventLevel.Error:
-                    SerilogConfiguration.MinimumLevel.Error();
-                    break;
-
-                case LogEventLevel.Fatal:
-                    SerilogConfiguration.MinimumLevel.Fatal();
-                    break;
-
-                case LogEventLevel.Information:
-                    SerilogConfiguration.MinimumLevel.Information();
-                    break;
-
-                case LogEventLevel.Verbose:
-                    SerilogConfiguration.MinimumLevel.Verbose();
-                    break;
-
-                case LogEventLevel.Warning:
-                    SerilogConfiguration.MinimumLevel.Warning();
-                    break;
-
-                default:
-                    throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{minimumLevel}'" );
-            }
+            CallingContextToText = CallingContextEnricher.DefaultConvertToText;
+            MinimumLevel = LogEventLevel.Verbose;
         }
 
         public LoggerConfiguration SerilogConfiguration { get; }
         public ReadOnlyCollection<BaseEnricher> Enrichers => _enrichers.AsReadOnly();
+
         public Func<Type?, string, int, string, string> CallingContextToText { get; set; }
+
+        public LogEventLevel MinimumLevel
+        {
+            get => _minLevel;
+
+            set
+            {
+                _minLevel = value;
+
+                switch( _minLevel )
+                {
+                    case LogEventLevel.Debug:
+                        SerilogConfiguration.MinimumLevel.Debug();
+                        break;
+
+                    case LogEventLevel.Error:
+                        SerilogConfiguration.MinimumLevel.Error();
+                        break;
+
+                    case LogEventLevel.Fatal:
+                        SerilogConfiguration.MinimumLevel.Fatal();
+                        break;
+
+                    case LogEventLevel.Information:
+                        SerilogConfiguration.MinimumLevel.Information();
+                        break;
+
+                    case LogEventLevel.Verbose:
+                        SerilogConfiguration.MinimumLevel.Verbose();
+                        break;
+
+                    case LogEventLevel.Warning:
+                        SerilogConfiguration.MinimumLevel.Warning();
+                        break;
+
+                    default:
+                        throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{_minLevel}'" );
+                }
+            }
+        }
 
         public J4JLoggerConfiguration AddEnricher<T>()
             where T: BaseEnricher, new()

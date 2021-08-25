@@ -12,7 +12,10 @@ namespace J4JLogger.Examples
     {
         static void Main(string[] args)
         {
-            var loggerConfig = new J4JLoggerConfiguration( callingContextToText: ConvertCallingContextToText )
+            var loggerConfig = new J4JLoggerConfiguration()
+                {
+                    CallingContextToText = ConvertCallingContextToText
+                }
                 .AddEnricher<CallingContextEnricher>();
 
             loggerConfig.SerilogConfiguration

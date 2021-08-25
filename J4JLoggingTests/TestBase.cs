@@ -73,7 +73,10 @@ namespace J4JLoggingTests
                 Recipients = new List<string> { "+1 650 868 3367" }
             };
 
-            var loggerConfig = new J4JLoggerConfiguration( callingContextToText: ConvertCallingContextToText )
+            var loggerConfig = new J4JLoggerConfiguration()
+                {
+                    CallingContextToText = ConvertCallingContextToText
+                }
                 .AddEnricher<CallingContextEnricher>()
                 .IncludeSendToTwilio( twilioConfig );
 

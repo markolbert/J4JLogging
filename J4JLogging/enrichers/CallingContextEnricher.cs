@@ -18,9 +18,6 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace J4JSoftware.Logging
@@ -49,36 +46,6 @@ namespace J4JSoftware.Logging
             string projPath,
             StringComparison textComparison = StringComparison.OrdinalIgnoreCase ) =>
             rawPath.StartsWith( projPath, textComparison ) ? rawPath.Replace( projPath, string.Empty ) : rawPath;
-
-        // copy these next two methods to the source code file where you configure J4JLogger
-        // and then reference ConvertCallingContextToText as the context converter you
-        // want to use
-        private static string ConvertCallingContextToText(
-            Type? loggedType,
-            string callerName,
-            int lineNum,
-            string srcFilePath)
-        {
-            return CallingContextEnricher.DefaultConvertToText(loggedType,
-                callerName,
-                lineNum,
-                CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
-        }
-
-        private static string GetProjectPath([CallerFilePath] string filePath = "")
-        {
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(filePath)!);
-
-            while (dirInfo.Parent != null)
-            {
-                if (dirInfo.EnumerateFiles("*.csproj").Any())
-                    break;
-
-                dirInfo = dirInfo.Parent;
-            }
-
-            return dirInfo.FullName;
-        }
 
         public Func<Type?, string, int, string, string> ConvertToText { get; set; } = DefaultConvertToText;
 
