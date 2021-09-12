@@ -23,6 +23,7 @@ using System.Text;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting;
+using Serilog.Formatting.Display;
 
 namespace J4JSoftware.Logging
 {
@@ -32,21 +33,20 @@ namespace J4JSoftware.Logging
 
         private readonly StringBuilder _sb = new();
         private readonly StringWriter _stringWriter;
+        private readonly ITextFormatter _textFormatter;
 
-        public NetEventSink()
+        public NetEventSink(
+            string outputTemplate = J4JLoggerConfiguration.DefaultCoreTemplate
+            )
         {
             _stringWriter = new StringWriter( _sb );
+            _textFormatter = new MessageTemplateTextFormatter( outputTemplate );
         }
-
-        public ITextFormatter? TextFormatter { get; internal set; }
 
         public void Emit( LogEvent logEvent )
         {
-            if( TextFormatter == null )
-                return;
-
             _sb.Clear();
-            TextFormatter.Format( logEvent, _stringWriter );
+            _textFormatter.Format( logEvent, _stringWriter );
             _stringWriter.Flush();
 
             LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
