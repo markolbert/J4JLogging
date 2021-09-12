@@ -40,7 +40,7 @@ namespace J4JSoftware.Logging
         public static LoggerConfiguration NetEvent(
             this LoggerSinkConfiguration loggerConfig,
             out NetEventSink sink,
-            string outputTemplate = J4JLoggerConfiguration.DefaultCoreTemplate,
+            string outputTemplate = NetEventSink.DefaultTemplate,
             LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
             )
         {

@@ -29,6 +29,9 @@ namespace J4JSoftware.Logging
 {
     public class NetEventSink : ILogEventSink
     {
+        public const string DefaultTemplate =
+            "[{Level:u3}] {Message:lj}";
+
         public EventHandler<NetEventArgs>? LogEvent;
 
         private readonly StringBuilder _sb = new();
@@ -36,7 +39,7 @@ namespace J4JSoftware.Logging
         private readonly ITextFormatter _textFormatter;
 
         public NetEventSink(
-            string outputTemplate = J4JLoggerConfiguration.DefaultCoreTemplate
+            string outputTemplate = DefaultTemplate
             )
         {
             _stringWriter = new StringWriter( _sb );
