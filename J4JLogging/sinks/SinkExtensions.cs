@@ -26,17 +26,6 @@ namespace J4JSoftware.Logging
 {
     public static class SinkExtensions
     {
-        //public static TSmsSink CreateSmsSink<TSmsSink>(
-        //    string? fromNumber,
-        //    IEnumerable<string>? recipientNumbers
-        //    )
-        //    where TSmsSink : SmsSink, new() =>
-        //    new TSmsSink
-        //    {
-        //        FromNumber = fromNumber,
-        //        RecipientNumbers = recipientNumbers?.ToList()
-        //    };
-
         public static LoggerConfiguration LastEvent(
             this LoggerSinkConfiguration loggerConfig,
             out LastEventSink sink,
