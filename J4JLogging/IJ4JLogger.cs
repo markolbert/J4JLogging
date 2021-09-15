@@ -29,6 +29,9 @@ namespace J4JSoftware.Logging
         void SetLoggedType<TLogged>();
         void SetLoggedType( Type typeToLog );
 
+        void SendNextEventToSms();
+        void SendAllEventsToSms();
+        void StopSendingEventsToSms();
         SmsHandling SmsHandling { get; set; }
 
         bool OutputCache( J4JCachedLogger cachedLogger );

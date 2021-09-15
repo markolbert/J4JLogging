@@ -48,6 +48,10 @@ namespace J4JSoftware.Logging
 
         #endregion
 
+        public void SendNextEventToSms() => SmsHandling = SmsHandling.SendNextMessage;
+        public void SendAllEventsToSms() => SmsHandling = SmsHandling.SendUntilReset;
+        public void StopSendingEventsToSms() => SmsHandling = SmsHandling.DoNotSend;
+
         public SmsHandling SmsHandling { get; set; }
 
         public abstract bool OutputCache( J4JCachedLogger cachedLogger );
