@@ -30,7 +30,7 @@ namespace J4JLoggingTests
 {
     public class TestBase
     {
-        private static string ConvertCallingContextToText(
+        private static string FilePathTrimmer(
             Type? loggedType,
             string callerName,
             int lineNum,
@@ -73,10 +73,7 @@ namespace J4JLoggingTests
                 Recipients = new List<string> { "+1 650 868 3367" }
             };
 
-            var loggerConfig = new J4JLoggerConfiguration()
-                {
-                    FilePathTrimmer = ConvertCallingContextToText
-                }
+            var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer )
                 .AddTwilio( twilioConfig );
 
             loggerConfig.SerilogConfiguration
