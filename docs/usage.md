@@ -1,18 +1,10 @@
-### Usage
+# Usage
 
-`IJ4JLogger` instances provide a method, `SetLoggedType()`, that isn't 
-required to be used but which is required if you want to include information
-about the type of object generating logging information. As that's one of
-the main points of using `IJ4JLogger` you'll almost always be calling 
-`SetLoggedType()`, usually in the constructor of whatever types you're logging.
+`IJ4JLogger` instances provide a method, `SetLoggedType()`, that isn't required to be used but which is required if you want to include information about the type of object generating logging information. As that's one of the main points of using `IJ4JLogger` you'll almost always be calling `SetLoggedType()`, usually in the constructor of whatever types you're logging.
 
-Using **IJ4JLogger** is very similar to using Serilog since it's essentially 
-just a wrapper around an `ILogger` instance. You can use any of Serilog's 
-basic logging method calls, `Write()`, `Debug()`, `Error()`, `Information()`, 
-`Verbose()` and `Warning()`.
+Using **IJ4JLogger** is very similar to using Serilog since it's essentially just a wrapper around an `ILogger` instance. You can use any of Serilog's basic logging method calls, `Write()`, `Debug()`, `Error()`, `Information()`, `Verbose()` and `Warning()`.
 
-Each method has overloaded variants accepting different arguments. The layout of 
-these is identical for all the methods except Write:
+Each method has overloaded variants accepting different arguments. The layout of these is identical for all the methods except Write:
 
 ```csharp
 public interface IJ4JLogger<out TCalling>
@@ -60,12 +52,9 @@ public interface IJ4JLogger<out TCalling>
     );
 ```
 
-The `Write()` methods are similar, except they each start off with a Serilog 
-`LogEventLevel` argument which specifies the log event level.
+The `Write()` methods are similar, except they each start off with a Serilog `LogEventLevel` argument which specifies the log event level.
 
-If you pass a simple string (i.e., a value for the template argument) to the 
-methods you **must** specify the types of the propertyValue arguments explicitly 
-in the method call. 
+If you pass a simple string (i.e., a value for the template argument) to the methods you **must** specify the types of the propertyValue arguments explicitly in the method call.
 
 An example:
 
@@ -73,9 +62,5 @@ An example:
 string someStringValue = "abcd";
 _logger.Debug<string>("The value of that argument is {someIntValue}", someStringValue);
 ```
-This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
-arguments are automagically set for you by the compiler. The fact the 
-`memberName` and `srcPath` arguments of the logging methods are strings and
-"collide" string arguments you may specify. That makes explict type 
-specifications for the arguments necessary when strings are referenced by the 
-message template.
+
+This requirement comes about because the `memberName`, `srcPath` and `srcLine` arguments are automagically set for you by the compiler. The fact the `memberName` and `srcPath` arguments of the logging methods are strings and "collide" string arguments you may specify. That makes explict type specifications for the arguments necessary when strings are referenced by the message template.

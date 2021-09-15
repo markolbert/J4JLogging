@@ -27,12 +27,7 @@ namespace ConfigurationBasedExample
     {
         static void Main(string[] args)
         {
-            var loggerConfig = new J4JLoggerConfiguration()
-                {
-                    // this assignment is optional but useful (see Trimming Paths below)
-                    CallingContextToText = ConvertCallingContextToText
-                }
-                .AddEnricher<CallingContextEnricher>();
+            var loggerConfig = new J4JLoggerConfiguration();
 
             var configRoot = new ConfigurationBuilder()
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), true )
@@ -48,106 +43,32 @@ namespace ConfigurationBasedExample
             logger.Information("This is an Informational logging message");
             logger.Fatal("This is a Fatal logging message");
         }
-
-        // these next two functions are a simple way to trim the source code file
-        // paths to remove the path to the root of the project directory (which
-        // tends to be long and redundant)
-        //
-        // the code of these two functions can simply be copied into a source
-        // code file in any project and then referenced similar to what was done here.
-        private static string ConvertCallingContextToText(
-            Type? loggedType,
-            string callerName,
-            int lineNum,
-            string srcFilePath)
-        {
-            return CallingContextEnricher.DefaultConvertToText(loggedType,
-                callerName,
-                lineNum,
-                CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
-        }
-
-        private static string GetProjectPath([CallerFilePath] string filePath = "")
-        {
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(filePath)!);
-
-            while (dirInfo.Parent != null)
-            {
-                if (dirInfo.EnumerateFiles("*.csproj").Any())
-                    break;
-
-                dirInfo = dirInfo.Parent;
-            }
-
-            return dirInfo.FullName;
-        }
     }
 }
 ```
 
 The console output looks like this:
-![simple console output](docs/assets/config-based-example.png)
+![config based example output](docs/assets/config-based-example.png)
 
 The log file, log20210801.txt, looks like this:
 
 ```log
-2021-09-13 19:19:04.828 -07:00 [INF] This is an Informational logging message ConfigurationBasedExample.Program::Main (\Program.cs:33) 
-2021-09-13 19:19:04.875 -07:00 [FTL] This is a Fatal logging message ConfigurationBasedExample.Program::Main (\Program.cs:34) 
+2021-09-15 10:14:59.173 -07:00 [INF] This is an Informational logging message ConfigurationBasedExample.Program::Main (C:\Programming\J4JLogging\examples\ConfigurationBasedExample\Program.cs:32) 
+2021-09-15 10:14:59.238 -07:00 [FTL] This is a Fatal logging message ConfigurationBasedExample.Program::Main (C:\Programming\J4JLogging\examples\ConfigurationBasedExample\Program.cs:33) 
 ```
 
 Your log file's name will be different because, by default, the log file rolls daily and the last day logging took place will be embedded in the file name.
 
-### Trimming Paths
+There is a simple way of trimming the logged source code file paths to make them relative to the project directory path. See [trimming paths](docs/trimming-paths.md) for how to do this.
 
-The example here uses two static methods, `ConvertCallingContextToText` and `GetProjectPath`, which
-at first glance don't appear to do anything. In reality, what they do is determine the path to the
-project's root which, in turn, is used to trim the source code file paths so that they don't get
-"too long".
-
-Those two static methods can be incorporated in any project, as is, and used as they are in this
-example.
-
-### The Configuration File
-
-This example uses `Serilog`'s `IConfiguration`-based add-on to automagically configure the `Serilog`
-logger underlying `J4JLogger`. You should consult the github site for details, but the configuration file syntax is pretty simple:
-
-```json
-  "Serilog": {
-    "MinimumLevel": "Information",
-    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Sinks.Debug" ],
-    "WriteTo": [
-      {
-        "Name": "Console",
-        "Args": {
-          "outputTemplate": "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}{NewLine}"
-        }
-      },
-      {
-        "Name": "Debug",
-        "Args": {
-          "outputTemplate": "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}"
-        }
-      },
-      {
-        "Name": "File",
-        "Args": {
-          "path": "log.txt",
-          "rollingInterval": "Day",
-          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}{NewLine}"
-        }
-      }
-    ]
-  }
-```
+You can read about how to use the `Serilog` `IConfiguration`-based configuration system [here](docs/iconfig-based.md).
 
 ### Important Note
 
-**There is one important difference in how you call the logging methods
-from the Serilog standard.** 
+**There is one important difference in how you call the logging methods from the Serilog standard.** 
 
 If you pass nothing but simple strings to the methods as property values you **must** specify the types of 
-the propertyValue arguments explicitly in the method call. 
+the propertyValue arguments explicitly in the method call.
 
 An example:
 
@@ -156,18 +77,15 @@ string someStringValue = "abcd";
 _logger.Debug<string>("The value of that argument is {0}", someStringValue);
 ```
 
-This requirement comes about because the `memberName`, `srcPath` and `srcLine` 
-arguments are automagically set for you by the compiler. The fact the 
-`memberName` and `srcPath` arguments of the logging methods are strings and
-"collide" with string arguments you may specify. That makes explict type 
-specifications for the arguments necessary when strings are referenced by the message template.
+This requirement comes about because the `memberName`, `srcPath` and `srcLine` arguments are automagically set for you by the compiler. The fact the `memberName` and `srcPath` arguments of the logging methods are strings makes them "collide" with string arguments you may specify. That makes explict type specifications for the arguments necessary when the compiler can't figure out what you mean...which is all too common :).
 
 ### Table of Contents
 
 - [Change Log](docs/changes.md)
 - [Goal and Concept](docs/goal-concept.md)
-- [Terminology](docs/terminology.md)
-- [Usage](docs/usage.md)
 - [Configuration](docs/configuration.md)
-- [The Twilio channel](docs/twilio.md)
-- [Adding a channel](docs/channel.md)
+- [`IConfiguration`-based Configuration](docs/iconfig-based.md)
+- [Usage](docs/usage.md)
+- [Managing SMS Messages](docs/sms-messages.md)
+- [Twilio](docs/twilio.md)
+- [Adding a new SMS Sink](docs/new-sms.md)

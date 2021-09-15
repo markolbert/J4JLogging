@@ -2,30 +2,25 @@
 
 ## Changes to v4.0
 
-Earlier versions of `J4JLogger` tried to "simplify" defining and configuring channels/sinks. 
-However, as I continued to use the library -- and learned more about `Serilog` -- I came to realize 
-a better approach was to stick as closely as possible to the "Serilog way" of doing things. Because
-having to remember two similar-but-different configuration approaches quickly gets confusing.
+**Major breaking changes**
 
-To that end, the entire concept of channels (which were related to sinks) is gone. Instead, you
-configure the handful of `J4JLogger`-specific features and do everything else the way you always
-do with `Serilog`, by using its `LoggerConfiguration` API.
+Earlier versions of `J4JLogger` tried to "simplify" defining and configuring channels/sinks. However, as I continued to use the library -- and learned more about `Serilog` -- I came to realize a better approach was to stick as closely as possible to the "Serilog way" of doing things. Because having to remember two similar-but-different configuration approaches quickly gets confusing.
 
-Doing that requires you configure the `LoggerConfiguration` instance embedded within the 
-`J4JLogger` environment. That's done like this:
+To that end, the entire concept of channels (which were related to sinks) is gone. Instead, you configure  `J4JLogger`-specific features (there's currently only one, a facility for sending log events as text messages via SMS) through a configuration object and do everything else the way you always have with `Serilog`, by using its `LoggerConfiguration` API.
+
+Doing that requires you configure the `LoggerConfiguration` instance embedded within an instance of `J4JLoggerConfiguration`. That's done like this:
 
 ```csharp
-var loggerConfig = new J4JLoggerConfiguration()
-    {
-        CallingContextToText = ConvertCallingContextToText
-    }
-    .AddEnricher<CallingContextEnricher>();
+var loggerConfig = new J4JLoggerConfiguration();
+
+var outputTemplate = loggerConfig.GetOutputTemplate( true );
 
 loggerConfig.SerilogConfiguration
-    .WriteTo.Debug()
-    .WriteTo.Console()
+    .WriteTo.Debug( outputTemplate: outputTemplate )
+    .WriteTo.Console( outputTemplate: outputTemplate )
     .WriteTo.File(
         path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
+        outputTemplate: loggerConfig.GetOutputTemplate( true ),
         rollingInterval: RollingInterval.Day );
 
 var logger = loggerConfig.CreateLogger();
@@ -34,6 +29,8 @@ logger.SetLoggedType( typeof(Program) );
 
 The `SerilogConfiguration` property on the `J4JLoggerConfiguration` instance gives you access to
 the traditional `Serilog::LoggerConfiguration` API.
+
+You may wonder why there's a call to `loggerConfig` to generate an output template to use in configuring the various `Serilog` sinks. The answer is simple: in order for the calling context information (e.g., calling method name) to appear in the log there has to be a placeholder for it the output template `Serilog` uses...and the default template obviously won't contain it.
 
 I also eliminated the need to use dependency injection to configure the logger.
 
