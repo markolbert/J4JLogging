@@ -22,16 +22,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Compile Remove="channels\**" />
-	  <Compile Remove="config\**" />
-	  <EmbeddedResource Remove="channels\**" />
-	  <EmbeddedResource Remove="config\**" />
-	  <None Remove="channels\**" />
-	  <None Remove="config\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <Compile Remove="enrichers\IMessageTemplateManager.cs" />
+	  <Compile Remove="enrichers\J4JEnricherAttribute.cs" />
 	  <Compile Remove="enrichers\MessageTemplateManager.cs" />
 	  <Compile Remove="IJ4JLoggerFactory.cs" />
 	  <Compile Remove="J4JLoggerExtensions.cs" />

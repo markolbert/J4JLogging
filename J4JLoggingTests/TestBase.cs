@@ -36,7 +36,7 @@ namespace J4JLoggingTests
             int lineNum,
             string srcFilePath)
         {
-            return CallingContextEnricher.DefaultConvertToText(loggedType,
+            return CallingContextEnricher.DefaultFilePathTrimmer(loggedType,
                 callerName,
                 lineNum,
                 CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
@@ -75,13 +75,12 @@ namespace J4JLoggingTests
 
             var loggerConfig = new J4JLoggerConfiguration()
                 {
-                    CallingContextToText = ConvertCallingContextToText
+                    FilePathTrimmer = ConvertCallingContextToText
                 }
-                .AddEnricher<CallingContextEnricher>()
-                .IncludeSendToTwilio( twilioConfig );
+                .AddTwilio( twilioConfig );
 
             loggerConfig.SerilogConfiguration
-                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
+                .WriteTo.Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) )
                 .WriteTo.LastEvent( out var temp )
                 .WriteTo.NetEvent( out var temp2 );
 

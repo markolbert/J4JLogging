@@ -15,9 +15,8 @@ namespace ConfigurationBasedExample
         {
             var loggerConfig = new J4JLoggerConfiguration()
                 {
-                    CallingContextToText = ConvertCallingContextToText
-                }
-                .AddEnricher<CallingContextEnricher>();
+                    FilePathTrimmer = FilePathTrimmer
+                };
 
             var configRoot = new ConfigurationBuilder()
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), true )
@@ -34,13 +33,13 @@ namespace ConfigurationBasedExample
             logger.Fatal("This is a Fatal logging message");
         }
 
-        private static string ConvertCallingContextToText(
+        private static string FilePathTrimmer(
             Type? loggedType,
             string callerName,
             int lineNum,
             string srcFilePath)
         {
-            return CallingContextEnricher.DefaultConvertToText(loggedType,
+            return CallingContextEnricher.DefaultFilePathTrimmer(loggedType,
                 callerName,
                 lineNum,
                 CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));

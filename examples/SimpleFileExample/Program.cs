@@ -13,17 +13,18 @@ namespace J4JLogger.Examples
         static void Main(string[] args)
         {
             var loggerConfig = new J4JLoggerConfiguration()
-                {
-                    CallingContextToText = ConvertCallingContextToText
-                }
-                .AddEnricher<CallingContextEnricher>();
+            {
+                FilePathTrimmer = FilePathTrimmer
+            };
+
+            var outputTemplate = loggerConfig.GetOutputTemplate( true );
 
             loggerConfig.SerilogConfiguration
-                .WriteTo.Debug( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
-                .WriteTo.Console( outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ) )
+                .WriteTo.Debug( outputTemplate: outputTemplate )
+                .WriteTo.Console( outputTemplate: outputTemplate )
                 .WriteTo.File(
                     path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
-                    outputTemplate: J4JLoggerConfiguration.GetOutputTemplate( true ),
+                    outputTemplate: loggerConfig.GetOutputTemplate( true ),
                     rollingInterval: RollingInterval.Day );
 
             var logger = loggerConfig.CreateLogger();
@@ -33,13 +34,13 @@ namespace J4JLogger.Examples
             logger.Fatal("This is a Fatal logging message");
         }
 
-        private static string ConvertCallingContextToText( 
+        private static string FilePathTrimmer( 
             Type? loggedType, 
             string callerName, 
             int lineNum,
             string srcFilePath )
         {
-            return CallingContextEnricher.DefaultConvertToText( loggedType,
+            return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
                 callerName,
                 lineNum,
                 CallingContextEnricher.RemoveProjectPath( srcFilePath, GetProjectPath() ) );
