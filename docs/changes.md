@@ -1,17 +1,41 @@
-### Change Log
+# Change Log
 
-#### Changes to v4.0
-I significantly modified the way you configure the channels. I also made it so changes to
-individual channel properties that require re-creation of the underlying Serilog logger
-now do so automatically.
+## Changes to v4.0
 
-I also eliminated the need to use dependency injection to configure the logger if you wanted
-to avoid some complex code. Instead, J4JLogger is simpler to configure "as is" in code, and
-the more complex file-based configuration stuff has been moved over to my [dependency injection
-framework](https://github.com/markolbert/ProgrammingUtilities/blob/master/docs/dependency.md).
+Earlier versions of `J4JLogger` tried to "simplify" defining and configuring channels/sinks. 
+However, as I continued to use the library -- and learned more about `Serilog` -- I came to realize 
+a better approach was to stick as closely as possible to the "Serilog way" of doing things. Because
+having to remember two similar-but-different configuration approaches quickly gets confusing.
 
-Hopefully I won't feel motivated to change the configuration process again. FWIW, this
-latest iteration feels simpler and more intuitive. Of course, they all do...initially :).
+To that end, the entire concept of channels (which were related to sinks) is gone. Instead, you
+configure the handful of `J4JLogger`-specific features and do everything else the way you always
+do with `Serilog`, by using its `LoggerConfiguration` API.
+
+Doing that requires you configure the `LoggerConfiguration` instance embedded within the 
+`J4JLogger` environment. That's done like this:
+
+```csharp
+var loggerConfig = new J4JLoggerConfiguration()
+    {
+        CallingContextToText = ConvertCallingContextToText
+    }
+    .AddEnricher<CallingContextEnricher>();
+
+loggerConfig.SerilogConfiguration
+    .WriteTo.Debug()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
+        rollingInterval: RollingInterval.Day );
+
+var logger = loggerConfig.CreateLogger();
+logger.SetLoggedType( typeof(Program) );
+```
+
+The `SerilogConfiguration` property on the `J4JLoggerConfiguration` instance gives you access to
+the traditional `Serilog::LoggerConfiguration` API.
+
+I also eliminated the need to use dependency injection to configure the logger.
 
 #### Changes to v3.2
 I moved the Twilio SMS stuff into a separate assembly because it's not commonly used

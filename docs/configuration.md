@@ -1,6 +1,73 @@
-### Configuration
+# Configuration
 
-Configuring `J4JLogger` is a matter of adding channels to it, configuring the channels, and
+Configuring `J4JLogger` is simple because, since it wraps `Serilog`, configuring it mostly means
+configuring `Serilog` the way you always have. Here's an example:
+
+```csharp
+var loggerConfig = new J4JLoggerConfiguration()
+    {
+        CallingContextToText = ConvertCallingContextToText
+    }
+    .AddEnricher<CallingContextEnricher>();
+
+loggerConfig.SerilogConfiguration
+    .WriteTo.Debug()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
+        rollingInterval: RollingInterval.Day );
+
+var logger = loggerConfig.CreateLogger();
+logger.SetLoggedType( typeof(Program) );
+```
+
+The `SerilogConfiguration` property on the `J4JLoggerConfiguration` instance gives you access to
+the traditional `Serilog::LoggerConfiguration` API.
+
+You can also use the cool `Serilog` `IConfiguration`-based API, like this:
+
+```csharp
+var configRoot = new ConfigurationBuilder()
+    .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), true )
+    .Build();
+
+loggerConfig.SerilogConfiguration
+    .ReadFrom
+    .Configuration( configRoot );
+```
+
+Your JSON configuration file will have to follow the required `Serilog` configuration syntax, but it's 
+pretty straightforward:
+
+```json
+  "Serilog": {
+    "MinimumLevel": "Information",
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Sinks.Debug" ],
+    "WriteTo": [
+      {
+        "Name": "Console",
+        "Args": {
+          "outputTemplate": "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}{NewLine}"
+        }
+      },
+      {
+        "Name": "Debug",
+        "Args": {
+          "outputTemplate": "{Timestamp:HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}"
+        }
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "log.txt",
+          "rollingInterval": "Day",
+          "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {CallingContext} {Exception}{NewLine}"
+        }
+      }
+    ]
+  }
+```
+
 setting global defaults for shared configurtation properties (e.g., like `MinimumLevel`). Global
 defaults, set on instances of `J4JLogger`, define the values used by each channel unless you
 override them on a channel-by-channel basis.
