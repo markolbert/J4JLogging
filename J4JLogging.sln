@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTests", "J4JLoggi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationBasedExample", "examples\ConfigurationBasedExample\ConfigurationBasedExample.csproj", "{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,12 +37,17 @@ Global
 		{C21270BA-083B-4054-8143-8FA17520D918}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C21270BA-083B-4054-8143-8FA17520D918}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C21270BA-083B-4054-8143-8FA17520D918}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
+		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}
