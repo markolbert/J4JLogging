@@ -12,10 +12,7 @@ namespace J4JLogger.Examples
     {
         static void Main(string[] args)
         {
-            var loggerConfig = new J4JLoggerConfiguration()
-            {
-                FilePathTrimmer = FilePathTrimmer
-            };
+            var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer );
 
             var outputTemplate = loggerConfig.GetOutputTemplate( true );
 
@@ -24,7 +21,7 @@ namespace J4JLogger.Examples
                 .WriteTo.Console( outputTemplate: outputTemplate )
                 .WriteTo.File(
                     path: Path.Combine( Environment.CurrentDirectory, "log.txt" ),
-                    outputTemplate: loggerConfig.GetOutputTemplate( true ),
+                    outputTemplate: outputTemplate,
                     rollingInterval: RollingInterval.Day );
 
             var logger = loggerConfig.CreateLogger();

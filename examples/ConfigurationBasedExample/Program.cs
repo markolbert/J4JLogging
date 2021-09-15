@@ -13,10 +13,7 @@ namespace ConfigurationBasedExample
     {
         static void Main(string[] args)
         {
-            var loggerConfig = new J4JLoggerConfiguration()
-                {
-                    FilePathTrimmer = FilePathTrimmer
-                };
+            var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer );
 
             var configRoot = new ConfigurationBuilder()
                 .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), true )
