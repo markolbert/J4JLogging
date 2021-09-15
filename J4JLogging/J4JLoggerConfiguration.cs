@@ -38,12 +38,15 @@ namespace J4JSoftware.Logging
         private List<J4JEnricher> _enrichers;
         private LogEventLevel _minLevel;
 
-        public J4JLoggerConfiguration()
+        public J4JLoggerConfiguration(Func<Type?, string, int, string, string>? filePathTrimmer = null  )
         {
             SerilogConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext();
 
             _enrichers = new List<J4JEnricher>() { _ccEnricher };
+
+            if( filePathTrimmer != null )
+                FilePathTrimmer = filePathTrimmer;
 
             MinimumLevel = LogEventLevel.Verbose;
         }
@@ -71,7 +74,7 @@ namespace J4JSoftware.Logging
         public Func<Type?, string, int, string, string> FilePathTrimmer
         {
             get => _ccEnricher.FilePathTrimmer;
-            set => _ccEnricher.FilePathTrimmer = value;
+            private set => _ccEnricher.FilePathTrimmer = value;
         }
 
         public LogEventLevel MinimumLevel
