@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using System;
+using Serilog;
 using Serilog.Events;
 using Twilio;
 
@@ -6,37 +7,30 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
-        public static J4JLoggerConfiguration IncludeSendToTwilio(
+        public static J4JLoggerConfiguration AddTwilio(
             this J4JLoggerConfiguration loggerConfig,
             TwilioConfiguration configValues,
             LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
             string? outputTemplate = null )
         {
             if( !configValues.IsValid )
-                return loggerConfig;
+                throw new ArgumentException( "Twilio configuration values are invalid" );
 
-            outputTemplate ??= J4JLoggerConfiguration.GetOutputTemplate();
-
-            var sink = new TwilioSink( configValues.FromNumber!, configValues.Recipients!, outputTemplate );
+            var sink = new TwilioSink( configValues.FromNumber!, 
+                configValues.Recipients!,
+                outputTemplate ?? loggerConfig.GetOutputTemplate() );
 
             try
             {
-                TwilioClient.Init(configValues.AccountSID!, configValues.AccountToken!);
-                sink.ClientConfigured = true;
+                TwilioClient.Init( configValues.AccountSID!, configValues.AccountToken! );
+                sink.IsConfigured = true;
+
+                loggerConfig.AddSmsSink( sink, restrictedToMinimumLevel );
             }
             catch
             {
-                sink.ClientConfigured = false;
+                sink.IsConfigured = false;
             }
-
-            loggerConfig.SerilogConfiguration.WriteTo
-                .Logger(lc =>
-                    lc.Filter
-                        .ByIncludingOnly("SendToSms")
-                        .WriteTo.Sink(sink, restrictedToMinimumLevel)
-                );
-
-            loggerConfig.AddEnricher<SmsEnricher>();
 
             return loggerConfig;
         }

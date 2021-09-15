@@ -22,10 +22,9 @@ using System.Text;
 
 namespace J4JSoftware.Logging
 {
-    [J4JEnricher("CallingContext")]
-    public class CallingContextEnricher : BaseEnricher
+    public class CallingContextEnricher : J4JEnricher
     {
-        public static string DefaultConvertToText( 
+        public static string DefaultFilePathTrimmer( 
             Type? loggedType, 
             string callerName, 
             int lineNum,
@@ -47,12 +46,17 @@ namespace J4JSoftware.Logging
             StringComparison textComparison = StringComparison.OrdinalIgnoreCase ) =>
             rawPath.StartsWith( projPath, textComparison ) ? rawPath.Replace( projPath, string.Empty ) : rawPath;
 
-        public Func<Type?, string, int, string, string> ConvertToText { get; set; } = DefaultConvertToText;
+        public CallingContextEnricher()
+            : base( "CallingContext" )
+        {
+        }
+
+        public Func<Type?, string, int, string, string> FilePathTrimmer { get; set; } = DefaultFilePathTrimmer;
 
         public override bool EnrichContext => !string.IsNullOrEmpty( CallingMemberName )
                                               && !string.IsNullOrEmpty( SourceFilePath )
                                               && LineNumber > 0;
-        public override object GetValue() => ConvertToText( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
+        public override object GetValue() => FilePathTrimmer( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
 
         public string? CallingMemberName { get; set; }
         public Type? LoggedType { get; set; }

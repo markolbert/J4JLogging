@@ -17,11 +17,20 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+
 namespace J4JSoftware.Logging
 {
-    [J4JEnricher("SendToSms")]
-    public class SmsEnricher : BaseEnricher
+    public class SmsEnricher : J4JEnricher
     {
+        public SmsEnricher()
+            : base( "SendToSms" )
+        {
+        }
+
         public override bool EnrichContext => SendNextToSms;
         public override object GetValue() => true;
 

@@ -34,23 +34,15 @@ namespace J4JSoftware.Logging
         private readonly StringWriter _stringWriter;
 
         protected SmsSink(
-            string fromNumber,
-            IEnumerable<string> recipientNumbers,
             string template
             )
         {
-            FromNumber = fromNumber;
-            RecipientNumbers = recipientNumbers.ToList();
             TextFormatter = new MessageTemplateTextFormatter( template );
             
             _sb = new StringBuilder();
             _stringWriter = new StringWriter( _sb );
         }
 
-        public virtual bool IsValid => RecipientNumbers.Any();
-
-        public string FromNumber { get; }
-        public List<string> RecipientNumbers { get; }
         public ITextFormatter TextFormatter { get; }
 
         public void Emit( LogEvent logEvent )

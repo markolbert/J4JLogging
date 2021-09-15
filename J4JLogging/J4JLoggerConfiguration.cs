@@ -34,36 +34,8 @@ namespace J4JSoftware.Logging
         public const string DefaultCoreTemplate =
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
 
-        public static string GetOutputTemplate(bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate )
-        {
-            var sb = new StringBuilder(coreTemplate);
-
-            AppendEnricher<CallingContextEnricher>(sb);
-            AppendEnricher<SmsEnricher>(sb);
-
-            if (requiresNewline)
-                sb.Append("{NewLine}");
-
-            sb.Append("{Exception}");
-
-            return sb.ToString();
-        }
-
-        private static void AppendEnricher<T>(StringBuilder sb)
-            where T : BaseEnricher, new()
-        {
-            var attr = typeof(T).GetCustomAttribute<J4JEnricherAttribute>( false );
-            if( attr == null )
-                throw new NullReferenceException(
-                    $"BaseEnricher type '{typeof(T)}' is not decorated with a J4JEnricherAttribute");
-
-            sb.Append(" {");
-            sb.Append(attr.PropertyName);
-            sb.Append("}");
-        }
-
-        private readonly List<BaseEnricher> _enrichers = new();
-
+        private readonly CallingContextEnricher _ccEnricher = new();
+        private List<J4JEnricher> _enrichers;
         private LogEventLevel _minLevel;
 
         public J4JLoggerConfiguration()
@@ -71,14 +43,36 @@ namespace J4JSoftware.Logging
             SerilogConfiguration = new LoggerConfiguration()
                 .Enrich.FromLogContext();
 
-            CallingContextToText = CallingContextEnricher.DefaultConvertToText;
+            _enrichers = new List<J4JEnricher>() { _ccEnricher };
+
             MinimumLevel = LogEventLevel.Verbose;
         }
 
         public LoggerConfiguration SerilogConfiguration { get; }
-        public ReadOnlyCollection<BaseEnricher> Enrichers => _enrichers.AsReadOnly();
+        
+        public ReadOnlyCollection<J4JEnricher> Enrichers => _enrichers.AsReadOnly();
 
-        public Func<Type?, string, int, string, string> CallingContextToText { get; set; }
+        public void AddSmsSink( SmsSink sink, LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
+        {
+            // we only need to add the SmsEnricher once to support whatever SMS sinks may be specified
+            var enricher = new SmsEnricher();
+
+            if( !_enrichers.Any( x => x.EnricherID.Equals( enricher.EnricherID, StringComparison.OrdinalIgnoreCase ) ) )
+                _enrichers.Add( enricher );
+
+            SerilogConfiguration.WriteTo
+                .Logger( lc =>
+                    lc.Filter
+                        .ByIncludingOnly( "SendToSms" )
+                        .WriteTo.Sink( sink, restrictedToMinimumLevel )
+                );
+        }
+
+        public Func<Type?, string, int, string, string> FilePathTrimmer
+        {
+            get => _ccEnricher.FilePathTrimmer;
+            set => _ccEnricher.FilePathTrimmer = value;
+        }
 
         public LogEventLevel MinimumLevel
         {
@@ -120,15 +114,36 @@ namespace J4JSoftware.Logging
             }
         }
 
-        public J4JLoggerConfiguration AddEnricher<T>()
-            where T: BaseEnricher, new()
+        public string GetOutputTemplate(bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate)
         {
-            if( !_enrichers.Any( x => x is T ) )
-                _enrichers.Add(new T());
+            var sb = new StringBuilder(coreTemplate);
 
-            return this;
+            foreach (var enricher in _enrichers)
+            {
+                sb.Append(" {");
+                sb.Append(enricher.PropertyName);
+                sb.Append("}");
+            }
+
+            if (requiresNewline)
+                sb.Append("{NewLine}");
+
+            sb.Append("{Exception}");
+
+            return sb.ToString();
         }
 
-        public J4JLogger CreateLogger() => new( this );
+        public J4JLogger CreateLogger()
+        {
+            // eliminate any duplicate enrichers
+            _enrichers = _enrichers.Distinct( J4JEnricher.DefaultComparer ).ToList();
+
+            foreach( var enricher in _enrichers )
+            {
+                SerilogConfiguration.Enrich.With( enricher );
+            }
+
+            return new(this);
+        }
     }
 }

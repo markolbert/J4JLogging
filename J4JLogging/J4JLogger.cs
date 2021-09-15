@@ -33,28 +33,16 @@ namespace J4JSoftware.Logging
     /// </summary>
     public class J4JLogger : J4JBaseLogger
     {
-        private readonly List<BaseEnricher> _enrichers;
+        private readonly List<J4JEnricher> _enrichers;
         private readonly List<IDisposable> _pushedProperties = new();
 
         public J4JLogger(
             ILogger seriLogger,
-            params BaseEnricher[] enrichers
+            params J4JEnricher[] enrichers
         )
         {
             Serilogger = seriLogger;
             _enrichers = enrichers.ToList();
-        }
-
-        public J4JLogger(
-            ILogger seriLogger
-        )
-            : this(seriLogger,
-                new BaseEnricher[]
-                {
-                    new CallingContextEnricher(),
-                    new SmsEnricher()
-                })
-        {
         }
 
         internal J4JLogger(
@@ -64,7 +52,7 @@ namespace J4JSoftware.Logging
         {
             if( _enrichers.FirstOrDefault( x => x is CallingContextEnricher )
                 is CallingContextEnricher callingEnricher )
-                callingEnricher.ConvertToText = loggerConfig.CallingContextToText;
+                callingEnricher.FilePathTrimmer = loggerConfig.FilePathTrimmer;
         }
 
         public ILogger? Serilogger { get; }

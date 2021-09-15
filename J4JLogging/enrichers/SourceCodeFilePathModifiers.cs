@@ -27,15 +27,15 @@ namespace J4JSoftware.Logging
     public static class SourceCodeFilePathModifiers
     {
         // copy these next two methods to the source code file where you configure J4JLogger
-        // and then reference ConvertCallingContextToText as the context converter you
+        // and then reference FilePathTrimmer as the context converter you
         // want to use
-        private static string ConvertCallingContextToText(
+        private static string FilePathTrimmer(
             Type? loggedType,
             string callerName,
             int lineNum,
             string srcFilePath)
         {
-            return CallingContextEnricher.DefaultConvertToText(loggedType,
+            return CallingContextEnricher.DefaultFilePathTrimmer(loggedType,
                 callerName,
                 lineNum,
                 CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Twilio.Rest.Api.V2010.Account;
 
 namespace J4JSoftware.Logging
@@ -30,15 +31,21 @@ namespace J4JSoftware.Logging
             IEnumerable<string> recipientNumbers,
             string outputTemplate
         )
-            : base( fromNumber, recipientNumbers, outputTemplate )
+            : base( outputTemplate )
         {
+            FromNumber = fromNumber;
+            RecipientNumbers = recipientNumbers.ToList();
         }
 
-        public bool ClientConfigured { get; internal set; }
-        public override bool IsValid => base.IsValid && ClientConfigured;
+        public string FromNumber { get; }
+        public List<string> RecipientNumbers { get; }
+        public bool IsConfigured { get; internal set; }
 
         protected override void SendMessage( string logMessage )
         {
+            if( !IsConfigured )
+                throw new ArgumentException( $"{nameof(TwilioSink)} is not configured" );
+
             foreach( var rn in RecipientNumbers! )
             {
                 try
