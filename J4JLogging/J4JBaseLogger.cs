@@ -28,9 +28,17 @@ namespace J4JSoftware.Logging
 {
     public abstract class J4JBaseLogger : IJ4JLogger
     {
-        protected J4JBaseLogger()
+        public event EventHandler<NetEventArgs>? LogEvent;
+
+        protected J4JBaseLogger(
+            NetEventSink? netEventSink 
+            )
         {
+            if (netEventSink != null)
+                netEventSink.RaiseEvent = RaiseEvent;
         }
+
+        private void RaiseEvent(NetEventArgs args) => LogEvent?.Invoke(this, args);
 
         #region Logged Type
 

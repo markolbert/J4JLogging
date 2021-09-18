@@ -38,8 +38,10 @@ namespace J4JSoftware.Logging
 
         public J4JLogger(
             ILogger seriLogger,
+            NetEventSink? netEventSink = null,
             params J4JEnricher[] enrichers
         )
+        :base(netEventSink)
         {
             Serilogger = seriLogger;
             _enrichers = enrichers.ToList();
@@ -48,7 +50,11 @@ namespace J4JSoftware.Logging
         internal J4JLogger(
             J4JLoggerConfiguration loggerConfig
         )
-            : this( loggerConfig.SerilogConfiguration.CreateLogger(), loggerConfig.Enrichers.ToArray() )
+            : this(
+                loggerConfig.SerilogConfiguration.CreateLogger(),
+                loggerConfig.NetEventSink,
+                loggerConfig.Enrichers.ToArray()
+            )
         {
             if( _enrichers.FirstOrDefault( x => x is CallingContextEnricher )
                 is CallingContextEnricher callingEnricher )

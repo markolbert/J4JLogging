@@ -27,6 +27,11 @@ namespace J4JSoftware.Logging
 {
     public class J4JCachedLogger : J4JBaseLogger
     {
+        public J4JCachedLogger()
+            : base( null )
+        {
+        }
+
         protected override void OnLoggedTypeChanged()
         {
             // no op

@@ -32,7 +32,7 @@ namespace J4JSoftware.Logging
         public const string DefaultTemplate =
             "[{Level:u3}] {Message:lj}";
 
-        public EventHandler<NetEventArgs>? LogEvent;
+        //public EventHandler<NetEventArgs>? LogEvent;
 
         private readonly StringBuilder _sb = new();
         private readonly StringWriter _stringWriter;
@@ -46,13 +46,16 @@ namespace J4JSoftware.Logging
             _textFormatter = new MessageTemplateTextFormatter( outputTemplate );
         }
 
+        internal Action<NetEventArgs>? RaiseEvent { get; set; }
+
         public void Emit( LogEvent logEvent )
         {
             _sb.Clear();
             _textFormatter.Format( logEvent, _stringWriter );
             _stringWriter.Flush();
 
-            LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
+            //LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
+            RaiseEvent?.Invoke( new NetEventArgs( logEvent.Level, _sb.ToString() ) );
         }
     }
 }

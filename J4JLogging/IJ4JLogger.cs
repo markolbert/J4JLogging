@@ -25,6 +25,8 @@ namespace J4JSoftware.Logging
 {
     public interface IJ4JLogger
     {
+        event EventHandler<NetEventArgs>? LogEvent;
+
         Type? LoggedType { get; }
         void SetLoggedType<TLogged>();
         void SetLoggedType( Type typeToLog );

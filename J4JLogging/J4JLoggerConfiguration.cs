@@ -51,6 +51,8 @@ namespace J4JSoftware.Logging
             MinimumLevel = LogEventLevel.Verbose;
         }
 
+        internal NetEventSink? NetEventSink { get; set; }
+
         public LoggerConfiguration SerilogConfiguration { get; }
         
         public ReadOnlyCollection<J4JEnricher> Enrichers => _enrichers.AsReadOnly();

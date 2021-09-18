@@ -37,16 +37,30 @@ namespace J4JSoftware.Logging
             return loggerConfig.Sink( sink, restrictedToMinimumLevel );
         }
 
+        //public static LoggerConfiguration NetEvent(
+        //    this LoggerSinkConfiguration loggerConfig,
+        //    out NetEventSink sink,
+        //    string outputTemplate = NetEventSink.DefaultTemplate,
+        //    LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
+        //    )
+        //{
+        //    sink = new NetEventSink( outputTemplate );
+
+        //    return loggerConfig.Sink( sink, restrictedToMinimumLevel );
+        //}
+
         public static LoggerConfiguration NetEvent(
-            this LoggerSinkConfiguration loggerConfig,
-            out NetEventSink sink,
+            this J4JLoggerConfiguration loggerConfig,
             string outputTemplate = NetEventSink.DefaultTemplate,
             LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
-            )
+        )
         {
-            sink = new NetEventSink( outputTemplate );
+            var sink = new NetEventSink(outputTemplate);
+            loggerConfig.NetEventSink = sink;
 
-            return loggerConfig.Sink( sink, restrictedToMinimumLevel );
+            return loggerConfig.SerilogConfiguration
+                .WriteTo
+                .Sink( sink, restrictedToMinimumLevel );
         }
     }
 }
