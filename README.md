@@ -85,6 +85,7 @@ This requirement comes about because the `memberName`, `srcPath` and `srcLine` a
 - [Goal and Concept](docs/goal-concept.md)
 - [Configuration](docs/configuration.md)
 - [`IConfiguration`-based Configuration](docs/iconfig-based.md)
+- [NetEvent](docs/netevent.md)
 - [Usage](docs/usage.md)
 - [Managing SMS Messages](docs/sms-messages.md)
 - [Twilio](docs/twilio.md)

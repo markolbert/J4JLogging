@@ -34,6 +34,17 @@ You may wonder why there's a call to `loggerConfig` to generate an output templa
 
 I also eliminated the need to use dependency injection to configure the logger.
 
+The `NetEventSink` is incorporated into the library in a different way. When it's included as a sink the events it generates are raised by `IJ4JLogger`. This simplified setting up the sink.
+
+Adding `NetEventSink` is done by calling the extension method `NetEvent()` on an instance of `J4JLoggerConfiguration`:
+
+```csharp
+loggerConfig.NetEvent( outputTemplate: outputTemplate,
+    restrictedToMinimumLevel: NetEventConfiguration.MinimumLevel );
+```
+
+Keep in mind that if you don't add it as a sink no `LogEvent`s will ever be raised by `IJ4JLogger`.
+
 #### Changes to v3.2
 I moved the Twilio SMS stuff into a separate assembly because it's not commonly used
 when logging and is large relative to the rest of the code base.
