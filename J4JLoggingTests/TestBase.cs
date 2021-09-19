@@ -78,16 +78,15 @@ namespace J4JLoggingTests
 
             loggerConfig.SerilogConfiguration
                 .WriteTo.Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) )
-                .WriteTo.LastEvent( out var temp )
-                .WriteTo.NetEvent( out var temp2 );
+                .WriteTo.LastEvent( out var temp );
+
+            loggerConfig.NetEvent();
 
             LastEvent = temp!;
 
-            NetEvent = temp2;
-            NetEvent.LogEvent += LogEvent;
-
             Logger = loggerConfig.CreateLogger();
             Logger.SetLoggedType( GetType() );
+            Logger.LogEvent += LogEvent;
         }
 
         private void LogEvent( object? sender, NetEventArgs e ) => OnNetEvent( e );
