@@ -40,161 +40,258 @@ namespace J4JSoftware.Logging
 
         #region Write methods
 
-        void Write( 
-            LogEventLevel level, 
-            string template, 
-            [CallerMemberName] string memberName = "", 
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Write( LogEventLevel level,
+                    string template,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
-        void Write<T0>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0);
+        void Write<T0>( LogEventLevel level,
+                        string template,
+                        T0 propertyValue,
+                        [ CallerMemberName ] string memberName = "",
+                        [ CallerFilePath ] string srcPath = "",
+                        [ CallerLineNumber ] int srcLine = 0 );
 
-        void Write<T0, T1>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue0, 
-            T1 propertyValue1,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0);
+        void Write<T0, T1>( LogEventLevel level,
+                            string template,
+                            T0 propertyValue0,
+                            T1 propertyValue1,
+                            [ CallerMemberName ] string memberName = "",
+                            [ CallerFilePath ] string srcPath = "",
+                            [ CallerLineNumber ] int srcLine = 0 );
 
-        void Write<T0, T1, T2>( 
-            LogEventLevel level, 
-            string template, 
-            T0 propertyValue0,
-            T1 propertyValue1,
-            T2 propertyValue2,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0);
+        void Write<T0, T1, T2>( LogEventLevel level,
+                                string template,
+                                T0 propertyValue0,
+                                T1 propertyValue1,
+                                T2 propertyValue2,
+                                [ CallerMemberName ] string memberName = "",
+                                [ CallerFilePath ] string srcPath = "",
+                                [ CallerLineNumber ] int srcLine = 0 );
 
-        void Write( 
-            LogEventLevel level, 
-            string template, 
-            object[] propertyValues,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0);
+        void Write( LogEventLevel level,
+                    string template,
+                    object[] propertyValues,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Debug methods
 
-        void Debug( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Debug( string template,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
-        void Debug<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Debug<T0>( string template,
+                        T0 propertyValue,
+                        [ CallerMemberName ] string memberName = "",
+                        [ CallerFilePath ] string srcPath = "",
+                        [ CallerLineNumber ] int srcLine = 0 );
 
-        void Debug<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Debug<T0, T1>( string template,
+                            T0 propertyValue0,
+                            T1 propertyValue1,
+                            [ CallerMemberName ] string memberName = "",
+                            [ CallerFilePath ] string srcPath = "",
+                            [ CallerLineNumber ] int srcLine = 0 );
 
-        void Debug<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Debug<T0, T1, T2>( string template,
+                                T0 propertyValue0,
+                                T1 propertyValue1,
+                                T2 propertyValue2,
+                                [ CallerMemberName ] string memberName = "",
+                                [ CallerFilePath ] string srcPath = "",
+                                [ CallerLineNumber ] int srcLine = 0 );
 
-        void Debug( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Debug( string template,
+                    object[] propertyValues,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Error methods
 
-        void Error( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Error( string template,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
-        void Error<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Error<T0>( string template,
+                        T0 propertyValue,
+                        [ CallerMemberName ] string memberName = "",
+                        [ CallerFilePath ] string srcPath = "",
+                        [ CallerLineNumber ] int srcLine = 0 );
 
-        void Error<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Error<T0, T1>( string template,
+                            T0 propertyValue0,
+                            T1 propertyValue1,
+                            [ CallerMemberName ] string memberName = "",
+                            [ CallerFilePath ] string srcPath = "",
+                            [ CallerLineNumber ] int srcLine = 0 );
 
-        void Error<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Error<T0, T1, T2>( string template,
+                                T0 propertyValue0,
+                                T1 propertyValue1,
+                                T2 propertyValue2,
+                                [ CallerMemberName ] string memberName = "",
+                                [ CallerFilePath ] string srcPath = "",
+                                [ CallerLineNumber ] int srcLine = 0 );
 
-        void Error( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Error( string template,
+                    object[] propertyValues,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Fatal methods
 
-        void Fatal( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Fatal( string template,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
-        void Fatal<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Fatal<T0>( string template,
+                        T0 propertyValue,
+                        [ CallerMemberName ] string memberName = "",
+                        [ CallerFilePath ] string srcPath = "",
+                        [ CallerLineNumber ] int srcLine = 0 );
 
-        void Fatal<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Fatal<T0, T1>( string template,
+                            T0 propertyValue0,
+                            T1 propertyValue1,
+                            [ CallerMemberName ] string memberName = "",
+                            [ CallerFilePath ] string srcPath = "",
+                            [ CallerLineNumber ] int srcLine = 0 );
 
-        void Fatal<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Fatal<T0, T1, T2>( string template,
+                                T0 propertyValue0,
+                                T1 propertyValue1,
+                                T2 propertyValue2,
+                                [ CallerMemberName ] string memberName = "",
+                                [ CallerFilePath ] string srcPath = "",
+                                [ CallerLineNumber ] int srcLine = 0 );
 
-        void Fatal( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Fatal( string template,
+                    object[] propertyValues,
+                    [ CallerMemberName ] string memberName = "",
+                    [ CallerFilePath ] string srcPath = "",
+                    [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Information methods
 
-        void Information( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Information( string template,
+                          [ CallerMemberName ] string memberName = "",
+                          [ CallerFilePath ] string srcPath = "",
+                          [ CallerLineNumber ] int srcLine = 0 );
 
-        void Information<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Information<T0>( string template,
+                              T0 propertyValue,
+                              [ CallerMemberName ] string memberName = "",
+                              [ CallerFilePath ] string srcPath = "",
+                              [ CallerLineNumber ] int srcLine = 0 );
 
-        void Information<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Information<T0, T1>( string template,
+                                  T0 propertyValue0,
+                                  T1 propertyValue1,
+                                  [ CallerMemberName ] string memberName = "",
+                                  [ CallerFilePath ] string srcPath = "",
+                                  [ CallerLineNumber ] int srcLine = 0 );
 
-        void Information<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Information<T0, T1, T2>( string template,
+                                      T0 propertyValue0,
+                                      T1 propertyValue1,
+                                      T2 propertyValue2,
+                                      [ CallerMemberName ] string memberName = "",
+                                      [ CallerFilePath ] string srcPath = "",
+                                      [ CallerLineNumber ] int srcLine = 0 );
 
-        void Information( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Information( string template,
+                          object[] propertyValues,
+                          [ CallerMemberName ] string memberName = "",
+                          [ CallerFilePath ] string srcPath = "",
+                          [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Verbose methods
 
-        void Verbose( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Verbose( string template,
+                      [ CallerMemberName ] string memberName = "",
+                      [ CallerFilePath ] string srcPath = "",
+                      [ CallerLineNumber ] int srcLine = 0 );
 
-        void Verbose<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Verbose<T0>( string template,
+                          T0 propertyValue,
+                          [ CallerMemberName ] string memberName = "",
+                          [ CallerFilePath ] string srcPath = "",
+                          [ CallerLineNumber ] int srcLine = 0 );
 
-        void Verbose<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Verbose<T0, T1>( string template,
+                              T0 propertyValue0,
+                              T1 propertyValue1,
+                              [ CallerMemberName ] string memberName = "",
+                              [ CallerFilePath ] string srcPath = "",
+                              [ CallerLineNumber ] int srcLine = 0 );
 
-        void Verbose<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Verbose<T0, T1, T2>( string template,
+                                  T0 propertyValue0,
+                                  T1 propertyValue1,
+                                  T2 propertyValue2,
+                                  [ CallerMemberName ] string memberName = "",
+                                  [ CallerFilePath ] string srcPath = "",
+                                  [ CallerLineNumber ] int srcLine = 0 );
 
-        void Verbose( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Verbose( string template,
+                      object[] propertyValues,
+                      [ CallerMemberName ] string memberName = "",
+                      [ CallerFilePath ] string srcPath = "",
+                      [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
 
         #region Warning methods
 
-        void Warning( string template, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Warning( string template,
+                      [ CallerMemberName ] string memberName = "",
+                      [ CallerFilePath ] string srcPath = "",
+                      [ CallerLineNumber ] int srcLine = 0 );
 
-        void Warning<T0>( string template, T0 propertyValue, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Warning<T0>( string template,
+                          T0 propertyValue,
+                          [ CallerMemberName ] string memberName = "",
+                          [ CallerFilePath ] string srcPath = "",
+                          [ CallerLineNumber ] int srcLine = 0 );
 
-        void Warning<T0, T1>( string template, T0 propertyValue0, T1 propertyValue1, [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Warning<T0, T1>( string template,
+                              T0 propertyValue0,
+                              T1 propertyValue1,
+                              [ CallerMemberName ] string memberName = "",
+                              [ CallerFilePath ] string srcPath = "",
+                              [ CallerLineNumber ] int srcLine = 0 );
 
-        void Warning<T0, T1, T2>( string template, T0 propertyValue0, T1 propertyValue1, T2 propertyValue2,
-            [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "", [CallerLineNumber] int srcLine = 0 );
+        void Warning<T0, T1, T2>( string template,
+                                  T0 propertyValue0,
+                                  T1 propertyValue1,
+                                  T2 propertyValue2,
+                                  [ CallerMemberName ] string memberName = "",
+                                  [ CallerFilePath ] string srcPath = "",
+                                  [ CallerLineNumber ] int srcLine = 0 );
 
-        void Warning( string template, object[] propertyValues, [CallerMemberName] string memberName = "", [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0 );
+        void Warning( string template,
+                      object[] propertyValues,
+                      [ CallerMemberName ] string memberName = "",
+                      [ CallerFilePath ] string srcPath = "",
+                      [ CallerLineNumber ] int srcLine = 0 );
 
         #endregion
     }

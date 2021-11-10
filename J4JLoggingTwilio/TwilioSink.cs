@@ -26,11 +26,9 @@ namespace J4JSoftware.Logging
 {
     public class TwilioSink : SmsSink
     {
-        public TwilioSink(
-            string fromNumber,
-            IEnumerable<string> recipientNumbers,
-            string outputTemplate
-        )
+        public TwilioSink( string fromNumber,
+                           IEnumerable<string> recipientNumbers,
+                           string outputTemplate )
             : base( outputTemplate )
         {
             FromNumber = fromNumber;
@@ -44,7 +42,7 @@ namespace J4JSoftware.Logging
         protected override void SendMessage( string logMessage )
         {
             if( !IsConfigured )
-                throw new ArgumentException( $"{nameof(TwilioSink)} is not configured" );
+                throw new ArgumentException( $"{nameof( TwilioSink )} is not configured" );
 
             foreach( var rn in RecipientNumbers! )
             {
@@ -54,8 +52,8 @@ namespace J4JSoftware.Logging
                 }
                 catch( Exception e )
                 {
-                    throw new InvalidOperationException(
-                        $"Could not create Twilio message. Exception message was '{e.Message}'" );
+                    throw new
+                        InvalidOperationException( $"Could not create Twilio message. Exception message was '{e.Message}'" );
                 }
             }
         }

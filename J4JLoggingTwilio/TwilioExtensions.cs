@@ -7,18 +7,17 @@ namespace J4JSoftware.Logging
 {
     public static class TwilioExtensions
     {
-        public static J4JLoggerConfiguration AddTwilio(
-            this J4JLoggerConfiguration loggerConfig,
-            TwilioConfiguration configValues,
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
-            string? outputTemplate = null )
+        public static J4JLoggerConfiguration AddTwilio( this J4JLoggerConfiguration loggerConfig,
+                                                        TwilioConfiguration configValues,
+                                                        LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+                                                        string? outputTemplate = null )
         {
             if( !configValues.IsValid )
                 throw new ArgumentException( "Twilio configuration values are invalid" );
 
-            var sink = new TwilioSink( configValues.FromNumber!, 
-                configValues.Recipients!,
-                outputTemplate ?? loggerConfig.GetOutputTemplate() );
+            var sink = new TwilioSink( configValues.FromNumber!,
+                                      configValues.Recipients!,
+                                      outputTemplate ?? loggerConfig.GetOutputTemplate() );
 
             try
             {

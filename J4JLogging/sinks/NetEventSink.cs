@@ -38,9 +38,7 @@ namespace J4JSoftware.Logging
         private readonly StringWriter _stringWriter;
         private readonly ITextFormatter _textFormatter;
 
-        public NetEventSink(
-            string outputTemplate = DefaultTemplate
-            )
+        public NetEventSink( string outputTemplate = DefaultTemplate )
         {
             _stringWriter = new StringWriter( _sb );
             _textFormatter = new MessageTemplateTextFormatter( outputTemplate );

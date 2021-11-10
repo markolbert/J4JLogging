@@ -24,11 +24,10 @@ namespace J4JSoftware.Logging
 {
     public class CallingContextEnricher : J4JEnricher
     {
-        public static string DefaultFilePathTrimmer( 
-            Type? loggedType, 
-            string callerName, 
-            int lineNum,
-            string srcFilePath )
+        public static string DefaultFilePathTrimmer( Type? loggedType,
+                                                     string callerName,
+                                                     int lineNum,
+                                                     string srcFilePath )
         {
             var sb = new StringBuilder();
 
@@ -40,10 +39,10 @@ namespace J4JSoftware.Logging
             return sb.ToString();
         }
 
-        public static string RemoveProjectPath( 
-            string rawPath, 
-            string projPath,
-            StringComparison textComparison = StringComparison.OrdinalIgnoreCase ) =>
+        public static string RemoveProjectPath( string rawPath,
+                                                string projPath,
+                                                StringComparison textComparison =
+                                                    StringComparison.OrdinalIgnoreCase ) =>
             rawPath.StartsWith( projPath, textComparison ) ? rawPath.Replace( projPath, string.Empty ) : rawPath;
 
         public CallingContextEnricher()
@@ -53,10 +52,13 @@ namespace J4JSoftware.Logging
 
         public Func<Type?, string, int, string, string> FilePathTrimmer { get; set; } = DefaultFilePathTrimmer;
 
-        public override bool EnrichContext => !string.IsNullOrEmpty( CallingMemberName )
-                                              && !string.IsNullOrEmpty( SourceFilePath )
-                                              && LineNumber > 0;
-        public override object GetValue() => FilePathTrimmer( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
+        public override bool EnrichContext =>
+            !string.IsNullOrEmpty( CallingMemberName )
+            && !string.IsNullOrEmpty( SourceFilePath )
+            && LineNumber > 0;
+
+        public override object GetValue() =>
+            FilePathTrimmer( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
 
         public string? CallingMemberName { get; set; }
         public Type? LoggedType { get; set; }

@@ -82,8 +82,12 @@ namespace J4JLoggingTests
                 if( cached.LoggedType != null )
                     Logger.SetLoggedType( cached.LoggedType );
 
-                Logger.Write( entry.LogEventLevel, entry.MessageTemplate, entry.PropertyValues, entry.MemberName,
-                    entry.SourcePath, entry.SourceLine );
+                Logger.Write( entry.LogEventLevel,
+                             entry.MessageTemplate,
+                             entry.PropertyValues,
+                             entry.MemberName,
+                             entry.SourcePath,
+                             entry.SourceLine );
 
                 LastEvent.LastLogMessage.Should().Be( format_message( entry.LogEventLevel.ToString() ) );
             }

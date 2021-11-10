@@ -29,25 +29,25 @@ namespace J4JSoftware.Logging
         // copy these next two methods to the source code file where you configure J4JLogger
         // and then reference FilePathTrimmer as the context converter you
         // want to use
-        private static string FilePathTrimmer(
-            Type? loggedType,
-            string callerName,
-            int lineNum,
-            string srcFilePath)
+        private static string FilePathTrimmer( Type? loggedType,
+                                               string callerName,
+                                               int lineNum,
+                                               string srcFilePath )
         {
-            return CallingContextEnricher.DefaultFilePathTrimmer(loggedType,
-                callerName,
-                lineNum,
-                CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
+            return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
+                                                                 callerName,
+                                                                 lineNum,
+                                                                 CallingContextEnricher.RemoveProjectPath( srcFilePath,
+                                                                  GetProjectPath() ) );
         }
 
-        private static string GetProjectPath([CallerFilePath] string filePath = "")
+        private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
         {
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(filePath)!);
+            var dirInfo = new DirectoryInfo( Path.GetDirectoryName( filePath )! );
 
-            while (dirInfo.Parent != null)
+            while ( dirInfo.Parent != null )
             {
-                if (dirInfo.EnumerateFiles("*.csproj").Any())
+                if ( dirInfo.EnumerateFiles( "*.csproj" ).Any() )
                     break;
 
                 dirInfo = dirInfo.Parent;

@@ -22,14 +22,12 @@ using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
-    public record CachedEntry(
-        Type? LoggedType,
-        LogEventLevel LogEventLevel,
-        string MessageTemplate,
-        string MemberName,
-        string SourcePath,
-        int SourceLine,
-        SmsHandling SmsHandling,
-        params object[] PropertyValues
-    );
+    public record CachedEntry( Type? LoggedType,
+                               LogEventLevel LogEventLevel,
+                               string MessageTemplate,
+                               string MemberName,
+                               string SourcePath,
+                               int SourceLine,
+                               SmsHandling SmsHandling,
+                               params object[] PropertyValues );
 }

@@ -26,11 +26,9 @@ namespace J4JSoftware.Logging
 {
     public static class SinkExtensions
     {
-        public static LoggerConfiguration LastEvent(
-            this LoggerSinkConfiguration loggerConfig,
-            out LastEventSink sink,
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
-            )
+        public static LoggerConfiguration LastEvent( this LoggerSinkConfiguration loggerConfig,
+                                                     out LastEventSink sink,
+                                                     LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
         {
             sink = new LastEventSink();
 
@@ -49,18 +47,16 @@ namespace J4JSoftware.Logging
         //    return loggerConfig.Sink( sink, restrictedToMinimumLevel );
         //}
 
-        public static LoggerConfiguration NetEvent(
-            this J4JLoggerConfiguration loggerConfig,
-            string outputTemplate = NetEventSink.DefaultTemplate,
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
-        )
+        public static LoggerConfiguration NetEvent( this J4JLoggerConfiguration loggerConfig,
+                                                    string outputTemplate = NetEventSink.DefaultTemplate,
+                                                    LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
         {
-            var sink = new NetEventSink(outputTemplate);
+            var sink = new NetEventSink( outputTemplate );
             loggerConfig.NetEventSink = sink;
 
             return loggerConfig.SerilogConfiguration
-                .WriteTo
-                .Sink( sink, restrictedToMinimumLevel );
+                               .WriteTo
+                               .Sink( sink, restrictedToMinimumLevel );
         }
     }
 }

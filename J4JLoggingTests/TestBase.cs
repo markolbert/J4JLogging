@@ -30,25 +30,25 @@ namespace J4JLoggingTests
 {
     public class TestBase
     {
-        private static string FilePathTrimmer(
-            Type? loggedType,
-            string callerName,
-            int lineNum,
-            string srcFilePath)
+        private static string FilePathTrimmer( Type? loggedType,
+                                               string callerName,
+                                               int lineNum,
+                                               string srcFilePath )
         {
-            return CallingContextEnricher.DefaultFilePathTrimmer(loggedType,
-                callerName,
-                lineNum,
-                CallingContextEnricher.RemoveProjectPath(srcFilePath, GetProjectPath()));
+            return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
+                                                                 callerName,
+                                                                 lineNum,
+                                                                 CallingContextEnricher.RemoveProjectPath( srcFilePath,
+                                                                  GetProjectPath() ) );
         }
 
-        private static string GetProjectPath([CallerFilePath] string filePath = "")
+        private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
         {
-            var dirInfo = new DirectoryInfo(Path.GetDirectoryName(filePath)!);
+            var dirInfo = new DirectoryInfo( Path.GetDirectoryName( filePath )! );
 
-            while (dirInfo.Parent != null)
+            while ( dirInfo.Parent != null )
             {
-                if (dirInfo.EnumerateFiles("*.csproj").Any())
+                if ( dirInfo.EnumerateFiles( "*.csproj" ).Any() )
                     break;
 
                 dirInfo = dirInfo.Parent;
@@ -62,23 +62,23 @@ namespace J4JLoggingTests
             var configBuilder = new ConfigurationBuilder();
 
             var config = configBuilder
-                .AddUserSecrets<LoggingTests>()
-                .Build();
+                         .AddUserSecrets<LoggingTests>()
+                         .Build();
 
             var twilioConfig = new TwilioConfiguration
-            {
-                AccountSID = config.GetValue<string>( "twilio:AccountSID" ),
-                AccountToken = config.GetValue<string>( "twilio:AccountToken" ),
-                FromNumber = config.GetValue<string>( "twilio:FromNumber" ),
-                Recipients = new List<string> { "+1 650 868 3367" }
-            };
+                               {
+                                   AccountSID = config.GetValue<string>( "twilio:AccountSID" ),
+                                   AccountToken = config.GetValue<string>( "twilio:AccountToken" ),
+                                   FromNumber = config.GetValue<string>( "twilio:FromNumber" ),
+                                   Recipients = new List<string> { "+1 650 868 3367" }
+                               };
 
             var loggerConfig = new J4JLoggerConfiguration( FilePathTrimmer )
                 .AddTwilio( twilioConfig );
 
             loggerConfig.SerilogConfiguration
-                .WriteTo.Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) )
-                .WriteTo.LastEvent( out var temp );
+                        .WriteTo.Debug( outputTemplate: loggerConfig.GetOutputTemplate( true ) )
+                        .WriteTo.LastEvent( out var temp );
 
             loggerConfig.NetEvent();
 
@@ -97,7 +97,5 @@ namespace J4JLoggingTests
 
         protected IJ4JLogger Logger { get; }
         protected LastEventSink LastEvent { get; }
-        protected NetEventSink NetEvent { get; }
-
     }
 }

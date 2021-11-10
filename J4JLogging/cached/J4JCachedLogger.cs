@@ -42,24 +42,21 @@ namespace J4JSoftware.Logging
 
         public List<CachedEntry> Entries { get; } = new();
 
-        public override void Write( 
-            LogEventLevel level, 
-            string template, 
-            object[] propertyValues,
-            [CallerMemberName] string memberName = "",
-            [CallerFilePath] string srcPath = "",
-            [CallerLineNumber] int srcLine = 0)
+        public override void Write( LogEventLevel level,
+                                    string template,
+                                    object[] propertyValues,
+                                    [ CallerMemberName ] string memberName = "",
+                                    [ CallerFilePath ] string srcPath = "",
+                                    [ CallerLineNumber ] int srcLine = 0 )
         {
-            Entries.Add(new CachedEntry(
-                LoggedType,
-                level,
-                template,
-                memberName,
-                srcPath,
-                srcLine,
-                SmsHandling,
-                propertyValues)
-            );
+            Entries.Add( new CachedEntry( LoggedType,
+                                         level,
+                                         template,
+                                         memberName,
+                                         srcPath,
+                                         srcLine,
+                                         SmsHandling,
+                                         propertyValues ) );
 
             if( SmsHandling == SmsHandling.SendNextMessage )
                 SmsHandling = SmsHandling.DoNotSend;

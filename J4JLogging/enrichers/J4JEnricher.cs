@@ -47,9 +47,7 @@ namespace J4JSoftware.Logging
 
         public static IEqualityComparer<J4JEnricher> DefaultComparer { get; } = new EnricherQualityComparer();
 
-        protected J4JEnricher(
-            string propName
-            )
+        protected J4JEnricher( string propName )
         {
             PropertyName = propName;
         }
@@ -57,7 +55,7 @@ namespace J4JSoftware.Logging
         public string PropertyName { get; }
         public virtual string EnricherID => PropertyName;
         public virtual bool EnrichContext { get; }
-        
+
         public abstract object GetValue();
 
         public void Enrich( LogEvent logEvent, ILogEventPropertyFactory propertyFactory )

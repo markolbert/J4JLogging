@@ -29,9 +29,10 @@ namespace J4JSoftware.Logging
         public string? FromNumber { get; set; }
         public List<string>? Recipients { get; set; }
 
-        public bool IsValid => !string.IsNullOrEmpty( AccountSID )
-                               && !string.IsNullOrEmpty( AccountToken )
-                               && !string.IsNullOrEmpty( FromNumber )
-                               && ( Recipients?.Any() ?? false );
+        public bool IsValid =>
+            !string.IsNullOrEmpty( AccountSID )
+            && !string.IsNullOrEmpty( AccountToken )
+            && !string.IsNullOrEmpty( FromNumber )
+            && ( Recipients?.Any() ?? false );
     }
 }

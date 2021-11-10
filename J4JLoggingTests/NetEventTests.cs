@@ -47,15 +47,16 @@ namespace J4JLoggingTests
             _curLevel = level;
 
             var abbr = level switch
-            {
-                LogEventLevel.Debug => "DBG",
-                LogEventLevel.Error => "ERR",
-                LogEventLevel.Fatal => "FTL",
-                LogEventLevel.Information => "INF",
-                LogEventLevel.Verbose => "VRB",
-                LogEventLevel.Warning => "WRN",
-                _ => throw new InvalidEnumArgumentException( $"Unsupported {nameof(LogEventLevel)} '{level}'" )
-            };
+                       {
+                           LogEventLevel.Debug       => "DBG",
+                           LogEventLevel.Error       => "ERR",
+                           LogEventLevel.Fatal       => "FTL",
+                           LogEventLevel.Information => "INF",
+                           LogEventLevel.Verbose     => "VRB",
+                           LogEventLevel.Warning     => "WRN",
+                           _ => throw new
+                                    InvalidEnumArgumentException( $"Unsupported {nameof( LogEventLevel )} '{level}'" )
+                       };
 
             _curTemplate = $"[{abbr}] This is a(n) \"{level}\" event\r\n";
 

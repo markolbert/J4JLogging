@@ -38,10 +38,10 @@ namespace J4JSoftware.Logging
         private List<J4JEnricher> _enrichers;
         private LogEventLevel _minLevel;
 
-        public J4JLoggerConfiguration(Func<Type?, string, int, string, string>? filePathTrimmer = null  )
+        public J4JLoggerConfiguration( Func<Type?, string, int, string, string>? filePathTrimmer = null  )
         {
             SerilogConfiguration = new LoggerConfiguration()
-                .Enrich.FromLogContext();
+                                   .Enrich.FromLogContext();
 
             _enrichers = new List<J4JEnricher>() { _ccEnricher };
 
@@ -54,7 +54,7 @@ namespace J4JSoftware.Logging
         internal NetEventSink? NetEventSink { get; set; }
 
         public LoggerConfiguration SerilogConfiguration { get; }
-        
+
         public ReadOnlyCollection<J4JEnricher> Enrichers => _enrichers.AsReadOnly();
 
         public void AddSmsSink( SmsSink sink, LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
@@ -66,11 +66,10 @@ namespace J4JSoftware.Logging
                 _enrichers.Add( enricher );
 
             SerilogConfiguration.WriteTo
-                .Logger( lc =>
-                    lc.Filter
-                        .ByIncludingOnly( "SendToSms" )
-                        .WriteTo.Sink( sink, restrictedToMinimumLevel )
-                );
+                                .Logger( lc =>
+                                             lc.Filter
+                                               .ByIncludingOnly( "SendToSms" )
+                                               .WriteTo.Sink( sink, restrictedToMinimumLevel ) );
         }
 
         public Func<Type?, string, int, string, string> FilePathTrimmer
@@ -119,21 +118,21 @@ namespace J4JSoftware.Logging
             }
         }
 
-        public string GetOutputTemplate(bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate)
+        public string GetOutputTemplate( bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate )
         {
-            var sb = new StringBuilder(coreTemplate);
+            var sb = new StringBuilder( coreTemplate );
 
-            foreach (var enricher in _enrichers)
+            foreach ( var enricher in _enrichers )
             {
-                sb.Append(" {");
-                sb.Append(enricher.PropertyName);
-                sb.Append("}");
+                sb.Append( " {" );
+                sb.Append( enricher.PropertyName );
+                sb.Append( "}" );
             }
 
-            if (requiresNewline)
-                sb.Append("{NewLine}");
+            if ( requiresNewline )
+                sb.Append( "{NewLine}" );
 
-            sb.Append("{Exception}");
+            sb.Append( "{Exception}" );
 
             return sb.ToString();
         }
@@ -148,7 +147,7 @@ namespace J4JSoftware.Logging
                 SerilogConfiguration.Enrich.With( enricher );
             }
 
-            return new(this);
+            return new( this );
         }
     }
 }
