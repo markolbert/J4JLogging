@@ -58,7 +58,7 @@ namespace J4JLoggingTests
                                     InvalidEnumArgumentException( $"Unsupported {nameof( LogEventLevel )} '{level}'" )
                        };
 
-            _curTemplate = $"[{abbr}] This is a(n) \"{level}\" event\r\n";
+            _curTemplate = $"[{abbr}] This is a(n) \"{level}\" event";
 
             Logger.Write( level, "This is a(n) {0} event", level );
         }
