@@ -1,5 +1,9 @@
 # Change Log
 
+## Changes to v4.1
+
+Updated to Net 6.
+
 ## Changes to v4.0
 
 **Major breaking changes**

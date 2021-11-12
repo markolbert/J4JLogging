@@ -1,6 +1,6 @@
 # J4JLogging
 
-A Net 5.0 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by reporting source code information.
+A Net 6.0 library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by reporting source code information.
 
 Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
 
@@ -8,7 +8,7 @@ Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
 
 ### TL;DR
 
-There are many breaking changes from the last release. **Please re-review the documentation**.
+Updated to Net 6.
 
 ```csharp
 using System;
