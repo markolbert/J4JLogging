@@ -67,7 +67,7 @@ namespace J4JLoggingTests
         {
             base.OnNetEvent( e );
 
-            e.Level.Should().Be( _curLevel );
+            e.LogEvent.Level.Should().Be( _curLevel );
             e.LogMessage.Should().Be( _curTemplate );
         }
     }
