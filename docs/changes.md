@@ -3,10 +3,12 @@
 ## Changes to v4.1
 
 Updated to Net 6.
+Updated referenced packages
+Changed how `NetEventArg` objects are created
 
 ## Changes to v4.0
 
-**Major breaking changes**
+### Major breaking changes
 
 Earlier versions of `J4JLogger` tried to "simplify" defining and configuring channels/sinks. However, as I continued to use the library -- and learned more about `Serilog` -- I came to realize a better approach was to stick as closely as possible to the "Serilog way" of doing things. Because having to remember two similar-but-different configuration approaches quickly gets confusing.
 
