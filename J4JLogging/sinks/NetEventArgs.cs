@@ -17,19 +17,20 @@
 
 #endregion
 
+using System;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging
 {
     public class NetEventArgs
     {
-        public NetEventArgs( LogEventLevel level, string mesg )
+        public NetEventArgs( LogEvent logEvent, string mesg )
         {
-            Level = level;
+            LogEvent = logEvent;
             LogMessage = mesg;
         }
 
-        public LogEventLevel Level { get; }
+        public LogEvent LogEvent { get; }
         public string LogMessage { get; }
     }
 }

@@ -32,8 +32,6 @@ namespace J4JSoftware.Logging
         public const string DefaultTemplate =
             "[{Level:u3}] {Message:lj}";
 
-        //public EventHandler<NetEventArgs>? LogEvent;
-
         private readonly StringBuilder _sb = new();
         private readonly StringWriter _stringWriter;
         private readonly ITextFormatter _textFormatter;
@@ -52,8 +50,7 @@ namespace J4JSoftware.Logging
             _textFormatter.Format( logEvent, _stringWriter );
             _stringWriter.Flush();
 
-            //LogEvent?.Invoke( this, new NetEventArgs( logEvent.Level, _sb.ToString() ) );
-            RaiseEvent?.Invoke( new NetEventArgs( logEvent.Level, _sb.ToString() ) );
+            RaiseEvent?.Invoke( new NetEventArgs( logEvent, _sb.ToString() ) );
         }
     }
 }
