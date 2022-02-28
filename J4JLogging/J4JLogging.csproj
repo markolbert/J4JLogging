@@ -16,9 +16,9 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>4.1.1.0</Version>
-		<AssemblyVersion>4.1.1.0</AssemblyVersion>
-		<PackageReleaseNotes>changed how NetEventArg is created</PackageReleaseNotes>
+		<Version>4.1.2.0</Version>
+		<AssemblyVersion>4.1.2.0</AssemblyVersion>
+		<PackageReleaseNotes>updated package references</PackageReleaseNotes>
 		<PackageReadmeFile>nuget.md</PackageReadmeFile>
 	</PropertyGroup>
 
