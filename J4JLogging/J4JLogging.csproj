@@ -17,8 +17,8 @@
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
 		<Version>4.1.0.0</Version>
-		<AssemblyVersion>4.1.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to Net 6, changed how NetEventArg is created</PackageReleaseNotes>
+		<AssemblyVersion>4.1.1.0</AssemblyVersion>
+		<PackageReleaseNotes>changed how NetEventArg is created</PackageReleaseNotes>
 		<PackageReadmeFile>nuget.md</PackageReadmeFile>
 	</PropertyGroup>
 
