@@ -17,7 +17,6 @@
 
 #endregion
 
-using System;
 using Serilog.Events;
 
 namespace J4JSoftware.Logging

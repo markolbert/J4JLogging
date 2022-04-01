@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Serilog.Core;
 using Serilog.Events;
 

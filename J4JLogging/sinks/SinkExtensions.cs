@@ -20,7 +20,6 @@
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
-using Serilog.Formatting;
 
 namespace J4JSoftware.Logging
 {

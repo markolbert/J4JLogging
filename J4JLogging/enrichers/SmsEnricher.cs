@@ -17,11 +17,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-
 namespace J4JSoftware.Logging
 {
     public class SmsEnricher : J4JEnricher
