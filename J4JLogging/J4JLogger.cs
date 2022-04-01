@@ -130,7 +130,7 @@ public class J4JLogger : J4JBaseLogger
 
     private void DisposeFromLogContext()
     {
-        foreach ( var disposable in _pushedProperties )
+        foreach ( var disposable in _pushedProperties.ToArray() )
         {
             disposable.Dispose();
         }
