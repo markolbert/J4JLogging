@@ -39,11 +39,15 @@ namespace J4JSoftware.Logging
             return sb.ToString();
         }
 
-        public static string RemoveProjectPath( string rawPath,
-                                                string projPath,
-                                                StringComparison textComparison =
-                                                    StringComparison.OrdinalIgnoreCase ) =>
-            rawPath.StartsWith( projPath, textComparison ) ? rawPath.Replace( projPath, string.Empty ) : rawPath;
+        public static string RemoveProjectPath(
+            string rawPath,
+            string projPath,
+            StringComparison textComparison =
+                StringComparison.OrdinalIgnoreCase
+        ) =>
+            !string.IsNullOrEmpty( projPath ) && rawPath.StartsWith( projPath, textComparison )
+                ? rawPath.Replace( projPath, string.Empty )
+                : rawPath;
 
         public CallingContextEnricher()
             : base( "CallingContext" )
