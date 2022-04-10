@@ -43,17 +43,26 @@ namespace J4JSoftware.Logging
 
         private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
         {
-            var dirInfo = new DirectoryInfo( Path.GetDirectoryName( filePath )! );
-
-            while ( dirInfo.Parent != null )
+            // DirectoryInfo will throw an exception when this method is called on a machine
+            // other than the development machine, so just return an empty string in that case
+            try
             {
-                if ( dirInfo.EnumerateFiles( "*.csproj" ).Any() )
-                    break;
+                var dirInfo = new DirectoryInfo(System.IO.Path.GetDirectoryName(filePath)!);
 
-                dirInfo = dirInfo.Parent;
+                while (dirInfo.Parent != null)
+                {
+                    if (dirInfo.EnumerateFiles("*.csproj").Any())
+                        break;
+
+                    dirInfo = dirInfo.Parent;
+                }
+
+                return dirInfo.FullName;
             }
-
-            return dirInfo.FullName;
+            catch (Exception)
+            {
+                return string.Empty;
+            }
         }
     }
 }
