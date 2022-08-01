@@ -16,9 +16,9 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>Diego nuspec.png</PackageIcon>
 		<RepositoryType>git</RepositoryType>
-		<Version>4.1.0.0</Version>
-		<AssemblyVersion>4.1.0.0</AssemblyVersion>
-		<PackageReleaseNotes>updated to Net 6</PackageReleaseNotes>
+		<Version>4.1.1.0</Version>
+		<AssemblyVersion>4.1.1.0</AssemblyVersion>
+		<PackageReleaseNotes>updated packages</PackageReleaseNotes>
 		<PackageReadmeFile>nuget-twilio.md</PackageReadmeFile>
 	</PropertyGroup>
 
@@ -39,7 +39,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Twilio" Version="5.75.0" />
+	  <PackageReference Include="Twilio" Version="5.78.0" />
 	</ItemGroup>
 
 </Project>
