@@ -22,15 +22,14 @@ using Serilog.Events;
 
 #pragma warning disable 8618
 
-namespace J4JSoftware.Logging
-{
-    public class LastEventSink : ILogEventSink
-    {
-        public string? LastLogMessage { get; private set; }
+namespace J4JSoftware.Logging;
 
-        public void Emit( LogEvent logEvent )
-        {
-            LastLogMessage = logEvent.RenderMessage();
-        }
+public class LastEventSink : ILogEventSink
+{
+    public string? LastLogMessage { get; private set; }
+
+    public void Emit( LogEvent logEvent )
+    {
+        LastLogMessage = logEvent.RenderMessage();
     }
 }

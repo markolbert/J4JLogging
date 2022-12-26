@@ -22,47 +22,46 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public static class SourceCodeFilePathModifiers
 {
-    public static class SourceCodeFilePathModifiers
+    // copy these next two methods to the source code file where you configure J4JLogger
+    // and then reference FilePathTrimmer as the context converter you
+    // want to use
+    private static string FilePathTrimmer( Type? loggedType,
+        string callerName,
+        int lineNum,
+        string srcFilePath )
     {
-        // copy these next two methods to the source code file where you configure J4JLogger
-        // and then reference FilePathTrimmer as the context converter you
-        // want to use
-        private static string FilePathTrimmer( Type? loggedType,
-                                               string callerName,
-                                               int lineNum,
-                                               string srcFilePath )
-        {
-            return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
-                                                                 callerName,
-                                                                 lineNum,
-                                                                 CallingContextEnricher.RemoveProjectPath( srcFilePath,
+        return CallingContextEnricher.DefaultFilePathTrimmer( loggedType,
+                                                              callerName,
+                                                              lineNum,
+                                                              CallingContextEnricher.RemoveProjectPath( srcFilePath,
                                                                   GetProjectPath() ) );
-        }
+    }
 
-        private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
+    private static string GetProjectPath( [ CallerFilePath ] string filePath = "" )
+    {
+        // DirectoryInfo will throw an exception when this method is called on a machine
+        // other than the development machine, so just return an empty string in that case
+        try
         {
-            // DirectoryInfo will throw an exception when this method is called on a machine
-            // other than the development machine, so just return an empty string in that case
-            try
+            var dirInfo = new DirectoryInfo(System.IO.Path.GetDirectoryName(filePath)!);
+
+            while (dirInfo.Parent != null)
             {
-                var dirInfo = new DirectoryInfo(System.IO.Path.GetDirectoryName(filePath)!);
+                if (dirInfo.EnumerateFiles("*.csproj").Any())
+                    break;
 
-                while (dirInfo.Parent != null)
-                {
-                    if (dirInfo.EnumerateFiles("*.csproj").Any())
-                        break;
-
-                    dirInfo = dirInfo.Parent;
-                }
-
-                return dirInfo.FullName;
+                dirInfo = dirInfo.Parent;
             }
-            catch (Exception)
-            {
-                return string.Empty;
-            }
+
+            return dirInfo.FullName;
+        }
+        catch (Exception)
+        {
+            return string.Empty;
         }
     }
 }

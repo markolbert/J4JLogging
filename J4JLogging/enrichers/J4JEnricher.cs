@@ -22,47 +22,46 @@ using System.Collections.Generic;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public abstract class J4JEnricher : ILogEventEnricher
 {
-    public abstract class J4JEnricher : ILogEventEnricher
+    private sealed class EnricherQualityComparer : IEqualityComparer<J4JEnricher>
     {
-        private sealed class EnricherQualityComparer : IEqualityComparer<J4JEnricher>
+        public bool Equals( J4JEnricher? x, J4JEnricher? y )
         {
-            public bool Equals( J4JEnricher? x, J4JEnricher? y )
-            {
-                if( ReferenceEquals( x, y ) ) return true;
-                if( ReferenceEquals( x, null ) ) return false;
-                if( ReferenceEquals( y, null ) ) return false;
-                if( x.GetType() != y.GetType() ) return false;
+            if( ReferenceEquals( x, y ) ) return true;
+            if( ReferenceEquals( x, null ) ) return false;
+            if( ReferenceEquals( y, null ) ) return false;
+            if( x.GetType() != y.GetType() ) return false;
 
-                return x.EnricherID.Equals( y.EnricherID, StringComparison.OrdinalIgnoreCase );
-            }
-
-            public int GetHashCode( J4JEnricher obj )
-            {
-                return obj.EnricherID.GetHashCode();
-            }
+            return x.EnricherID.Equals( y.EnricherID, StringComparison.OrdinalIgnoreCase );
         }
 
-        public static IEqualityComparer<J4JEnricher> DefaultComparer { get; } = new EnricherQualityComparer();
-
-        protected J4JEnricher( string propName )
+        public int GetHashCode( J4JEnricher obj )
         {
-            PropertyName = propName;
+            return obj.EnricherID.GetHashCode();
         }
+    }
 
-        public string PropertyName { get; }
-        public virtual string EnricherID => PropertyName;
-        public virtual bool EnrichContext { get; }
+    public static IEqualityComparer<J4JEnricher> DefaultComparer { get; } = new EnricherQualityComparer();
 
-        public abstract object GetValue();
+    protected J4JEnricher( string propName )
+    {
+        PropertyName = propName;
+    }
 
-        public void Enrich( LogEvent logEvent, ILogEventPropertyFactory propertyFactory )
-        {
-            if( !EnrichContext )
-                return;
+    public string PropertyName { get; }
+    public virtual string EnricherID => PropertyName;
+    public virtual bool EnrichContext { get; }
 
-            logEvent.AddPropertyIfAbsent( propertyFactory.CreateProperty( PropertyName, GetValue() ) );
-        }
+    public abstract object GetValue();
+
+    public void Enrich( LogEvent logEvent, ILogEventPropertyFactory propertyFactory )
+    {
+        if( !EnrichContext )
+            return;
+
+        logEvent.AddPropertyIfAbsent( propertyFactory.CreateProperty( PropertyName, GetValue() ) );
     }
 }

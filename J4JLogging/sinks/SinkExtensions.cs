@@ -21,41 +21,40 @@ using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public static class SinkExtensions
 {
-    public static class SinkExtensions
+    public static LoggerConfiguration LastEvent( this LoggerSinkConfiguration loggerConfig,
+        out LastEventSink sink,
+        LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
     {
-        public static LoggerConfiguration LastEvent( this LoggerSinkConfiguration loggerConfig,
-                                                     out LastEventSink sink,
-                                                     LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
-        {
-            sink = new LastEventSink();
+        sink = new LastEventSink();
 
-            return loggerConfig.Sink( sink, restrictedToMinimumLevel );
-        }
+        return loggerConfig.Sink( sink, restrictedToMinimumLevel );
+    }
 
-        //public static LoggerConfiguration NetEvent(
-        //    this LoggerSinkConfiguration loggerConfig,
-        //    out NetEventSink sink,
-        //    string outputTemplate = NetEventSink.DefaultTemplate,
-        //    LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
-        //    )
-        //{
-        //    sink = new NetEventSink( outputTemplate );
+    //public static LoggerConfiguration NetEvent(
+    //    this LoggerSinkConfiguration loggerConfig,
+    //    out NetEventSink sink,
+    //    string outputTemplate = NetEventSink.DefaultTemplate,
+    //    LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose
+    //    )
+    //{
+    //    sink = new NetEventSink( outputTemplate );
 
-        //    return loggerConfig.Sink( sink, restrictedToMinimumLevel );
-        //}
+    //    return loggerConfig.Sink( sink, restrictedToMinimumLevel );
+    //}
 
-        public static LoggerConfiguration NetEvent( this J4JLoggerConfiguration loggerConfig,
-                                                    string outputTemplate = NetEventSink.DefaultTemplate,
-                                                    LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
-        {
-            var sink = new NetEventSink( outputTemplate );
-            loggerConfig.NetEventSink = sink;
+    public static LoggerConfiguration NetEvent( this J4JLoggerConfiguration loggerConfig,
+        string outputTemplate = NetEventSink.DefaultTemplate,
+        LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
+    {
+        var sink = new NetEventSink( outputTemplate );
+        loggerConfig.NetEventSink = sink;
 
-            return loggerConfig.SerilogConfiguration
-                               .WriteTo
-                               .Sink( sink, restrictedToMinimumLevel );
-        }
+        return loggerConfig.SerilogConfiguration
+                           .WriteTo
+                           .Sink( sink, restrictedToMinimumLevel );
     }
 }

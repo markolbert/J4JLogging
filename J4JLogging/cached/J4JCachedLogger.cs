@@ -23,43 +23,42 @@ using Serilog.Events;
 
 #pragma warning disable 8604
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public class J4JCachedLogger : J4JBaseLogger
 {
-    public class J4JCachedLogger : J4JBaseLogger
+    public J4JCachedLogger()
+        : base( null )
     {
-        public J4JCachedLogger()
-            : base( null )
-        {
-        }
+    }
 
-        protected override void OnLoggedTypeChanged()
-        {
-            // no op
-        }
+    protected override void OnLoggedTypeChanged()
+    {
+        // no op
+    }
 
-        // should never be called
-        public override bool OutputCache( J4JCachedLogger cachedLogger ) => false;
+    // should never be called
+    public override bool OutputCache( J4JCachedLogger cachedLogger ) => false;
 
-        public List<CachedEntry> Entries { get; } = new();
+    public List<CachedEntry> Entries { get; } = new();
 
-        public override void Write( LogEventLevel level,
-                                    string template,
-                                    object[] propertyValues,
-                                    [ CallerMemberName ] string memberName = "",
-                                    [ CallerFilePath ] string srcPath = "",
-                                    [ CallerLineNumber ] int srcLine = 0 )
-        {
-            Entries.Add( new CachedEntry( LoggedType,
-                                         level,
-                                         template,
-                                         memberName,
-                                         srcPath,
-                                         srcLine,
-                                         SmsHandling,
-                                         propertyValues ) );
+    public override void Write( LogEventLevel level,
+        string template,
+        object[] propertyValues,
+        [ CallerMemberName ] string memberName = "",
+        [ CallerFilePath ] string srcPath = "",
+        [ CallerLineNumber ] int srcLine = 0 )
+    {
+        Entries.Add( new CachedEntry( LoggedType,
+                                      level,
+                                      template,
+                                      memberName,
+                                      srcPath,
+                                      srcLine,
+                                      SmsHandling,
+                                      propertyValues ) );
 
-            if( SmsHandling == SmsHandling.SendNextMessage )
-                SmsHandling = SmsHandling.DoNotSend;
-        }
+        if( SmsHandling == SmsHandling.SendNextMessage )
+            SmsHandling = SmsHandling.DoNotSend;
     }
 }

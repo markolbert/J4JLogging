@@ -19,17 +19,16 @@
 
 using Serilog.Events;
 
-namespace J4JSoftware.Logging
-{
-    public class NetEventArgs
-    {
-        public NetEventArgs( LogEvent logEvent, string mesg )
-        {
-            LogEvent = logEvent;
-            LogMessage = mesg;
-        }
+namespace J4JSoftware.Logging;
 
-        public LogEvent LogEvent { get; }
-        public string LogMessage { get; }
+public class NetEventArgs
+{
+    public NetEventArgs( LogEvent logEvent, string mesg )
+    {
+        LogEvent = logEvent;
+        LogMessage = mesg;
     }
+
+    public LogEvent LogEvent { get; }
+    public string LogMessage { get; }
 }

@@ -24,32 +24,31 @@ using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Display;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public abstract class SmsSink : ILogEventSink
 {
-    public abstract class SmsSink : ILogEventSink
+    private readonly StringBuilder _sb;
+    private readonly StringWriter _stringWriter;
+
+    protected SmsSink( string template )
     {
-        private readonly StringBuilder _sb;
-        private readonly StringWriter _stringWriter;
+        TextFormatter = new MessageTemplateTextFormatter( template );
 
-        protected SmsSink( string template )
-        {
-            TextFormatter = new MessageTemplateTextFormatter( template );
-
-            _sb = new StringBuilder();
-            _stringWriter = new StringWriter( _sb );
-        }
-
-        public ITextFormatter TextFormatter { get; }
-
-        public void Emit( LogEvent logEvent )
-        {
-            _sb.Clear();
-            TextFormatter.Format( logEvent, _stringWriter );
-            _stringWriter.Flush();
-
-            SendMessage( _sb.ToString() );
-        }
-
-        protected abstract void SendMessage( string logMessage );
+        _sb = new StringBuilder();
+        _stringWriter = new StringWriter( _sb );
     }
+
+    public ITextFormatter TextFormatter { get; }
+
+    public void Emit( LogEvent logEvent )
+    {
+        _sb.Clear();
+        TextFormatter.Format( logEvent, _stringWriter );
+        _stringWriter.Flush();
+
+        SendMessage( _sb.ToString() );
+    }
+
+    protected abstract void SendMessage( string logMessage );
 }

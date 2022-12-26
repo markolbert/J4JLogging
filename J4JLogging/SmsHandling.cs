@@ -17,12 +17,11 @@
 
 #endregion
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public enum SmsHandling
 {
-    public enum SmsHandling
-    {
-        DoNotSend,
-        SendNextMessage,
-        SendUntilReset
-    }
+    DoNotSend,
+    SendNextMessage,
+    SendUntilReset
 }

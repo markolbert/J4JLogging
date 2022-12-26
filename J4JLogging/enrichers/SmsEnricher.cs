@@ -17,18 +17,17 @@
 
 #endregion
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public class SmsEnricher : J4JEnricher
 {
-    public class SmsEnricher : J4JEnricher
+    public SmsEnricher()
+        : base( "SendToSms" )
     {
-        public SmsEnricher()
-            : base( "SendToSms" )
-        {
-        }
-
-        public override bool EnrichContext => SendNextToSms;
-        public override object GetValue() => true;
-
-        public bool SendNextToSms { get; set; }
     }
+
+    public override bool EnrichContext => SendNextToSms;
+    public override object GetValue() => true;
+
+    public bool SendNextToSms { get; set; }
 }

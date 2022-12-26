@@ -25,32 +25,31 @@ using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Formatting.Display;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public class NetEventSink : ILogEventSink
 {
-    public class NetEventSink : ILogEventSink
+    public const string DefaultTemplate =
+        "[{Level:u3}] {Message:lj}";
+
+    private readonly StringBuilder _sb = new();
+    private readonly StringWriter _stringWriter;
+    private readonly ITextFormatter _textFormatter;
+
+    public NetEventSink( string outputTemplate = DefaultTemplate )
     {
-        public const string DefaultTemplate =
-            "[{Level:u3}] {Message:lj}";
+        _stringWriter = new StringWriter( _sb );
+        _textFormatter = new MessageTemplateTextFormatter( outputTemplate );
+    }
 
-        private readonly StringBuilder _sb = new();
-        private readonly StringWriter _stringWriter;
-        private readonly ITextFormatter _textFormatter;
+    internal Action<NetEventArgs>? RaiseEvent { get; set; }
 
-        public NetEventSink( string outputTemplate = DefaultTemplate )
-        {
-            _stringWriter = new StringWriter( _sb );
-            _textFormatter = new MessageTemplateTextFormatter( outputTemplate );
-        }
+    public void Emit( LogEvent logEvent )
+    {
+        _sb.Clear();
+        _textFormatter.Format( logEvent, _stringWriter );
+        _stringWriter.Flush();
 
-        internal Action<NetEventArgs>? RaiseEvent { get; set; }
-
-        public void Emit( LogEvent logEvent )
-        {
-            _sb.Clear();
-            _textFormatter.Format( logEvent, _stringWriter );
-            _stringWriter.Flush();
-
-            RaiseEvent?.Invoke( new NetEventArgs( logEvent, _sb.ToString() ) );
-        }
+        RaiseEvent?.Invoke( new NetEventArgs( logEvent, _sb.ToString() ) );
     }
 }

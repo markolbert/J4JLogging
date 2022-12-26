@@ -26,127 +26,126 @@ using System.Text;
 using Serilog;
 using Serilog.Events;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public class J4JLoggerConfiguration
 {
-    public class J4JLoggerConfiguration
+    public const string DefaultCoreTemplate =
+        "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+
+    private readonly CallingContextEnricher _ccEnricher = new();
+    private List<J4JEnricher> _enrichers;
+    private LogEventLevel _minLevel;
+
+    public J4JLoggerConfiguration( Func<Type?, string, int, string, string>? filePathTrimmer = null  )
     {
-        public const string DefaultCoreTemplate =
-            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}";
+        SerilogConfiguration = new LoggerConfiguration()
+                              .Enrich.FromLogContext();
 
-        private readonly CallingContextEnricher _ccEnricher = new();
-        private List<J4JEnricher> _enrichers;
-        private LogEventLevel _minLevel;
+        _enrichers = new List<J4JEnricher>() { _ccEnricher };
 
-        public J4JLoggerConfiguration( Func<Type?, string, int, string, string>? filePathTrimmer = null  )
+        if( filePathTrimmer != null )
+            FilePathTrimmer = filePathTrimmer;
+
+        MinimumLevel = LogEventLevel.Verbose;
+    }
+
+    internal NetEventSink? NetEventSink { get; set; }
+
+    public LoggerConfiguration SerilogConfiguration { get; }
+
+    public ReadOnlyCollection<J4JEnricher> Enrichers => _enrichers.AsReadOnly();
+
+    public void AddSmsSink( SmsSink sink, LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
+    {
+        // we only need to add the SmsEnricher once to support whatever SMS sinks may be specified
+        var enricher = new SmsEnricher();
+
+        if( !_enrichers.Any( x => x.EnricherID.Equals( enricher.EnricherID, StringComparison.OrdinalIgnoreCase ) ) )
+            _enrichers.Add( enricher );
+
+        SerilogConfiguration.WriteTo
+                            .Logger( lc =>
+                                         lc.Filter
+                                           .ByIncludingOnly( "SendToSms" )
+                                           .WriteTo.Sink( sink, restrictedToMinimumLevel ) );
+    }
+
+    public Func<Type?, string, int, string, string> FilePathTrimmer
+    {
+        get => _ccEnricher.FilePathTrimmer;
+        private set => _ccEnricher.FilePathTrimmer = value;
+    }
+
+    public LogEventLevel MinimumLevel
+    {
+        get => _minLevel;
+
+        set
         {
-            SerilogConfiguration = new LoggerConfiguration()
-                                   .Enrich.FromLogContext();
+            _minLevel = value;
 
-            _enrichers = new List<J4JEnricher>() { _ccEnricher };
-
-            if( filePathTrimmer != null )
-                FilePathTrimmer = filePathTrimmer;
-
-            MinimumLevel = LogEventLevel.Verbose;
-        }
-
-        internal NetEventSink? NetEventSink { get; set; }
-
-        public LoggerConfiguration SerilogConfiguration { get; }
-
-        public ReadOnlyCollection<J4JEnricher> Enrichers => _enrichers.AsReadOnly();
-
-        public void AddSmsSink( SmsSink sink, LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose )
-        {
-            // we only need to add the SmsEnricher once to support whatever SMS sinks may be specified
-            var enricher = new SmsEnricher();
-
-            if( !_enrichers.Any( x => x.EnricherID.Equals( enricher.EnricherID, StringComparison.OrdinalIgnoreCase ) ) )
-                _enrichers.Add( enricher );
-
-            SerilogConfiguration.WriteTo
-                                .Logger( lc =>
-                                             lc.Filter
-                                               .ByIncludingOnly( "SendToSms" )
-                                               .WriteTo.Sink( sink, restrictedToMinimumLevel ) );
-        }
-
-        public Func<Type?, string, int, string, string> FilePathTrimmer
-        {
-            get => _ccEnricher.FilePathTrimmer;
-            private set => _ccEnricher.FilePathTrimmer = value;
-        }
-
-        public LogEventLevel MinimumLevel
-        {
-            get => _minLevel;
-
-            set
+            switch( _minLevel )
             {
-                _minLevel = value;
+                case LogEventLevel.Debug:
+                    SerilogConfiguration.MinimumLevel.Debug();
+                    break;
 
-                switch( _minLevel )
-                {
-                    case LogEventLevel.Debug:
-                        SerilogConfiguration.MinimumLevel.Debug();
-                        break;
+                case LogEventLevel.Error:
+                    SerilogConfiguration.MinimumLevel.Error();
+                    break;
 
-                    case LogEventLevel.Error:
-                        SerilogConfiguration.MinimumLevel.Error();
-                        break;
+                case LogEventLevel.Fatal:
+                    SerilogConfiguration.MinimumLevel.Fatal();
+                    break;
 
-                    case LogEventLevel.Fatal:
-                        SerilogConfiguration.MinimumLevel.Fatal();
-                        break;
+                case LogEventLevel.Information:
+                    SerilogConfiguration.MinimumLevel.Information();
+                    break;
 
-                    case LogEventLevel.Information:
-                        SerilogConfiguration.MinimumLevel.Information();
-                        break;
+                case LogEventLevel.Verbose:
+                    SerilogConfiguration.MinimumLevel.Verbose();
+                    break;
 
-                    case LogEventLevel.Verbose:
-                        SerilogConfiguration.MinimumLevel.Verbose();
-                        break;
+                case LogEventLevel.Warning:
+                    SerilogConfiguration.MinimumLevel.Warning();
+                    break;
 
-                    case LogEventLevel.Warning:
-                        SerilogConfiguration.MinimumLevel.Warning();
-                        break;
-
-                    default:
-                        throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{_minLevel}'" );
-                }
+                default:
+                    throw new InvalidEnumArgumentException( $"Unsupported LogEventLevel '{_minLevel}'" );
             }
         }
+    }
 
-        public string GetOutputTemplate( bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate )
+    public string GetOutputTemplate( bool requiresNewline = false, string coreTemplate = DefaultCoreTemplate )
+    {
+        var sb = new StringBuilder( coreTemplate );
+
+        foreach ( var enricher in _enrichers )
         {
-            var sb = new StringBuilder( coreTemplate );
-
-            foreach ( var enricher in _enrichers )
-            {
-                sb.Append( " {" );
-                sb.Append( enricher.PropertyName );
-                sb.Append( "}" );
-            }
-
-            if ( requiresNewline )
-                sb.Append( "{NewLine}" );
-
-            sb.Append( "{Exception}" );
-
-            return sb.ToString();
+            sb.Append( " {" );
+            sb.Append( enricher.PropertyName );
+            sb.Append( "}" );
         }
 
-        public J4JLogger CreateLogger()
+        if ( requiresNewline )
+            sb.Append( "{NewLine}" );
+
+        sb.Append( "{Exception}" );
+
+        return sb.ToString();
+    }
+
+    public J4JLogger CreateLogger()
+    {
+        // eliminate any duplicate enrichers
+        _enrichers = _enrichers.Distinct( J4JEnricher.DefaultComparer ).ToList();
+
+        foreach( var enricher in _enrichers )
         {
-            // eliminate any duplicate enrichers
-            _enrichers = _enrichers.Distinct( J4JEnricher.DefaultComparer ).ToList();
-
-            foreach( var enricher in _enrichers )
-            {
-                SerilogConfiguration.Enrich.With( enricher );
-            }
-
-            return new( this );
+            SerilogConfiguration.Enrich.With( enricher );
         }
+
+        return new( this );
     }
 }

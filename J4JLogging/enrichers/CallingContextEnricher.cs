@@ -20,53 +20,52 @@
 using System;
 using System.Text;
 
-namespace J4JSoftware.Logging
+namespace J4JSoftware.Logging;
+
+public class CallingContextEnricher : J4JEnricher
 {
-    public class CallingContextEnricher : J4JEnricher
+    public static string DefaultFilePathTrimmer( Type? loggedType,
+        string callerName,
+        int lineNum,
+        string srcFilePath )
     {
-        public static string DefaultFilePathTrimmer( Type? loggedType,
-                                                     string callerName,
-                                                     int lineNum,
-                                                     string srcFilePath )
-        {
-            var sb = new StringBuilder();
+        var sb = new StringBuilder();
 
-            if( loggedType != null )
-                sb.Append( loggedType.FullName );
+        if( loggedType != null )
+            sb.Append( loggedType.FullName );
 
-            sb.Append( $"::{callerName} ({srcFilePath}:{lineNum})" );
+        sb.Append( $"::{callerName} ({srcFilePath}:{lineNum})" );
 
-            return sb.ToString();
-        }
-
-        public static string RemoveProjectPath(
-            string rawPath,
-            string projPath,
-            StringComparison textComparison =
-                StringComparison.OrdinalIgnoreCase
-        ) =>
-            !string.IsNullOrEmpty( projPath ) && rawPath.StartsWith( projPath, textComparison )
-                ? rawPath.Replace( projPath, string.Empty )
-                : rawPath;
-
-        public CallingContextEnricher()
-            : base( "CallingContext" )
-        {
-        }
-
-        public Func<Type?, string, int, string, string> FilePathTrimmer { get; set; } = DefaultFilePathTrimmer;
-
-        public override bool EnrichContext =>
-            !string.IsNullOrEmpty( CallingMemberName )
-            && !string.IsNullOrEmpty( SourceFilePath )
-            && LineNumber > 0;
-
-        public override object GetValue() =>
-            FilePathTrimmer( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
-
-        public string? CallingMemberName { get; set; }
-        public Type? LoggedType { get; set; }
-        public int LineNumber { get; set; }
-        public string? SourceFilePath { get; set; }
+        return sb.ToString();
     }
+
+    public static string RemoveProjectPath(
+        string rawPath,
+        string projPath,
+        StringComparison textComparison =
+            StringComparison.OrdinalIgnoreCase
+    ) =>
+        !string.IsNullOrEmpty( projPath ) && rawPath.StartsWith( projPath, textComparison )
+            ? rawPath.Replace( projPath, string.Empty )
+            : rawPath;
+
+    public CallingContextEnricher()
+        : base( "CallingContext" )
+    {
+    }
+
+    public Func<Type?, string, int, string, string> FilePathTrimmer { get; set; } = DefaultFilePathTrimmer;
+
+    public override bool EnrichContext =>
+        !string.IsNullOrEmpty( CallingMemberName )
+     && !string.IsNullOrEmpty( SourceFilePath )
+     && LineNumber > 0;
+
+    public override object GetValue() =>
+        FilePathTrimmer( LoggedType, CallingMemberName!, LineNumber, SourceFilePath! );
+
+    public string? CallingMemberName { get; set; }
+    public Type? LoggedType { get; set; }
+    public int LineNumber { get; set; }
+    public string? SourceFilePath { get; set; }
 }
