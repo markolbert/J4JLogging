@@ -4,8 +4,6 @@ This library provides a [Serilog](https://serilog.net/) sink which [J4JLogger](h
 
 See the [github documentation for J4JLogger](https://github.com/markolbert/J4JLogging) for more information.
 
-Updated to Net 6.
-
 Adding a `TwilioSink` to `J4JLoggerConfiguration` is straightforward. This example assumes the required configuration information is contained in a user-secrets cache since I don't want my Twilio credentials available publicly. It also does not contain any recipient phone numbers so it will not work as shown:
 
 ```csharp
