@@ -4,6 +4,8 @@ This library provides a [Serilog](https://serilog.net/) sink which [J4JLogger](h
 
 See the [github documentation for J4JLogger](https://github.com/markolbert/J4JLogging) for more information.
 
+Licensed under GNU GPL-v3.0. See the [license file](../../license.md) for details.
+
 See the [change log](changes.md) for a history of changes to the library.
 
 ## Adding a TwilioSink
