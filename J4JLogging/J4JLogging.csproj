@@ -27,7 +27,7 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="../docs/nuget.md" Pack="true" PackagePath="/" />
+		<None Include="../README.md" Pack="true" PackagePath="/nuget.md" />
 	</ItemGroup>
 
 	<ItemGroup>
