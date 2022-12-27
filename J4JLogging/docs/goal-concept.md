@@ -1,4 +1,4 @@
-### J4JLogging
+# J4JLogging
 
 I'm a huge fan of [Serilog](https://serilog.net/) and use it in all of my C# work. But I wanted to be able to annotate the log messages with source code information because that's useful during debugging and I wanted to be able to send SMS messages about some log events.
 

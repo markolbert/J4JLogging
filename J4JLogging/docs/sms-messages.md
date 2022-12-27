@@ -14,5 +14,4 @@ public SmsHandling SmsHandling { get; set; }
 
 If you set `SmsHandling` to `SmsHandling.SendNextMessage` the library automatically resets `SmsHandling` to `SmsHandling.DoNotSend` after the next log event.
 
-If you haven't added an `SmsSink` to the underlying `Serilog` logger nothing will be transmitted. Since there is no industry-standard interface for SMS libraries each texting service requires its own channel. The **J4JLoggingTwilio** library defines one for the [Twilio service](https://www.twilio.com/)
-.
+If you haven't added an `SmsSink` to the underlying `Serilog` logger nothing will be transmitted. Since there is no industry-standard interface for SMS libraries each texting service requires its own channel. The **J4JLoggingTwilio** library defines one for the [Twilio service](https://www.twilio.com/).

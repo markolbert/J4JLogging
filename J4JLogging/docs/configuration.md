@@ -35,4 +35,4 @@ loggerConfig.SerilogConfiguration
     .Configuration( configRoot );
 ```
 
-For more information on how to define the JSON configuration file refer to [this documentation](docs/iconfig-based.md).
+For more information on how to define the JSON configuration file refer to [this documentation](iconfig-based.md).
