@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28922.388
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLogging", "J4JLogging\J4JLogging.csproj", "{7D5D621A-4A53-4E2B-8620-F90C3CCBE54B}"
 EndProject
@@ -14,27 +14,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "J4JLoggingTwilio", "J4JLoggingTwilio\J4JLoggingTwilio.csproj", "{C21270BA-083B-4054-8143-8FA17520D918}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationBasedExample", "examples\ConfigurationBasedExample\ConfigurationBasedExample.csproj", "{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{264E7AE0-7372-405B-AA66-16F672C673F2}"
-	ProjectSection(SolutionItems) = preProject
-		docs\changes.md = docs\changes.md
-		docs\configuration.md = docs\configuration.md
-		docs\goal-concept.md = docs\goal-concept.md
-		docs\iconfig-based.md = docs\iconfig-based.md
-		LICENSE.md = LICENSE.md
-		docs\netevent.md = docs\netevent.md
-		docs\new-sms.md = docs\new-sms.md
-		README.md = README.md
-		docs\sms-messages.md = docs\sms-messages.md
-		docs\trimming-paths.md = docs\trimming-paths.md
-		docs\twilio.md = docs\twilio.md
-		docs\usage.md = docs\usage.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{F5E9EF65-CB5C-4598-B3A2-E47368759743}"
-	ProjectSection(SolutionItems) = preProject
-		docs\assets\config-based-example.png = docs\assets\config-based-example.png
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,7 +48,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{AEF43022-2DBC-4888-94D0-7C4A345CD147} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
 		{1180D07F-EC2A-406A-B8E2-A76D67F5B0F3} = {39A87B0A-7DBC-4F49-B619-6E9D8A6CE3F4}
-		{F5E9EF65-CB5C-4598-B3A2-E47368759743} = {264E7AE0-7372-405B-AA66-16F672C673F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {747AE797-C094-4597-9FA9-0DAD20A77C44}
