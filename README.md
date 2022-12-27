@@ -6,85 +6,14 @@ Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
 
 [![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
 
-### TL;DR
+See the [documentation](J4JLogging/docs/readme.md) for more details.
 
-```csharp
-using System;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using J4JSoftware.Logging;
-using Microsoft.Extensions.Configuration;
-using Serilog;
+## J4JLogging Twilio Extension
 
-namespace ConfigurationBasedExample
-{
-    // shows how to use J4JLogger with a configuration file
-    // see the ConfigurationBasedExample project for other files and details
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var loggerConfig = new J4JLoggerConfiguration();
+A Net library which simplifies adding Twilio SMS messages to the `J4JLogging` system.
 
-            var configRoot = new ConfigurationBuilder()
-                .AddJsonFile( Path.Combine( Environment.CurrentDirectory, "appConfig.json" ), true )
-                .Build();
+Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
 
-            loggerConfig.SerilogConfiguration
-                .ReadFrom
-                .Configuration( configRoot );
-                
-            var logger = loggerConfig.CreateLogger();
-            logger.SetLoggedType(typeof(Program));
+[![Nuget](https://img.shields.io/nuget/v/J4JSoftware.Logging?style=flat-square)](https://www.nuget.org/packages/J4JSoftware.Logging/)
 
-            logger.Information("This is an Informational logging message");
-            logger.Fatal("This is a Fatal logging message");
-        }
-    }
-}
-```
-
-The console output looks like this:
-![config based example output](docs/assets/config-based-example.png)
-
-The log file, log20210801.txt, looks like this:
-
-```log
-2021-09-15 10:14:59.173 -07:00 [INF] This is an Informational logging message ConfigurationBasedExample.Program::Main (C:\Programming\J4JLogging\examples\ConfigurationBasedExample\Program.cs:32) 
-2021-09-15 10:14:59.238 -07:00 [FTL] This is a Fatal logging message ConfigurationBasedExample.Program::Main (C:\Programming\J4JLogging\examples\ConfigurationBasedExample\Program.cs:33) 
-```
-
-Your log file's name will be different because, by default, the log file rolls daily and the last day logging took place will be embedded in the file name.
-
-There is a simple way of trimming the logged source code file paths to make them relative to the project directory path. See [trimming paths](docs/trimming-paths.md) for how to do this.
-
-You can read about how to use the `Serilog` `IConfiguration`-based configuration system [here](docs/iconfig-based.md).
-
-### Important Note
-
-**There is one important difference in how you call the logging methods from the Serilog standard.** 
-
-If you pass nothing but simple strings to the methods as property values you **must** specify the types of 
-the propertyValue arguments explicitly in the method call.
-
-An example:
-
-```csharp
-string someStringValue = "abcd";
-_logger.Debug<string>("The value of that argument is {0}", someStringValue);
-```
-
-This requirement comes about because the `memberName`, `srcPath` and `srcLine` arguments are automagically set for you by the compiler. The fact the `memberName` and `srcPath` arguments of the logging methods are strings makes them "collide" with string arguments you may specify. That makes explict type specifications for the arguments necessary when the compiler can't figure out what you mean...which is all too common :).
-
-### Table of Contents
-
-- [Change Log](J4JLogging/changes.md)
-- [Goal and Concept](docs/goal-concept.md)
-- [Configuration](docs/configuration.md)
-- [`IConfiguration`-based Configuration](docs/iconfig-based.md)
-- [NetEvent](docs/netevent.md)
-- [Usage](docs/usage.md)
-- [Managing SMS Messages](docs/sms-messages.md)
-- [Twilio](docs/twilio.md)
-- [Adding a new SMS Sink](docs/new-sms.md)
+See the [documentation](J4JLoggingTwilio/docs/readme.md) for more details.
