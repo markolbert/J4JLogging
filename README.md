@@ -1,5 +1,15 @@
 # J4JLogging
 
+-----
+**As of 2023 April 4 I am no longer developing this library.**
+
+The reason is simple: I learned more about how [Serilog](https://github.com/serilog/serilog) works and realized there was a
+much easier way of implementing the same functionality :).
+
+Take a look at [J4JLoggerEnhancements](https://github.com/markolbert/J4JLoggerEnhancements) for a new, slimmer approach for doing what **J4JLogging** does.
+
+-----
+
 A Net library which wraps [Serilog's ILogger](https://github.com/serilog/serilog) and extends it by reporting source code information.
 
 Licensed under GNU GPL-v3.0. See the [license file](license.md) for details.
