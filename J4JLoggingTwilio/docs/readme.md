@@ -1,5 +1,15 @@
 # Twilio Sink for J4JLogger
 
+-----
+**As of 2023 April 4 I am no longer developing this library.**
+
+The reason is simple: I learned more about how [Serilog](https://github.com/serilog/serilog) works and realized there was a
+much easier way of implementing the same functionality :).
+
+Take a look at [J4JLoggerEnhancements](https://github.com/markolbert/J4JLoggerEnhancements) for a new, slimmer approach for doing what **J4JLogging** does.
+
+-----
+
 This library provides a [Serilog](https://serilog.net/) sink which [J4JLogger](https://github.com/markolbert/J4JLogging) can use to send SMS messages via [Twilio](https://www.twilio.com/).
 
 See the [github documentation for J4JLogger](https://github.com/markolbert/J4JLogging) for more information.
